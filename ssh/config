@@ -9,5 +9,5 @@ host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu
         GssapiAuthentication yes
         GssapiDelegateCredentials yes
 
-host *.lcs, *.lcs.mit.edu, *.csail, *.csail.mit.edu
+host *.lcs *.lcs.mit.edu *.csail *.csail.mit.edu
 	user amdragon
