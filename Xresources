@@ -21,6 +21,18 @@ rxvt.cursorColor2:		#ffffff
 rxvt.scrollBar_right:		true
 rxvt.scrollBar_floating:	true
 
+! aterm inherits rxvt's resources
+aterm.transparent:		true
+aterm.shading:			50
+aterm.fade:			50
+aterm.borderWidth:		0
+aterm.boldFont:			fixed
+aterm.scrollBar:		false
+aterm.scrolTtyOutput:		true
+aterm.color4:			#8080ff
+aterm.color12:			#a0a0ff
+aterm.geometry:			80x30
+
 !!!
 !!! xdvi
 !!!
@@ -61,3 +73,17 @@ Emacs.verticalScrollBars:	off
 
 Xcursor.core:			false
 !Xcursor.theme:			Crystalcursors
+
+!!!
+!!! Zephyr-related
+!!!
+
+Console*autoUnmap:		1
+Console*foreground:		white
+Console*background:		black
+Console*geometry:		530x75-0+0
+Console*window.iconic:		True
+Console*window.resizeProc:	delete()
+Console*window.scrollProc:	delete()
+
+zwgc.transient:			true
