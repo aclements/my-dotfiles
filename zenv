@@ -7,7 +7,7 @@ if [[ -z $zenv_setup ]]; then
     # Discover architecture and hostname
     #
     sys=$(uname); sys=${(L)sys}
-    name=${HOST/\..*//}
+    name=${HOST/.*/}
     if [[ $HOST == "*.mit.edu" && $name != "awakening" ]]; then
 	name=athena
     fi

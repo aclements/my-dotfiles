@@ -10,7 +10,7 @@ source .zenv
 WMANAGER=false
 
 determine_domain() {
-    DOMAIN=${HOST/\..*//}
+    DOMAIN=${HOST/.*/}
 }
 
 dispatch() {
@@ -26,11 +26,11 @@ dispatch() {
 set_settings() {
     # Set the wallpaper as early as possible to get it out of the way
     xsetroot -solid black
-    local FBW="~/etc/wallpaper/1280x1024/Michael Whelan - Dragon Lake.png"
+    local FBW="$HOME/etc/wallpaper/1280x1024/Michael Whelan - Dragon Lake.png"
     if [[ -e ~/etc/wallpaper/walld.py ]]; then
 	python ~/etc/wallpaper/walld.py ~/etc/wallpaper/active/
 	#Esetroot ~/etc/wallpaper/active/AzlanCropped_1024.png
-    elif [[ -e $FBW ]] then
+    elif [[ -e $FBW ]]; then
 	Esetroot $FBW
     fi
 
