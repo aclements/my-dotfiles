@@ -5,8 +5,8 @@ emulate zsh
 #
 # Discover architecture and hostname
 #
-sys=$(uname | tr "[:upper:]" "[:lower:]")
-name=$(echo $HOST | sed 's/\..*//')
+sys=$(uname); sys=${(L)sys}
+name=${HOST/\..*//}
 if [[ $HOST == "*.mit.edu" && $name != "awakening" ]]; then
     name=athena
 fi
@@ -75,16 +75,36 @@ export PAGER=less
 export EDITOR=emacs
 export VISUAL="emacs -nw"
 
-if grep --help | grep -q -- --color; then
-    export GREP_OPTIONS="--color=auto"
-fi
+setupgrep() {
+    local foo="`grep --help`"
+    if [[ -z ${foo:#*--color*} ]]; then
+	export GREP_OPTIONS="--color=auto"
+    fi
+}
+setupgrep; unfunction setupgrep
 
 #
 # Bindings
 #
 bindkey -e			# Default to Emacs-like bindings
-bindkey -rp '\C-x'		# Nuke C-x prefix
-bindkey -s '\C-x' "cd ..\n"
+
+zle -N parent-dir
+parent-dir() {
+    local cursor=$CURSOR	# Save cursor position
+    local buffer=$BUFFER	# Save buffer contents
+    BUFFER=			# Clear edit buffer
+    zle -R			# Redraw the now empty input line
+    local i cmd=..		# Consume numeric argument
+    for (( i = 1 ; i < NUMERIC ; i++ )); do
+	cmd=$cmd/..
+    done
+    print "cd $cmd"		# So it's clear what's happening from scrollback
+    cd $cmd
+    zle reset-prompt -N		# Redraw the prompt itself
+    BUFFER=$buffer		# Restore the buffer contents
+    CURSOR=$cursor		# And move the cursor back to where it was
+}
+bindkey '\C-u' parent-dir
 
 #
 # Line editing
@@ -138,7 +158,8 @@ setupls() {
     fi
 
     # Did I get the GNU version?
-    if $ls --version | grep -q Stallman; then
+    local foo="`$ls --version`"
+    if [[ -z ${foo:#*Stallman*} ]]; then
 	# Use programs
 	if [[ -n $dircolors ]]; then
 	    eval `$dircolors -b`       	# Set up ls color environment
@@ -163,7 +184,7 @@ truncatedls() {
     local lines="`ls -C $*`"
     integer nlines=$(( `wc -l <<< $lines` - 1 ))
     if (( nlines > 10 )); then
-	head -9 <<< $lines
+	head -n 9 <<< $lines
 	print -- .. $(( nlines - 9 )) more lines ..
     else
 	print -nr -- $lines
@@ -231,6 +252,9 @@ precmd() {
         $x
     done
 }
+
+# Use completion cache
+zstyle ':completion::complete:*' use-cache 1
 
 # The following lines were added by compinstall
 
