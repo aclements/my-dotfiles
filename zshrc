@@ -62,11 +62,14 @@ setopt hist_reduce_blanks	# Reformat whitespace in history
 #
 export MORE=-sl
 export LESSCHARSET=latin1
-export LESS="-M -h10 -g -P?f%f:(pipe). ?e[EOF].%t ?pb(%pb\%).$ -PmFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m]. Line\:%lt/%L ?pb(%pb\%).$ -PMFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m?x\:%x.]. Line\:%lt/%L Byte\:%bt/%B. ?pb(%pb\%)."
+export LESS="-R -h10"
+export LESS="${LESS} -M -P?f%f:(pipe). ?e[EOF].%t ?pb(%pb\%).$ -PmFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m]. Line\:%lt/%L ?pb(%pb\%).$ -PMFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m?x\:%x.]. Line\:%lt/%L Byte\:%bt/%B. ?pb(%pb\%)."
 export PAGER=less
 
 export EDITOR=emacs
 export VISUAL="emacs -nw"
+
+export GREP_OPTIONS="--color=auto"
 
 #
 # Bindings
