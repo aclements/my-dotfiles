@@ -5,7 +5,15 @@ emulate zsh
 #
 # Environment
 #
-source ~/.zenv
+if [[ ! -r ~/.zenv ]]; then
+    echo "Eep! I can't find your .zenv"
+    if [[ -r ~/sys/dotfiles/zenv ]]; then
+	echo "Because you forgot to link it!  Using sys/dotfiles version"
+	source ~/sys/dotfiles/zenv
+    fi
+else
+    source ~/.zenv
+fi
 
 #
 # Options
