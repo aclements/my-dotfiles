@@ -1,5 +1,8 @@
 ForwardX11 yes
 
+host awk awakening awakening.mit.edu
+        ForwardX11Trusted yes
+
 host *.flux.utah.edu
         user aclement
 
