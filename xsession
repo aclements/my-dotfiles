@@ -130,7 +130,7 @@ fi
 set_settings
 
 # Start D-BUS so XFCE Terminal instances can share a process
-if [[ $XTERMCMD == Terminal -a -z $DBUS_SESSION_BUS_ADDRESS ]] && \
+if [[ $XTERMCMD == Terminal && -z $DBUS_SESSION_BUS_ADDRESS ]] && \
     whence dbus-launch &> /dev/null; then
     eval `dbus-launch --sh-syntax --exit-with-session`
 fi
