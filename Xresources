@@ -1,26 +1,29 @@
+! X resources
+! Written by Amthrax
+
+!!!
+!!! Terminal emulators
+!!!
+
 XTerm*background:		black
 XTerm*foreground:		white
-XTerm*cursorColor:		AliceBlue
+XTerm*cursorColor:		blue
 XTerm*pointerColor:		blue
-XTerm*LoginShell:		true
 XTerm*jumpScroll:		on
-XTerm*LogInhibit:		on
-XTerm*ScrollBar:		on
-HPterm*ScrollBar:		on
-XTerm*SaveLines:		1000
+XTerm*logInhibit:		on
+XTerm*scrollBar:		on
+XTerm*saveLines:		1000
+XTerm*font:			fixed
+XTerm*visualBell:		on
 
-rxvt.background:		black
-rxvt.foreground:		white
-!rxvt.color1:			#0000ff
-!rxvt.color12:			#00ff00
-rxvt.cursorColor:		#0000ff
+! rxvt inherits XTerm's resources
 rxvt.cursorColor2:		#ffffff
-rxvt.font:			fixed
-rxvt.visualBell:		on
-rxvt.scrollBar:			on
 rxvt.scrollBar_right:		true
 rxvt.scrollBar_floating:	true
-rxvt.saveLines:			1000
+
+!!!
+!!! xdvi
+!!!
 
 xdvi.gsAlpha:			true
 xdvi.keepPosition:		true
@@ -28,43 +31,33 @@ xdvi.expert:			true
 xdvi.borderColor:		blue
 xdvi.ruleColor:			blue
 
-#define EMACS_FOREGROUND                white
-#  define EMACS_BACKGROUND              MidnightBlue
-#undef EMACS_BACKGROUND
-#define EMACS_BACKGROUND		black
-#  define EMACS_REGION_BACKGROUND       LightSlateGray
-#  define EMACS_CURSOR_COLOR            red
-#  define EMACS_POINTER_COLOR           green
-#  define EMACS_HILIT_COLOR             darkgreen
-Emacs*foreground:			EMACS_FOREGROUND
-Emacs*background:			EMACS_BACKGROUND
-Emacs*borderColor:			EMACS_FOREGROUND
-Emacs*cursorColor:			EMACS_CURSOR_COLOR
-Emacs*pointerColor:			EMACS_POINTER_COLOR
-Emacs*highlight.attributeBackground:	EMACS_HILIT_COLOR
-Emacs*secondary-selection.attributeForeground: black
-Emacs*paneFont:				-*-helvetica-bold-o-*-*-12-120-*-*-*-*-iso8859-*
-Emacs*selectionFont:			-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
-!Emacs*geometry:			80x40
-Emacs*font:				fixed
+!!!
+!!! emacs
+!!!
 
-!! Fonts and colors for the menubar and popup menus
-Emacs*menubar*Foreground:	Gray30
-Emacs*menubar*Background:	Gray75
-Emacs*popup*Foreground:		Gray30
-Emacs*popup*Background:		Gray75
-Emacs*menubar*Font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
-Emacs*popup*Font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
+Emacs*foreground:		white
+Emacs*background:		black
+Emacs*borderColor:		white
+Emacs*cursorColor:		red
+Emacs*pointerColor:		green
+Emacs*font:			fixed
 
-#ifdef COLOR
-Emacs*region.attributeBackground: EMACS_REGION_BACKGROUND
-#endif
+! Fonts and colors for the menubar and popup menus
+Emacs*menubar*foreground:	Gray30
+Emacs*menubar*background:	Gray75
+Emacs*popup*foreground:		Gray30
+Emacs*popup*background:		Gray75
+Emacs*menubar*font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
+Emacs*popup*font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
 
+! Death to fluff
 Emacs.menuBar:			off
 Emacs.toolBar:			off
 Emacs.verticalScrollBars:	off
 
+!!!
+!!! Xcursor
+!!!
+
 Xcursor.core:			false
 !Xcursor.theme:			Crystalcursors
-
-!!! EOF
