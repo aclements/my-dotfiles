@@ -1,0 +1,63 @@
+Reversion Redux aka RevRedux X11 Cursors
+
+************************************************************************************************
+***********This cursors are not my work please read the CREDITS and PERMISSION file!************
+************************************************************************************************
+
+The goal of this cursors set is to bring this very good Windows cursors to Linux, because there are very few cursors for Linux since only in XFree 4.3.0 is possible to make decent cursors and also because the skinning community isn't very active in Linux (with some very valid reason I must say), so and since Windows has already a long cursors list I think its a good ideia bring them to Linux. With XFree86(TM) 4.3.0 now its possible to make multicolored cursors, with variuos sizes, alphablending, transparency, in a short sentence: 
+You can make cursors out of png files!
+
+To install this cursors theme:
+
+Use KDE 3.2 installer:
+
+1.	Run KControl
+
+2.	Goto Periphericals -> Mouse -> Cursor Themes
+
+3.	Press Install new theme, and there you go!
+
+
+Use install script:
+
+1. Run Install script: ./install
+
+2. Choose 'Install for KDE 3.2' if you intent to use KControl to switch mouse cursor themes
+   Choose 'Install for X' if you don't use KDE or have a older version of KDE
+   Choose 'Uninstall' to remove this cursor theme
+   
+Manual install:
+
+1. Create the directory ~/.icons if you don't have it
+2. Extract this archive to that directory so it be ~/.icons/RevRedux2
+3. Create the directory ~/.icons/default you don't have it
+4. Create a text file named index.theme if you don't already have it
+5. Edit the file so it look like this:
+
+[Icon Theme]
+Inherits=RevRedux2
+
+Always Logout to apply the cursors!
+
+NOTE:
+Seems like KDE/KControl has a bug when installing cursors themes that destroys all cursors symlinks, giving the impression that several cursors are missing like resize and wait cursors.
+If this problem affects you please use the install script or manual installation method.
+
+You can also check http://www.kdelook.org/help/index.php?type=36 or download another cursors and read their instructions if you still have problems and remember that cursor themes only work in XFree86(TM) 4.3.0 or higher!
+
+Check this before looking for further problems by opening a terminal and typing:  
+
+X -version
+
+the version should appear on the first line and look like this:
+ 
+XFree86 Version 4.3.0 <------------------------this is the version of XFree86(TM) (in this case 4.3.0)
+Release Date: 27 February 2003
+X Protocol Version 11, Revision 0, Release 6.6
+Build Operating System: Linux 2.4.21-0.13mdksmp i686 [ELF]
+Build Date: 12 March 2003
+        Before reporting problems, check http://www.XFree86.Org/
+        to make sure that you have the latest version.
+Module Loader present
+
+by: Luis Camacho

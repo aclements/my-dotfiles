@@ -1,0 +1,48 @@
+From: Maur
+Date: sexta-feira, 11 de Julho de 2003 18:41:47
+To: Luis Camacho
+Subject: Re: Port of RevRedux
+
+At 11/07/2003 08:43, you wrote:
+>Hi!
+>
+>I'm sending you this mail to ask permission to port your mouse cursors
+>Reversion Redux aka RevRedux to Linux XFree 4.3.0
+>
+>They will be posted in KDE-Look. (http://www.kdelook.org/) and you will
+>be fully credited for your work, after all, you are the one you made
+>them I only converted them and changed them a bit.
+ 
+
+Certainly, you have my permission to distribute these, properly credited.
+ 
+
+>I had to change some cursors to fit into XFree scheme and added a shadow
+>to all, you can see the changes for yourself, attached to this email
+>goes a zip file (RevRedux.zip) that contains the cursors in the "source"
+>directory. These cursors are in png format because thats the format used
+>by XFree 4.3.0, you can see the changes I've made, but you will be
+>credited for your work don't worry.
+ 
+You might find that the attached cursor fits more in the motif as a non-
+animated link cursor.
+ 
+>The "cursors" directory contains the compiled cursors these can't be
+>seen like normal Windows cursors but work on XFree 4.3.0, if you want to
+>try them you must have a Linux Distro with XFree 4.3.0, it must be
+>version 4.3.0, older versions wont work.
+ 
+I have a NetBSD box at work, but I don't know what version XFree is at on it,
+or if it even has that; I don't use it for much other than shell work.
+ 
+>The cursors are already made but I haven't posted them anywhere until
+>you give me permission to do so. Don't worry about that too.
+>
+>If you have any questions mail me and I'll answer.
+>I'm looking forward for your authorisation to port your wonderful
+>cursors set!
+>Thanks for your time
+>
+>--
+>Luis Camacho <>
+> 
