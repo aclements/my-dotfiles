@@ -1,14 +1,16 @@
-#!/bin/env zsh
+#!/bin/zsh
 # Amthrax's X init script
 # Supports: awakening, drake
 
 emulate zsh
 
+source .zenv
+
 # Window manager is set later based on host
 WMANAGER=false
 
 determine_domain() {
-    DOMAIN=$(echo $HOST | sed 's/\..*//')
+    DOMAIN=${HOST/\..*//}
 }
 
 dispatch() {
@@ -42,8 +44,12 @@ set_settings() {
     if [[ $DOMAIN == "awakening" ]]; then xset m 3/1 4; fi
 
     # Figure out my terminal emulator
-    if whence Terminal &> /dev/null && (Terminal -v | grep -q Xfce); then
-	XTERMCMD=Terminal
+    if whence Terminal &> /dev/null; then
+	if whence Terminal.wrapper &> /dev/null; then
+	    XTERMCMD=Terminal.wrapper
+	else
+	    XTERMCMD=Terminal
+	fi
     elif whence Eterm &> /dev/null; then
 	XTERMCMD=Eterm
     elif whence aterm &> /dev/null; then
@@ -51,6 +57,7 @@ set_settings() {
     else
 	XTERMCMD=xterm
     fi
+    export XTERMCMD
 }
 
 start_fluxbox() {
@@ -130,7 +137,7 @@ fi
 set_settings
 
 # Start D-BUS so XFCE Terminal instances can share a process
-if [[ $XTERMCMD == Terminal && -z $DBUS_SESSION_BUS_ADDRESS ]] && \
+if [[ $XTERMCMD == Terminal* && -z $DBUS_SESSION_BUS_ADDRESS ]] && \
     whence dbus-launch &> /dev/null; then
     eval `dbus-launch --sh-syntax --exit-with-session`
 fi
