@@ -1,0 +1,121 @@
+# -*- sh -*-
+# Austin Clements' tcsh rc
+#
+
+#
+# Discover architecture and hostname
+#
+set sys=`uname | tr "[:upper:]" "[:lower:]"`
+set name=`echo $HOST | sed 's/\..*//'`
+set domain=`echo $HOST | sed 's/[^.]*\.//'`
+if ( $domain == "mit.edu" ) then
+    if ( $name != "awakening" ) then
+        set name=athena
+    endif
+endif
+
+#
+# Key bindings
+#
+bindkey ^g keyboard-quit
+bindkey -s ^x "cd .."  # This loses the ^X map, but I don't use those
+bindkey ^r i-search-back
+
+#
+# Customize prompt
+#
+# Check for ssh host
+if ( $?SSH_CONNECTION ) then
+    setenv PROMPTFLUFF $name
+endif
+# Handle athena hosts
+if ( x$name == "xathena" ) then
+    setenv PROMPTFLUFF athena
+endif
+# Note that '%{\ek\e\\%} ' is for screen
+if ($?PROMPTFLUFF) then
+    set prompt=${PROMPTFLUFF}':%B%c2%b%#%{\ek\e\\%} '
+else
+    set prompt='%B%c2%b%#%{\ek\e\\%} '
+endif
+set rprompt="%B%?%b %p"
+set promptchars='>#'  # Athena tcsh is dumb about this
+
+#
+# Customize TCSH variables
+#
+set autolist=ambiguous # Lists completions when given ambiguous beginning
+#set complete=enhance  # Completes something like a.f.d to alt.fan.dragons
+#set correct=complete   # Imcompatible with implicitcd
+#set implicitcd    # Just type the directory name and it will go
+set matchbeep=never # Ugh
+set notify
+set pushdtohome   # A plain pushd command will drop to the home directory
+
+#
+# Customize ls
+#
+if ( $sys != "sunos" ) then
+    set color
+    set listlinks
+    alias cwdcmd 'ls'
+    alias ls ls-F
+    setenv LSCOLORS bxGxdxdxCxdxdxxbxbxxxx
+endif
+
+#
+# Customize paths
+#
+foreach x ( ~/bin ~/$sys/bin )
+    if ( -r $x ) set path=($x $path)
+end
+
+foreach x ( ~/lib ~/$sys/lib )
+    if ( -r $x ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH ${x}:$LD_LIBRARY_PATH
+	else
+	    setenv LD_LIBRARY_PATH ${x}
+	endif
+    endif
+end
+
+if ( -r ~/man ) then
+    if ( $?MANPATH ) then
+	setenv MANPATH ${HOME}/man:${MANPATH}
+    else
+	setenv MANPATH ${HOME}/man:`manpath`
+    endif
+endif
+
+if ( x$name == "xawakening" ) then
+    setenv JAVA_HOME /usr/lib/j2se/1.4/
+    #setenv CLASSPATH .:/usr/lib/j2se/1.4/jre/lib/rt.jar
+endif
+
+#
+# General environment
+#
+setenv MORE -sl
+setenv LESSCHARSET latin1
+setenv PAGER "less -sM"
+setenv LESS "-M -h10 -g -P?f%f:(pipe). ?e[EOF].%t ?pb(%pb\%).$ -PmFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m]. Line\:%lt/%L ?pb(%pb\%).$ -PMFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m?x\:%x.]. Line\:%lt/%L Byte\:%bt/%B. ?pb(%pb\%)."
+setenv EDITOR emacs
+setenv VISUAL "emacs -nw"
+setenv CSHEDIT emacs
+
+#
+# Window title
+#
+#if ( $?TERM ) then
+#    if ( $TERM == "Eterm" ) then
+#	alias cwdcmd  'ls ; echo -n "]2;\!#:0:t : $cwd"'
+#	alias postcmd  'echo -n "]2;\!#:0:t : $cwd"'
+#    endif
+#endif
+
+#
+# Aliases
+#
+# source ~/.aliases
+alias z zwrite

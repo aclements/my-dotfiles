@@ -1,0 +1,13 @@
+ForwardX11 yes
+
+host *.flux.utah.edu
+        user aclement
+
+host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu
+        user amdragon
+        # Enable Kerberos authentication
+        GssapiAuthentication yes
+        GssapiDelegateCredentials yes
+
+host *.lcs, *.lcs.mit.edu
+	user amdragon
