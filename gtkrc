@@ -1,0 +1,7 @@
+include "/usr/share/themes/ThinIce/gtk/gtkrc"
+
+style "user-font"
+{
+  font="-adobe-helvetica-medium-r-normal-*-*-80-*-*-p-*-iso8859-1"
+}
+widget_class "*" style "user-font"
