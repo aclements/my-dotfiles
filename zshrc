@@ -18,13 +18,13 @@ typeset -U path manpath		# Uniquify entries in paths
 export -TU LD_LIBRARY_PATH ld_library_path
 
 for x in ~/bin ~/$sys/bin; do	# Add bin directories to path
-    if [[ -r $x ]] path=($x $path)
+    [[ -r $x ]] && path=($x $path)
 done
 for x in ~/man ~/$sys/man; do	# Add man directories to manpath
-    if [[ -r $x ]] manpath=($x $manpath)
+    [[ -r $x ]] && manpath=($x $manpath)
 done
 for x in ~/lib ~/$sys/lib; do	# Add lib directories for ld
-    if [[ -r $x ]] ld_library_path=($x $ld_library_path)
+    [[ -r $x ]] && ld_library_path=($x $ld_library_path)
 done
 unset x
 
