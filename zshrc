@@ -8,7 +8,7 @@ emulate zsh
 sys=$(uname | tr "[:upper:]" "[:lower:]")
 name=$(echo $HOST | sed 's/\..*//')
 if [[ $HOST == "*.mit.edu" && $name != "awakening" ]]; then
-    set name=athena
+    name=athena
 fi
 
 #
@@ -69,7 +69,9 @@ export PAGER=less
 export EDITOR=emacs
 export VISUAL="emacs -nw"
 
-export GREP_OPTIONS="--color=auto"
+if grep --help | grep -q -- --color; then
+    export GREP_OPTIONS="--color=auto"
+fi
 
 #
 # Bindings
@@ -91,7 +93,7 @@ autoload -U colors; colors	# Get control sequences for standard colors
 if [[ -n $SSH_CONNECTION || $name == 'athena' ]]; then	# Check ssh or Athena
     PROMPTFLUFF=$name
 fi
-PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}%{${fg_bold[green]}%}%16<..<%2~%<<%{${fg_no_bold[default]}%}%(!.#.>) "
+PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}%{${fg_bold[green]}%}%16<..<%2~%<<%{${fg_no_bold[default]}%}%(!.%{${fg[red]}%}#%{${fg[default]}%}.>) "
 RPROMPT="%B%{%(0?..${fg_bold[red]})%}%?%{%(0?..${fg_no_bold[default]})%}%b %*"
 
 #
@@ -126,13 +128,23 @@ setupls() {
 	ls=ls
     fi
 
-    # Use programs
-    if [[ -n $dircolors ]]; then
-	eval `$dircolors -b`       	# Set up ls color environment
-	ZLS_COLORS=$LS_COLORS		# Use same coloring for tab completion
-	ls="$ls --color"
+    # Did I get the GNU version?
+    if $ls --version | grep -q Stallman; then
+	# Use programs
+	if [[ -n $dircolors ]]; then
+	    eval `$dircolors -b`       	# Set up ls color environment
+	    ZLS_COLORS=$LS_COLORS	# Use same coloring for tab completion
+	    ls="$ls --color"
+	fi
+    else
+	# Only BSD version is available
+	ls="ls -G"
     fi
-    alias ls="$ls -F"
+
+    # Show symbols after file names
+    ls="$ls -F"
+
+    alias ls="$ls"
 }
 setupls; unfunction setupls
 
@@ -226,6 +238,6 @@ zstyle ':completion:*' substitute 1
 zstyle ':completion:*' verbose true
 zstyle :compinstall filename '/home/amthrax/.zshrc'
 
-autoload -U compinit
+autoload -Uz compinit
 compinit
 # End of lines added by compinstall
