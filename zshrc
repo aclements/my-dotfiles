@@ -63,7 +63,13 @@ setopt hist_reduce_blanks	# Reformat whitespace in history
 export MORE=-sl
 export LESSCHARSET=latin1
 export LESS="-R -h10"
-export LESS="${LESS} -M -P?f%f:(pipe). ?e[EOF].%t ?pb(%pb\%).$ -PmFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m]. Line\:%lt/%L ?pb(%pb\%).$ -PMFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m?x\:%x.]. Line\:%lt/%L Byte\:%bt/%B. ?pb(%pb\%)."
+export LESS="$LESS -M"
+export LESS="$LESS \
+-P?f%f:(pipe). ?e[EOF].%t ?pb(%pb\%).$ \
+-PmFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m]. Line\:%lt/%L\
+ ?pb(%pb\%).$ \
+-PMFile\:?f%f:(pipe). ?e[EOF].%t ?m[%i/%m?x\:%x.]. Line\:%lt/%L\
+ Byte\:%bt/%B. ?pb(%pb\%)."
 export PAGER=less
 
 export EDITOR=emacs
@@ -93,8 +99,11 @@ autoload -U colors; colors	# Get control sequences for standard colors
 if [[ -n $SSH_CONNECTION || $name == 'athena' ]]; then	# Check ssh or Athena
     PROMPTFLUFF=$name
 fi
-PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}%{${fg_bold[green]}%}%16<..<%2~%<<%{${fg_no_bold[default]}%}%(!.%{${fg[red]}%}#%{${fg[default]}%}.>) "
-RPROMPT="%B%{%(0?..${fg_bold[red]})%}%?%{%(0?..${fg_no_bold[default]})%}%b %*"
+PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}\
+%{${fg_bold[green]}%}%16<..<%2~%<<%{${fg_no_bold[default]}%}\
+%(!.%{${fg[red]}%}#%{${fg[default]}%}.>) "
+RPROMPT="%B%{%(0?..${fg_bold[red]})%}%?\
+%{%(0?..${fg_no_bold[default]})%}%b %*"
 
 #
 # Pretty-print return status

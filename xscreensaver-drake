@@ -1,5 +1,5 @@
 # XScreenSaver Preferences File
-# Written by xscreensaver-demo 4.16 for amthrax on Tue Sep  7 19:04:39 2004.
+# Written by xscreensaver-demo 4.16 for amthrax on Wed Dec  1 00:31:21 2004.
 # http://www.jwz.org/xscreensaver/
 
 timeout:	0:05:00
@@ -18,8 +18,8 @@ demoCommand:	xscreensaver-demo
 prefsCommand:	xscreensaver-demo -prefs
 nice:		10
 memoryLimit:	0
-fade:		False
-unfade:		False
+fade:		True
+unfade:		True
 fadeSeconds:	0:00:03
 fadeTicks:	20
 captureStderr:	True
