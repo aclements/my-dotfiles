@@ -1,8 +1,11 @@
-#!/usr/bin/zsh
+#!/bin/env zsh
 # Amthrax's X init script
 # Supports: awakening, drake
 
 emulate zsh
+
+# Window manager is set later based on host
+WMANAGER=false
 
 determine_domain() {
     DOMAIN=$(echo $HOST | sed 's/\..*//')
@@ -36,19 +39,43 @@ set_settings() {
     if [[ -e ~/.xmodmap ]]; then xmodmap ~/.xmodmap; fi
 
     # Set up mouse
-    if [[ DOMAIN == "awakening" ]]; then xset m 3/1 4; fi
+    if [[ $DOMAIN == "awakening" ]]; then xset m 3/1 4; fi
+
+    # Figure out my terminal emulator
+    if whence Terminal &> /dev/null && (Terminal -v | grep -q Xfce); then
+	XTERMCMD=Terminal
+    elif whence Eterm &> /dev/null; then
+	XTERMCMD=Eterm
+    elif whence aterm &> /dev/null; then
+	XTERMCMD=aterm
+    else
+	XTERMCMD=xterm
+    fi
 }
 
-start_wmanager() {
+start_fluxbox() {
     fluxbox &
     WMPID=$!
     echo "Fluxbox pid $WMPID"
     sleep 1  # Kluuuudge!
 }
 
+start_ion3() {
+    ion3 &
+    WMPID=$!
+    echo "Ion3 pid $WMPID"
+}
+
 start_apps_and_daemons_drake() {
+    # Apps
+    if [[ $WMANAGER != ion3 ]]; then
+	torsmo -d
+    fi
+
     # Slit apps
-    wmacpi &
+    if [[ $WMANAGER != ion3 ]]; then
+	wmacpi &
+    fi
 
     # Daemons
     #tpb -d  # tpb is started by a global Xsession script
@@ -70,7 +97,7 @@ start_apps_and_daemons_awakening() {
 start_apps_and_daemons() {
     dispatch start_apps_and_daemons
 
-    xscreensaver &
+    xscreensaver -nosplash &
 }
 
 # Wait for window manager to exit gracefully
@@ -81,18 +108,34 @@ wait_for_wm() {
 	WMRES=$?
 	if [[ $WMRES != 0 ]]; then
 	    echo "Window manager crashed with $WMRES, restarting it"
-	    start_wmanager;
-	fi;
+	    start_$WMANAGER
+	fi
     done
 }
 
 
 # SSH agent must be done before anything else because of environment
 # changes
-eval `ssh-agent -s`
+if [[ -z $SSH_AGENT_PID ]]; then
+    eval `ssh-agent -s`
+fi
 
+# Adapt to my environment and adapt my environment to me
 determine_domain
+if [[ $DOMAIN == drake ]]; then
+    WMANAGER=ion3
+else
+    WMANAGER=fluxbox
+fi
 set_settings
-start_wmanager
+
+# Start D-BUS so XFCE Terminal instances can share a process
+if [[ $XTERMCMD == Terminal -a -z $DBUS_SESSION_BUS_ADDRESS ]] && \
+    whence dbus-launch &> /dev/null; then
+    eval `dbus-launch --sh-syntax --exit-with-session`
+fi
+
+# Start the world
+start_$WMANAGER
 start_apps_and_daemons
 wait_for_wm
