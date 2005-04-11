@@ -53,6 +53,13 @@ if [[ -z $zenv_setup ]]; then
 
     export EDITOR=emacs
     export VISUAL="emacs -nw"
+    if whence -p emacs21 &> /dev/null; then
+	if [[ ! `whence -p emacs21` -ef `whence -p emacs` ]]; then
+	    alias emacs=emacs21
+	    export EDITOR=emacs21
+	    export VISUAL="emacs21 -nw"
+	fi
+    fi
 
     setupgrep() {
 	local foo="`grep --help`"
