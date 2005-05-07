@@ -107,8 +107,8 @@ setupls() {
 	# The / is for BSD ls, which ignores --version (in fact, there
 	# is no way to ask its version), to lock in on a directory I
 	# know is local and small
-	lsver="`command $ls --version /`"
-	if [[ -z ${lsver:#*Stallman*} ]]; then
+	lsver="`command $ls --version / 2> /dev/null`"
+	if [[ $lsver == *Stallman* ]]; then
 	    foundls=1
 	    lsver=${${=lsver}[3]}
 	    break
