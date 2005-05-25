@@ -1,0 +1,42 @@
+/*
+ * This file can be used to customize the look of Mozilla's user interface
+ * You should consider using !important on rules which you want to
+ * override default settings.
+ */
+
+/*
+ * Do not remove the @namespace line -- it's required for correct functioning
+ */
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); /* set default namespace to XUL */
+
+/*
+ * Customizations from http://www.mozilla.org/support/firefox/tips
+ */
+
+/* Make the active tab not bold */
+tab[selected="true"] {
+   font-weight: normal !important;
+}
+
+/* Remove extra padding from the Navigation Bar */
+.toolbarbutton-1, .toolbarbutton-menubutton-button {
+   padding: 2px 3px !important;
+}
+.toolbarbutton-1[checked="true"], .toolbarbutton-1[open="true"],
+.toolbarbutton-menubutton-button[checked="true"],
+.toolbarbutton-menubutton-button[open="true"] {
+   padding: 4px 1px 1px 4px !important;
+}
+
+/* Place the sidebar on the right edge of the window  */
+window > hbox {
+   direction:rtl;
+}
+window > hbox > * {
+   direction:ltr;
+}
+
+/*
+ * For more examples see http://www.mozilla.org/unix/customizing.html
+ */
+ 
