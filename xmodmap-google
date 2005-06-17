@@ -1,0 +1,14 @@
+!!
+!! Austin's xmodmap for Google computers running grhat
+!!
+
+! Put control in the right place
+remove Lock = Caps_Lock
+keysym Caps_Lock = Control_L
+add Control = Control_L
+
+! Make flag key hyper and map it to mod3
+keycode 0x73 = Hyper_L
+keycode 0x74 = Hyper_R
+add Mod3 = Hyper_L
+add Mod3 = Hyper_R

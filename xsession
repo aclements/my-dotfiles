@@ -26,7 +26,12 @@ dispatch() {
 set_settings() {
     # Set the wallpaper as early as possible to get it out of the way
     xsetroot -solid black
-    local FBW="$HOME/etc/wallpaper/1280x1024/Michael Whelan - Dragon Lake.png"
+    local FBW
+    if [[ $DOMAIN == chimera ]]; then
+	FBW="$HOME/etc/wallpaper/Oxygen_3840x1200.png"
+    else
+	FBW="$HOME/etc/wallpaper/1280x1024/Michael Whelan - Dragon Lake.png"
+    fi
     if [[ -e ~/etc/wallpaper/walld.py ]]; then
 	python ~/etc/wallpaper/walld.py ~/etc/wallpaper/active/
 	#Esetroot ~/etc/wallpaper/active/AzlanCropped_1024.png
@@ -129,7 +134,7 @@ fi
 
 # Adapt to my environment and adapt my environment to me
 determine_domain
-if [[ $DOMAIN == drake ]]; then
+if [[ $DOMAIN == drake || $DOMAIN == chimera ]]; then
     WMANAGER=ion3
 else
     WMANAGER=fluxbox
