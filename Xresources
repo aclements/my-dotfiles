@@ -39,9 +39,13 @@ aterm.geometry:			80x30
 
 xdvi.gsAlpha:			true
 xdvi.keepPosition:		true
-xdvi.expert:			true
+!xdvi.expert:			true
 xdvi.borderColor:		blue
 xdvi.ruleColor:			blue
+
+! xdvi from tetex 3.0
+xdvi.expertMode:                1
+xdvi.watchFile:                 2
 
 !!!
 !!! emacs
@@ -52,7 +56,8 @@ Emacs*background:		black
 Emacs*borderColor:		white
 Emacs*cursorColor:		red
 Emacs*pointerColor:		green
-Emacs*font:			fixed
+!Emacs*font:			fixed
+Emacs*font:                     6x10
 
 ! Fonts and colors for the menubar and popup menus
 Emacs*menubar*foreground:	Gray30
