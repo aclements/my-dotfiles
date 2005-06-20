@@ -1,3 +1,8 @@
+-- Ion3 master configuration
+-- By Austin Clements <amdragon@mit.edu>
+--
+-- Requires at least ion-3ds-20050322
+
 MOD1="Mod3+"			-- Use the flag key
 MOD2=""
 

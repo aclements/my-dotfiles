@@ -29,22 +29,40 @@ defbindings("WScreen", {
 	       mpress("Button3", "mod_menu.pmenu(_, _sub, 'mainmenu')"),
 	    })
 
+function WClientWin.smart_fullscreen(window)
+   local scr = window:screen_of()
+   local ws = ioncore.lookup_region("Fullscreen", "WIonWS")
+   if not ws then
+      ws = scr:attach_new({type="WIonWS",
+                             name="Fullscreen",
+                             index=scr:lcount(1)})
+   end
+   ws:current():attach(window, {switchto=true})
+   ws:goto()
+end
+
 defbindings("WMPlex", {
+               bdoc("Quote the next key press"),
+               kpress(MOD1.."Q",
+                      "WClientWin.quote_next(_sub)", "_sub:WClientWin"),
+               
 	       bdoc("Nudge current client window. This might help with some "..
 		    "programs' resizing problems."),
-	       kpress_wait(MOD1.."L", 
+	       kpress_wait(MOD1.."P", 
 			   "WClientWin.nudge(_sub)", "_sub:WClientWin"),
 
 	       bdoc("Toggle fullscreen mode of current client window."),
-	       kpress_wait(MOD1.."1", 
-			   "WClientWin.toggle_fullscreen(_sub)", 
-			   "_sub:WClientWin"),
+               kpress(MOD1.."1",
+                      "WClientWin.smart_fullscreen(_sub)", "_sub:WClientWin"),
+-- 	       kpress_wait(MOD1.."1", 
+-- 			   "WClientWin.set_fullscreen(_sub, 'toggle')", 
+-- 			   "_sub:WClientWin"),
 
 	       bdoc("Query for a client window to go to."),
 	       kpress(MOD1.."G", "mod_query.query_gotoclient(_)"),
 
 	       bdoc("Query for manual page to be displayed."),
-	       kpress(MOD2.."F1", "mod_query.query_man(_)"),
+	       kpress(MOD2.."F1", "mod_query.query_man(_, ':man')"),
 
 	       bdoc("Run a terminal emulator."),
 	       kpress(MOD2.."F2", "ioncore.exec_on(_, '$XTERMCMD')"),
@@ -53,13 +71,18 @@ defbindings("WMPlex", {
 	       kpress(MOD2.."F3", "mod_query.query_exec(_)"),
 
 	       bdoc("Query for host to connect to with SSH."),
-	       kpress(MOD2.."F4", "mod_query.query_ssh(_)"),
+	       kpress(MOD2.."F4", "mod_query.query_ssh(_, ':ssh')"),
 
 	       bdoc("Query for file to edit."),
-	       kpress(MOD2.."F5", "mod_query.query_editfile(_)"),
+	       kpress(MOD2.."F5", "mod_query.query_editfile"..
+                      "(_, 'run-mailcap --action=edit')"),
 
 	       bdoc("Query for file to view."),
-	       kpress(MOD2.."F6", "mod_query.query_runfile(_)"),
+	       kpress(MOD2.."F6", "mod_query.query_runfile"..
+                      "(_, 'run-mailcap --action=view')"),
+
+               bdoc("Query for a lua expression to evaluate."),
+               kpress(MOD2.."F7", "mod_query.query_lua(_)"),
 
 	       bdoc("Query for workspace to go to or create a new one."),
 	       kpress(MOD2.."F9", "mod_query.query_workspace(_)"),
@@ -67,7 +90,8 @@ defbindings("WMPlex", {
 
 defbindings("WFrame", {
 	       bdoc("Tag current object within the frame."),
-	       kpress(MOD1.."T", "WRegion.toggle_tag(_sub)", "_sub:non-nil"),
+	       kpress(MOD1.."T", "WRegion.set_tagged(_sub, 'toggle')",
+                      "_sub:non-nil"),
 
 	       bdoc("Switch to next/previous object within the frame."),
 	       kpress(MOD1.."I", "WFrame.switch_next(_)"),

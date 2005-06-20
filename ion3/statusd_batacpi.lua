@@ -3,21 +3,40 @@
 -- 
 -- Austin Clements <amdragon(at)mit(dot)edu>
 
--- Based on Bas Kok's script (see ion mailing list Oct 18, 2004)
+-- Derived from Bas Kok's script (see ion mailing list Oct 18, 2004)
 
-local settings={
+local defaults = {
    interval=30*1000,		-- Milliseconds between updates
    battery=0,                   -- Battery number to read from /proc
    width=15,                    -- Width of the battery bar
+   critical_percent=10,         -- Critical battery percentage
+   critical_fields="percent bar time", -- Fields to mark as critical
    testing=false,               -- Set to true to run standalone
 }
 
+local settings = table.join(statusd.get_config(me), defaults)
+
+local me = "batacpi"
+
 local timer = nil
+
+local function setup_statusd()
+   statusd.inform(me.."_percent_template", "100%")
+   statusd.inform(me.."_bar_template",
+                  ">"..string.rep('|',settings.width).."<")
+   statusd.inform(me.."_time_tempate", "9:99")
+   timer = statusd.create_timer()
+end
 
 local function read_proc_file(fname)
    local info = {}
+   local lines = io.lines(fname)
 
-   for line in io.lines(fname) do
+   if not lines then
+      return nil
+   end
+
+   for line in lines do
       local _, _, field, value = string.find(line, '^([^:]*):%s*(.*)')
       if field then
          info[field] = value
@@ -33,25 +52,33 @@ local function get_number(str)
 end
 
 local function get_battery_info()
+
+   local dir = string.format('/proc/acpi/battery/BAT%d/', settings.battery)
+
+   -- Read /proc info
+   local info = read_proc_file(dir .. 'info')
+   local state = read_proc_file(dir .. 'state')
+   if not info or not state then
+      statusd.warn("Failed to read battery info files")
+      timer:set(settings.interval/1000, get_battery_info)
+      return
+   end
+   
    -- Reschedule myself
    if not settings.testing then
       timer:set(settings.interval, get_battery_info)
    end
 
-   local dir = string.format('/proc/acpi/battery/BAT%d/', settings.battery)
-
-   -- Read general battery info
-   local info = read_proc_file(dir .. 'info')
-   local capacity = get_number(info['last full capacity'])
-
    -- Read current state
-   local state = read_proc_file(dir .. 'state')
+   local capacity = get_number(info['last full capacity'])
    local charging = state['charging state']
    local rate = get_number(state['present rate'])
    local remaining = get_number(state['remaining capacity'])
 
-   -- Compute percentage bar
+   -- Compute percentage
    local percentage = math.min(math.max(100*remaining/capacity,0),100)
+
+   -- Compute percentage bar
    local elem
    if charging == 'charging' then
       elem = '>>'
@@ -92,18 +119,26 @@ local function get_battery_info()
    end
 
    -- Put it all together
-   local output
-   output = string.format('%d%% %s %s', percentage, bar, time)
+   local percent = string.format("%d%%", percentage)
 
    if settings.testing then
-      print(output)
+      print(percent.." "..bar.." "..time)
    else
-      statusd.inform("batacpi", output)
+      statusd.inform(me.."_percent", percent)
+      statusd.inform(me.."_bar", bar)
+      statusd.inform(me.."_time", time)
+      for field in string.gfind(settings.critical_fields, "%a+") do
+         if percentage <= settings.critical_percent then
+            statusd.inform(me.."_"..field.."_hint", "critical")
+         else
+            statusd.inform(me.."_"..field.."_hint", "normal")
+         end
+      end
    end
 end
 
 -- Start the timer
 if not settings.testing then
-   timer = statusd.create_timer()
+   setup_statusd()
 end
 get_battery_info()

@@ -1,17 +1,24 @@
--- look-awesome.lua drawing engine configuration file for Ion.
+-- This look is based on look-awesome for Ion2.
+--
+-- Ported to Ion3 and modified by Austin Clements <amdragon@mit.edu>
 
 if not gr.select_engine("de") then return end
 
 de.reset()
 
-deffont = "-*-helvetica-medium-r-*-*-10-*-*-*-*-*-*-*"
+mainfont = "-*-helvetica-medium-r-*-*-10-*-*-*-*-*-*-*"
+black = "#000"
+verydark = "#336"
+dark = "#669"
+light = "#99C"
+white = "#FFF"
 
 de.defstyle("*", {
-    shadow_colour = "#99A",
-    highlight_colour = "#99A",
-    background_colour = "#667",
-    foreground_colour = "#FFF",
-    padding_colour = "#99A",
+    shadow_colour = verydark,
+    highlight_colour = light,
+    background_colour = dark,
+    foreground_colour = white,
+    padding_colour = light,
 
     -- transparent_background = false,
     transparent_background = true,
@@ -23,41 +30,26 @@ de.defstyle("*", {
     padding_pixels = 0,
     spacing = 0,
     
-    -- font = "-xos4-terminus-medium-r-normal--14-*-*-*-*-*-*-*",
-    font = deffont,
+    font = mainfont,
     text_align = "center",
 })
 
 de.defstyle("frame", {
     based_on = "*",
 
--- this sets the color between tabs as well, I could not figure out any way to make it transparent
-    background_colour = "black",
+    background_colour = black,
 
     transparent_background = true,
-
---    de.substyle("active", {
---    }),
---    de.substyle("inactive", {
---    }),
 })
 
-de.defstyle("frame-ionframe", {
-    based_on = "frame",
---    de.substyle("active", {
---    }),
---    de.substyle("inactive", {
---    }),
-})
-
-de.defstyle("frame-floatframe", {
+de.defstyle("frame-floating", {
     based_on = "frame",
     padding_pixels = 1,
     de.substyle("active", {
-        padding_colour = "#99A",
+        padding_colour = light,
     }),
     de.substyle("inactive", {
-        padding_colour = "#666",
+        padding_colour = dark,
     }),
 })
 
@@ -66,24 +58,17 @@ de.defstyle("tab", {
 
     highlight_pixels = 1,
     shadow_pixels = 0,
-    padding_pixels = 1,
     spacing = 1,
 
     transparent_background = true,
 
     text_align = "center",
 
-    de.substyle("active-selected", {
-        shadow_colour = "#99A",
-        highlight_colour = "#99A",
-        background_colour = "#667",
-        foreground_colour = "#FFF",
-    }),
     de.substyle("active-unselected", {
-        shadow_colour = "#667",
-        highlight_colour = "#667",
-        background_colour = "#334",
-        foreground_colour = "#999",
+        shadow_colour = verydark,
+        highlight_colour = dark,
+        background_colour = verydark,
+        foreground_colour = light,
     }),
     de.substyle("inactive-selected", {
         shadow_colour = "#666",
@@ -101,16 +86,11 @@ de.defstyle("tab", {
 
 de.defstyle("tab-frame", {
     based_on = "tab",
-    padding_pixels = 0,
---    de.substyle("*-*-tagged", {
---    }),
---    de.substyle("*-*-*-dragged", {
---    }),
+
     de.substyle("active-*-*-*-activity", {
         shadow_colour = "red",
         highlight_colour = "red",
     	background_colour = "#800",
-        foreground_colour = "#FFF",
     }),
     de.substyle("inactive-*-*-*-activity", {
         shadow_colour = "#800",
@@ -120,50 +100,24 @@ de.defstyle("tab-frame", {
     }),
 })
 
-de.defstyle("tab-frame-ionframe", {
+de.defstyle("tab-frame-floating", {
     based_on = "tab-frame",
-})
-
-de.defstyle("tab-frame-floatframe", {
-    based_on = "tab-frame",
-    padding_pixels = 0,
+    shadow_pixels = 1,
 })
 
 de.defstyle("tab-menuentry", {
     based_on = "tab",
 
-    padding_pixels = 0,
     spacing = 1,
 
-    -- font = "-xos4-terminus-medium-r-normal--16-*-*-*-*-*-*-*",
-    font = deffont,
+    font = mainfont,
     text_align = "left",
-
---    de.substyle("*-*-submenu", {
---    }),
-})
-
-de.defstyle("tab-menuentry-big", {
-    based_on = "tab-menuentry",
-
-    padding_pixels = 0,
-
-    -- font = "-xos4-terminus-medium-r-normal--28-*-*-*-*-*-*-*",
-    font = deffont,
 })
 
 de.defstyle("input", {
     based_on = "*",
     
-    foreground_colour = "#FFF",
-    background_colour = "#667",
-    padding_colour = "#667",
-
-    transparent_background = true,
-
-    border_style = "elevated",
-
-    padding_pixels = 2,
+    background_colour = "#333",
 })
 
 de.defstyle("input-edln", {
@@ -176,34 +130,21 @@ de.defstyle("input-edln", {
     de.substyle("*-selection", {
         background_colour = "#AAA",
         foreground_colour = "#334",
-   }),
+    }),
 })
 
-de.defstyle("input-message", {
-    based_on = "input",
-})
-
-de.defstyle("input-menu", {
+de.defstyle("stdisp", {
     based_on = "input",
 
-    transparent_background = true,
+    -- XXX Why doesn't this work?
+    --text_align = "center",
 
-    highlight_pixels = 0,
-    shadow_pixels = 0,
-    padding_pixels = 0,
-    spacing = 0,
-})
-
-de.defstyle("input-menu-big", {
-    based_on = "input-menu",
-})
-
-de.defstyle("moveres_display", {
-    based_on = "input",
-})
-
-de.defstyle("dock", {
-    based_on = "*",
+    de.substyle("important", {
+        foreground_colour = "#0F0",
+    }),
+    de.substyle("critical", {
+        foreground_colour = "#F33",
+    }),
 })
 
 gr.refresh()
