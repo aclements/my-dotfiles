@@ -84,6 +84,9 @@ defbindings("WMPlex", {
                bdoc("Query for a lua expression to evaluate."),
                kpress(MOD2.."F7", "mod_query.query_lua(_)"),
 
+               bdoc("Xlock"),
+               kpress(MOD2.."F8", "ioncore.exec_on(_, 'xscreensaver-command -lock')"),
+
 	       bdoc("Query for workspace to go to or create a new one."),
 	       kpress(MOD2.."F9", "mod_query.query_workspace(_)"),
 	    })
