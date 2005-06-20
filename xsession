@@ -78,6 +78,13 @@ start_ion3() {
     echo "Ion3 pid $WMPID"
 }
 
+emergency_live_stop() {
+    # Gentoo and Debian will catch nicely if xsession dies too quickly,
+    # but if the WM starts acting up later, invoke this
+    echo "Starting an emergency xterm"
+    xterm -T "Emergency xterm"
+}
+
 start_apps_and_daemons_drake() {
     # Apps
     if [[ $WMANAGER != ion3 ]]; then
@@ -115,12 +122,29 @@ start_apps_and_daemons() {
 # Wait for window manager to exit gracefully
 wait_for_wm() {
     WMRES=1
+    WMRESTARTS=0
     while [[ $WMRES != 0 ]]; do
+        WMSTART=`date +%s`
 	wait $WMPID
 	WMRES=$?
+        WMEND=`date +%s`
 	if [[ $WMRES != 0 ]]; then
-	    echo "Window manager crashed with $WMRES, restarting it"
-	    start_$WMANAGER
+            echo "Window manager crashed with $WMRES"
+            if (( WMEND - WMSTART < 10 )); then
+                if (( WMRESTARTS == 0 )); then
+                    # Let this fall through.  Wrapping script will take
+                    # care of quick failures
+                    return
+                else
+                    echo "WM lasted fewer than 10 seconds, not restarting it"
+                    emergency_stop
+                    return
+                fi
+            else
+                echo "Restarting it"
+                start_$WMANAGER
+                WMRESTARTS=$((WMRESTARTS + 1))
+            fi
 	fi
     done
 }
