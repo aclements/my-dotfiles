@@ -1,6 +1,7 @@
 ForwardX11 yes
 
-host awk awakening awakening.mit.edu
+host awk awakening awakening.mit.edu awakening.dyndns.org
+        user amthrax
         ForwardX11Trusted yes
 
 host *.flux.utah.edu
