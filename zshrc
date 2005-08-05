@@ -3,16 +3,28 @@
 emulate zsh
 
 #
-# Environment
+# Check environment
 #
-if [[ ! -r ~/.zenv ]]; then
-    echo "Eep! I can't find your .zenv"
-    if [[ -r ~/sys/dotfiles/zenv ]]; then
-	echo "Because you forgot to link it!  Using sys/dotfiles version"
-	source ~/sys/dotfiles/zenv
+if [[ -z $atc_profile_loaded ]]; then
+    echo "Eep!  Your zprofile isn't loaded"
+    if [[ -r ~/sys/dotfiles/zprofile ]]; then
+	if [[ ! -r ~/.zprofile ]]; then
+	    echo "You forgot to link .zprofile in from sys/dotfiles"
+	elif [[ ~/.zprofile -ef ~/sys/dotfiles/zprofile ]]; then
+	    echo -n "Odd.  .zprofile exists and is correct.  "
+	    echo "Try logging out and logging back in"
+	else
+	    echo "You have the wrong .zprofile.  Link in sys/dotfiles/.zprofile"
+	fi
+	echo "Sourcing sys/dotfiles/.zprofile"
+	source ~/sys/dotfiles/zprofile
+    else
+	if [[ ! -d ~/sys/dotfiles ]]; then
+	    echo "You appear to be missing sys/dotfiles.  Bad things shall befall you"
+	else
+	    echo "Odd.  You have sys/dotfiles, but no sys/dotfiles/zprofile"
+	fi
     fi
-else
-    source ~/.zenv
 fi
 
 #
@@ -94,6 +106,14 @@ precmd_prettyreturn() {
 # Replace return status in prompts to use pretty-printing
 PROMPT=${PROMPT//\%\?/\%v}
 RPROMPT=${RPROMPT//\%\?/\%v}
+
+#
+# Convenience alises
+#
+alias psg="ps auxww | grep -v grep | grep"
+if [[ -n $ATC_USE_EMACS21 ]]; then
+    alias emacs=emacs21
+fi
 
 #
 # Directory listing

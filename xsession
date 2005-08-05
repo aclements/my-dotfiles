@@ -4,7 +4,16 @@
 
 emulate zsh
 
-source .zenv
+# Note that this depends on a number of variables that get set by
+# .zprofile
+if [[ -z $atc_profile_loaded ]];
+    if [[ -r ~/sys/dotfiles/zprofile ]];
+	# .zshrc will complain visibly about this
+	source ~/sys/dotfiles/zprofile
+    else
+	echo "Profile not loaded.  Bad things are going to happen."
+    fi
+fi
 
 # Window manager is set later based on host
 WMANAGER=false
@@ -103,7 +112,7 @@ start_apps_and_daemons_drake() {
 start_apps_and_daemons_awakening() {
     # X clients
     Eterm &
-    xmms &
+    #xmms &
     gkrellm &
     xwrits typetime=30 breaktime=1 beep clock after=5 flashtime=:1 \
 	after=10 flashtim e=:.03 &
