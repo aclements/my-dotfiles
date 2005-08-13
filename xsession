@@ -6,8 +6,8 @@ emulate zsh
 
 # Note that this depends on a number of variables that get set by
 # .zprofile
-if [[ -z $atc_profile_loaded ]];
-    if [[ -r ~/sys/dotfiles/zprofile ]];
+if [[ -z $atc_profile_loaded ]]; then
+    if [[ -r ~/sys/dotfiles/zprofile ]]; then
 	# .zshrc will complain visibly about this
 	source ~/sys/dotfiles/zprofile
     else

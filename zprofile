@@ -74,4 +74,9 @@ if [[ $HOME -ef . && $HOME != $PWD ]]; then
     cd $HOME
 fi
 
+# When at Google, do as the Goolers do
+if [[ -f .zgoogle ]]; then
+    source .zgoogle
+fi
+
 export atc_profile_loaded=1
