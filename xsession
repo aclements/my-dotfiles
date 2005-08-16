@@ -162,7 +162,8 @@ wait_for_wm() {
 # SSH agent must be done before anything else because of environment
 # changes
 if [[ -z $SSH_AGENT_PID ]]; then
-    eval `ssh-agent -s`
+    ssh-agent -s > ~/.ssh/agent-env
+    source ~/.ssh/agent-env
 fi
 
 # Adapt to my environment and adapt my environment to me
