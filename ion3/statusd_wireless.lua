@@ -4,11 +4,12 @@
 -- Austin Clements <amdragon(at)mit(dot)edu>
 
 local defaults = {
-   interval=5*1000,		-- Milliseconds between updates
+   interval=3*1000,		-- Milliseconds between updates
    interfaces="eth1",           -- Interfaces to report status for
    width=15,                    -- Width of the link quality bar
    critical_level=60,           -- Critical low-quality level
    critical_fields="level bar essid", -- Fields to mark as critical
+   no_lease_color="important",  -- Color to use when an iface has no lease
    testing=false,               -- Set to true to run standalone
 }
 
@@ -76,6 +77,22 @@ local function get_iface_essid(iface)
    return "No essid"
 end
 
+local function iface_has_lease(iface)
+   local lines = io.lines('/proc/net/route')
+
+   if not lines then
+      return false
+   end
+
+   for line in lines do
+      local _, _, thisiface = string.find(line, "^(%w*)%s*%d*")
+      if thisiface and thisiface == iface then
+         return true
+      end
+   end
+   return false
+end
+
 local function inform(iface, level, bar, essid, hint)
    if settings.testing then
       print(iface..": "..level.." "..bar.." "..essid.." ("..hint..")")
@@ -117,14 +134,21 @@ local function get_wireless_info()
       else
          -- Compute bar
          local bar = ""
-         bar = bar .. string.rep('|', level*settings.width/100)
-         bar = bar .. string.rep(' ',
-                                 settings.width
-                                    - level*settings.width/100)
+         if level*settings.width/100 > 0 then
+            bar = bar .. string.rep('|', level*settings.width/100)
+            bar = bar .. string.rep(' ',
+                                    settings.width
+                                       - level*settings.width/100)
+         else
+            -- The status bar will remove the field if it's all spaces
+            bar = bar .. ":" .. string.rep(' ', settings.width - 1)
+         end
 
          -- Compute hint
          local hint = "normal"
-         if level <= settings.critical_level then
+         if not iface_has_lease(iface) then
+            hint = settings.no_lease_color
+         elseif level <= settings.critical_level then
             hint = "critical"
          end
 
