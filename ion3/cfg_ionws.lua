@@ -78,3 +78,36 @@ defbindings("WIonWS", {
 	       kpress(MOD1.."l",
 		      "WIonWS.goto_dir_xinerama(_, 'right')"),
 	    })
+
+defctxmenu("WIonWS", "Workspace", {
+    menuentry("Destroy frame", 
+              "WIonWS.unsplit_at(_, _sub)"),
+
+    menuentry("Split vertically", 
+              "WIonWS.split_at(_, _sub, 'bottom', true)"),
+    menuentry("Split horizontally", 
+              "WIonWS.split_at(_, _sub, 'right', true)"),
+    
+    menuentry("Flip", "WIonWS.flip_at(_, _sub)"),
+    menuentry("Transpose", "WIonWS.transpose_at(_, _sub)"),
+    
+    submenu("Float split", {
+        menuentry("At left", 
+                  "WIonWS.set_floating_at(_, _sub, 'toggle', 'left')"),
+        menuentry("At right", 
+                  "WIonWS.set_floating_at(_, _sub, 'toggle', 'right')"),
+        menuentry("Above",
+                  "WIonWS.set_floating_at(_, _sub, 'toggle', 'up')"),
+        menuentry("Below",
+                  "WIonWS.set_floating_at(_, _sub, 'toggle', 'down')"),
+    }),
+
+    submenu("At root", {
+        menuentry("Split vertically", 
+                  "WIonWS.split_top(_, 'bottom')"),
+        menuentry("Split horizontally", 
+                  "WIonWS.split_top(_, 'right')"),
+        menuentry("Flip", "WIonWS.flip_at(_)"),
+        menuentry("Transpose", "WIonWS.transpose_at(_)"),
+    }),
+})
