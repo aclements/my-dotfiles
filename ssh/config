@@ -1,5 +1,7 @@
 ForwardX11 yes
 
+ServerAliveInterval 120
+
 host awk awakening awakening.mit.edu awakening.dyndns.org
         user amthrax
         ForwardX11Trusted yes

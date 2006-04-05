@@ -1,0 +1,4 @@
+cvs -e emacs
+#update -d -P -I '*.aux' -I '*.dvi'
+update -d -I '*.aux' -I '*.dvi'
+diff -u

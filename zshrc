@@ -110,7 +110,7 @@ RPROMPT=${RPROMPT//\%\?/\%v}
 #
 # Convenience alises
 #
-alias psg="ps auxww | grep -v grep | grep"
+alias psg="ps auxww | grep -v grep | grep -i"
 if [[ -n $ATC_USE_EMACS21 ]]; then
     alias emacs=emacs21
 fi

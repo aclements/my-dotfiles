@@ -168,7 +168,7 @@ fi
 
 # Adapt to my environment and adapt my environment to me
 determine_domain
-if [[ $DOMAIN == drake || $DOMAIN == chimera ]]; then
+if [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening ]]; then
     WMANAGER=ion3
 else
     WMANAGER=fluxbox
