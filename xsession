@@ -115,11 +115,13 @@ start_apps_and_daemons_awakening() {
     #xmms &
     gkrellm &
     xwrits typetime=30 breaktime=1 beep clock after=5 flashtime=:1 \
-	after=10 flashtim e=:.03 &
+        after=10 flashtim e=:.03 &
 
     # Daemons
-    bbkeys -w -t &
-    esd -nobeeps -d /dev/dsp1 &
+    if [[ $WMANAGER == fluxbox ]]; then
+        bbkeys -w -t &
+    fi
+    #esd -nobeeps -d /dev/dsp1 &
 }
 
 start_apps_and_daemons() {
@@ -164,6 +166,11 @@ wait_for_wm() {
 if [[ -z $SSH_AGENT_PID ]]; then
     ssh-agent -s > ~/.ssh/agent-env
     source ~/.ssh/agent-env
+else
+    # Probably started by display manager scripts
+    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" > .ssh/agent-env
+    echo "export SSH_AGENT_PID=$SSH_AGENT_PID" >> .ssh/agent-env
+    echo "echo Agent PID $SSH_AGENT_PID" >> .ssh/agent-env
 fi
 
 # Adapt to my environment and adapt my environment to me
