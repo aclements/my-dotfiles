@@ -70,11 +70,15 @@ local function get_iface_essid(iface)
       return ""
    end
 
+   local ret = "No essid"
+
    for line in essid:lines() do
-      return line
+      ret = line
+      break
    end
 
-   return "No essid"
+   essid:close()                -- Avoid Lua GC bug with pipes
+   return ret
 end
 
 local function iface_has_lease(iface)

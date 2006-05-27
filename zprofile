@@ -34,6 +34,14 @@ unset x
 #     fi
 
 #
+# Plan 9 from User Space
+#
+if [[ -d ~/plan9 ]]; then
+    export PLAN9=$HOME/plan9
+    path=($path $PLAN9/bin)
+fi
+
+#
 # General environment
 #
 export MORE=-sl

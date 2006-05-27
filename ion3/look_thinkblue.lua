@@ -6,12 +6,12 @@ if not gr.select_engine("de") then return end
 
 de.reset()
 
-mainfont = "-*-helvetica-medium-r-*-*-10-*-*-*-*-*-*-*"
-black = "#000"
-verydark = "#336"
-dark = "#669"
-light = "#99C"
-white = "#FFF"
+local mainfont = "-*-helvetica-medium-r-*-*-10-*-*-*-*-*-*-*"
+local black = "#000"
+local verydark = "#336"
+local dark = "#669"
+local light = "#99C"
+local white = "#FFF"
 
 de.defstyle("*", {
     shadow_colour = verydark,
@@ -117,7 +117,8 @@ de.defstyle("tab-menuentry", {
 de.defstyle("input", {
     based_on = "*",
     
-    background_colour = "#333",
+    background_colour = "#224",
+    transparent_background = false,
 })
 
 de.defstyle("input-edln", {
@@ -125,19 +126,16 @@ de.defstyle("input-edln", {
 
     de.substyle("*-cursor", {
         background_colour = "#FFF",
-        foreground_colour = "#667",
+        foreground_colour = "#666",
     }),
     de.substyle("*-selection", {
         background_colour = "#AAA",
-        foreground_colour = "#334",
+        foreground_colour = "#333",
     }),
 })
 
 de.defstyle("stdisp", {
     based_on = "input",
-
-    -- XXX Why doesn't this work?
-    --text_align = "center",
 
     de.substyle("important", {
         foreground_colour = "#0F0",
@@ -145,6 +143,10 @@ de.defstyle("stdisp", {
     de.substyle("critical", {
         foreground_colour = "#F33",
     }),
+})
+
+de.defstyle("actnotify", {
+    based_on = "*",
 })
 
 gr.refresh()
