@@ -11,3 +11,6 @@ set hostname="streambase.com"
 
 # Mailboxes to watch for new mail
 mailboxes =INBOX
+
+# Misc
+set certificate_file=~/.muttrc-local/certificates

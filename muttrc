@@ -48,7 +48,7 @@ set print_command="enscript -2GrEmail"		# how to print things
 set read_inc=25			# show progress when reading a mailbox
 set reply_to			# always use reply-to if present
 set reverse_alias		# attempt to look up my names for people
-set nosave_empty		# remove files when no messages are left
+set save_empty==no		# remove files when no messages are left
 set sort=threads		# primary sorting method
 set sort_aux=last-date		# date of the last message in thread
 set status_format="-%r-Mutt: %f [Msgs:%?M?%M/?%m%?n? New:%n?%?d? Del:%d?%?F? Flag:%F?%?t? Tag:%t?%?p? Post:%p?%?b? Inc:%b?  %l]---%>-(%P)---"
