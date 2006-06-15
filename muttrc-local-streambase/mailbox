@@ -1,0 +1,13 @@
+# Server information
+set spoolfile="imaps://imap.streambase.com/INBOX"
+set folder="imaps://imap.streambase.com/INBOX."
+set imap_user="aclements"
+set mail_check=60
+set timeout=60
+
+# Address information
+set from="Austin Clements <aclements@streambase.com>"
+set hostname="streambase.com"
+
+# Mailboxes to watch for new mail
+mailboxes =INBOX

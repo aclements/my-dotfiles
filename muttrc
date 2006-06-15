@@ -1,0 +1,209 @@
+# Mutt configuration
+# Austin Clements
+
+##################################################################
+# Mailbox configuration
+#
+
+# This must come before other variables because +'s are expanded
+source ~/.muttrc-local/mailbox
+
+##################################################################
+# Magic folders
+#
+
+set record=+sent-mail		# default location to save outgoing mail
+set postponed=+postponed	# mailbox to store postponed messages in
+
+##################################################################
+# User interface
+#
+
+set arrow_cursor		# use -> instead of hiliting the whole line
+set autoedit			# go to the editor right away when composing
+set auto_tag			# always operate on tagged messages
+set beep_new			# beep on new messages
+set check_new			# periodically check for new mail
+set uncollapse_jump		# jump to unread on uncollapse
+set noconfirmappend		# don't ask me if i want to append to mailboxes
+set confirmcreate		# prompt when creating new files
+set copy=yes			# always save a copy of outgoing messages
+set delete=yes			# purge deleted messages without asking
+set edit_headers		# let me edit the message header when composing
+set editor="emacs -nw --eval \"(progn (set-background-color \\\"none\\\"))\""	# editor to use when composing messages
+set fast_reply			# skip initial prompts when replying
+set folder_format=" %2C %t%N %8s %d %f"	# folder list format
+set help=no			# show the help lines
+set history=20			# number of lines of history to remember
+set include			# always include messages when replying
+set mark_old=no			# don't mark old when closing mailbox
+set menu_scroll			# no implicit next-page/prev-page
+set move=no			# don't ask about moving messages, just do it
+set pager_context=2		# no. of lines of context to give when scrolling
+set pager_index_lines=6		# how many index lines to show in the pager
+set pager_stop			# don't move to the next message on next-page
+set print=ask-yes		# ask me if I really want to print messages
+set print_command="enscript -2GrEmail"		# how to print things
+set read_inc=25			# show progress when reading a mailbox
+set reply_to			# always use reply-to if present
+set reverse_alias		# attempt to look up my names for people
+set nosave_empty		# remove files when no messages are left
+set sort=threads		# primary sorting method
+set sort_aux=last-date		# date of the last message in thread
+set status_format="-%r-Mutt: %f [Msgs:%?M?%M/?%m%?n? New:%n?%?d? Del:%d?%?F? Flag:%F?%?t? Tag:%t?%?p? Post:%p?%?b? Inc:%b?  %l]---%>-(%P)---"
+set status_on_top=no		# some people prefer the status bar on top
+set use_domain		        # qualify addresses with $hostname
+set use_from			# always generate the `From:' header field
+set user_agent			# use user-agent header
+set pgp_verify_sig=no		# don't automatically verify message signatures
+set wait_key=no			# prompt when a pipe returns normal status
+set write_inc=25		# show progress while writing mailboxes
+set write_bcc=no		# no bcc header by default
+set envelope_from               # derive sender from From:
+
+set mailcap_path="~/.mailcap:/etc/mailcap"
+
+##################################################################
+# Header fields
+#
+
+# Hide all headers by default
+ignore *
+unignore from: subject to cc mail-followup-to \
+         date x-mailer x-url user-agent x-spam-status x-origin
+
+unhdr_order *				# forget the previous settings
+hdr_order from subject date to cc
+
+##################################################################
+# Color definitions
+#
+
+# Comment the following if not using a transparent terminal
+color normal brightwhite default
+color hdrdefault magenta default
+color quoted blue default
+color quoted0 brightcyan default
+color quoted1 brightblue default
+color quoted2 brightmagenta default
+color quoted3 magenta default
+color quoted4 blue default
+color quoted5 blue default
+color quoted6 blue default
+color quoted7 blue default
+color signature red default
+color indicator brightyellow red
+color error brightred default
+color status yellow blue
+color tree magenta default	# the thread tree in the index menu
+color tilde magenta default
+color message brightcyan default
+color markers brightcyan default
+color attachment brightmagenta default
+color search default green	# how to hilite search patterns in the pager
+
+color header brightred default ^(From|Subject):
+color body magenta default "(ftp|http)://[^ ]+"	# point out URLs
+color body magenta default [-a-z_0-9.]+@[-a-z_0-9.]+	# e-mail addresses
+color underline brightgreen default
+
+color index brightblue default ~F
+color index brightblack default ~D
+color index brightgreen default ~N
+color index yellow default ~T
+
+# attributes when using a mono terminal
+#mono header underline ^(From|Subject):
+mono quoted bold
+
+##################################################################
+# Key bindings
+#
+
+# Up/down in index
+bind index \cl current-middle
+
+macro index <up> K\cl "move to the previous entry, keeping centered"
+macro index <down> J\cl "move to the next entry, keeping centered"
+macro index k K\cl "move to the previous entry, keeping centered"
+macro index j J\cl "move to the next entry, keeping centered"
+
+bind pager <up> previous-line
+bind pager <down> next-line
+bind pager <esc><up> previous-entry
+bind pager <esc><down> next-entry
+
+macro index - [[\cl "move to the previous page, keeping centered"
+macro index <pageup> [[\cl "move to the previous page, keeping centered"
+macro index <space> ]]\cl "move to the next page, keeping centered"
+macro index <pagedown> ]]\cl "move to the next page, keeping centered"
+
+# In/out
+bind index <left> change-folder
+bind index <right> display-message
+bind pager <left> exit
+bind pager <right> view-attachments
+bind attach <left> exit
+bind attach <right> view-attach
+bind generic <right> select-entry
+
+# Send-to-spam
+macro index S s=spam\n
+macro pager S s=spam\n
+
+# Deleting a message permanently is too easy
+bind index <esc>D delete-message
+bind index <esc>d noop
+bind index d noop
+bind index D noop
+bind index \cd noop
+
+bind pager <esc>D delete-message
+bind pager <esc>d noop
+bind pager d noop
+bind pager D noop
+bind pager \cd noop
+
+# No need for old change folder
+bind index c noop
+bind index <esc>c noop
+
+##################################################################
+# Automatically view in Mutt's pager
+#
+
+auto_view application/x-gunzip
+auto_view application/x-gzip
+
+##################################################################
+# Message hooks
+#
+
+# Set reply attribution
+message-hook . 'set attribution="Quoth %n on %{%b %d at %l:%M %P}:"'
+message-hook ~P 'set attribution="Quoth myself on %{%b %d at %l:%M %P}:"'
+
+##################################################################
+# Folder hooks
+#
+
+folder-hook . 'save-hook . =Trash'
+# Save spam to the spam folder
+folder-hook =spamin 'save-hook . =spam'
+
+##################################################################
+# Save hooks
+#
+
+source ~/.muttrc-local/save-hooks
+save-hook . =Trash       # Default rule
+
+##################################################################
+# Aliases
+#
+
+#alias dad Hank Clements <hclements@sisna.com>, Hank Clements <heber.clements@ssaglobal.com>
+#alias dad Hank Clements <hclements@catapulsion.net>, Hank Clements <heber.clements@ssaglobal.com>
+alias dad Hank Clements <hclements@catapulsion.net>
+
+source ~/.muttrc-local/aliases
