@@ -1,6 +1,6 @@
-# Server information
-set spoolfile="imaps://imap.streambase.com/INBOX"
+# Spool information
 set folder="imaps://imap.streambase.com/INBOX."
+set spoolfile="imaps://imap.streambase.com/INBOX"
 set imap_user="aclements"
 set mail_check=60
 set timeout=60

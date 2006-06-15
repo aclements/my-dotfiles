@@ -1,0 +1,97 @@
+# MIT mailing lists
+save-hook ~C"esg-\\(announce\\|soc\\|discuss\\)@" =esg
+save-hook ~C"esg-\\(notices\\|frosh\\|staff\\|tutors\\)@" =esg
+save-hook ~Ccicdo@ =esg
+save-hook ~Cmacgregor@ =macgregor
+save-hook ~Cmac-official@ =macgregor
+save-hook ~Cc-entry@ =macgregor
+save-hook ~Cc-entry-in-exile@ =macgregor
+save-hook ~Cc-summer@ =macgregor
+save-hook ~Cwaffle-haus@ =macgregor
+save-hook ~Cspatang@ =macgregor
+save-hook ~Csipb =activities
+save-hook ~Cmitgoclub =activities
+save-hook ~Cbadminton =activities
+save-hook ~Cieee =activities
+save-hook ~Cjobslist@altoids.mit.edu =jobslist
+save-hook ~Cpdos@ =pdos
+save-hook ~Ccsail-.*@csail\.mit\.edu =pdos
+save-hook ~C2006class@ =mitmisc
+save-hook ~Cundergrads@ =mitmisc
+save-hook ~Cmainlist@ =courseiv
+save-hook ~Ctbp-eligibles@ =tbp
+save-hook ~feragon@info\.randomhouse\.com =alagaesia
+
+# Freshman classes
+save-hook ~fpatti@ =classes           # 5.112
+save-hook ~fjorloff@ =classes         # 18.03
+save-hook ~Ccogito@ =classes          # 21L.001, 24.00
+save-hook ~Cpuzzle@ =classes          # MAS.A12
+save-hook ~Cesg-sicp@ =classes        # 6.001
+save-hook ~fdanz@ =classes            # 6.001
+save-hook ~C6\.050-students@ =classes # 6.050
+save-hook ~fpadour@ =classes          # 8.022
+
+# Sophomore classes
+save-hook ~C6002-all@ =classes        # 6.002
+save-hook ~C6002-sect11@ =classes     # 6.002
+save-hook ~Csotf-everyone@ =classes   # 6.034
+save-hook ~fberwick@ai =classes       # 6.034
+save-hook ~fozlem@ =classes           # 6.034
+save-hook ~C6046-recA@ =classes       # 6.046
+save-hook ~C9.00-rec1@ =classes       # 9.00
+save-hook ~fandalman@ =classes        # 9.00
+save-hook ~ftfeledy@ =classes         # 9.00
+save-hook ~C6.170 =classes            # 6.170
+save-hook ~fedkupfer@mit =classes     # STS.003
+
+# Junior classes
+save-hook ~C6821-students@ =classes   # 6.821
+save-hook ~C6821-staff@ =classes      # 6.821
+save-hook ~C6\.828-class@ =classes    # 6.828
+save-hook ~f6\.828-staff@ =classes    # 6.828
+save-hook ~C6\.828-staff@ =classes    # 6.828
+save-hook ~fsipser@ =classes          # 6.840
+save-hook ~C18\.404-students@ =classes# 6.840
+
+# Senior classes
+save-hook ~C6\.829-students@ =classes # 6.829
+save-hook ~C6\.852-students@ =classes # 6.852
+save-hook ~ftnolte@ =classes          # 6.852
+save-hook ~f"\\(tleng\\|billf\\)@" =classes # 6.UAT
+save-hook ~f"\\(bhz\\|ovadia\\|sdatta\\)@mit\.edu" =classes # 14.01
+save-hook ~fapm@math\.mit\.edu =classes # 18.100A
+
+save-hook ~C6\.115-students@ =classes # 6.115
+
+save-hook ~fdkauf@ =6.001-06-sp       # 6.001
+save-hook ~Cesg-sicpeople@ =6.001-06-sp
+save-hook ~fesg-sicpeople@ =6.001-06-sp
+save-hook ~Cesg-sicp@ =6.001-06-sp
+save-hook ~fesg-sicp@ =6.001-06-sp
+save-hook ~fwelg@ =6.001-06-sp
+save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001-06-sp
+
+save-hook ~C^l@am =atcc
+
+# Development mailing lists
+save-hook ~C.*@sourceforge\.net =sf
+save-hook ~Cpykde@mats.imk.fraunhofer.de =pykde
+save-hook ~Cicq-devel@blipp\.com =icq-devel
+save-hook ~C.*@bugs\.debian\.org =debian
+
+# Family
+save-hook ~frobinsky5@juno\.com =family
+save-hook ~fhclements@sisna\.com =family
+save-hook ~fhclements@catapulsion\.net =family
+save-hook ~femailuno@juno\.com =family
+save-hook ~fmitch0mail@earthlink\.net =family
+save-hook ~fmlstedfri@earthlink\.net =family
+
+# Friends
+save-hook ~fjal0326@ =friends
+save-hook ~fdeadly_eyes04@ =friends
+save-hook ~fpetras@mit\.edu =friends
+save-hook ~ftohn@ =friends
+save-hook ~fal_chiou@mit\.edu =friends
+save-hook ~fdrkp@mit\.edu =friends

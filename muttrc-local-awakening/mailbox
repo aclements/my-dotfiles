@@ -1,0 +1,14 @@
+# Spool information
+set folder=~/Mail
+set spoolfile="~/Mail/inbox-athena"
+set mail_check=10
+set timeout=10
+
+# Address information
+set from="Austin Clements <amdragon@mit.edu>"
+set hostname="mit.edu"
+set signature="~/.sig3"
+alternates aclement@.*\.utah\.edu|(amdragon\+[^@]*|aclements)@mit\.edu
+
+# Mailboxes to watch for new mail
+mailboxes =inbox-athena =inbox =inbox-flux =inbox-foo =spamin =inbox-root
