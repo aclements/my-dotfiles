@@ -38,6 +38,8 @@ set_settings() {
     local FBW
     if [[ $DOMAIN == chimera ]]; then
 	FBW="$HOME/etc/wallpaper/Oxygen_3840x1200.png"
+    elif [[ $DOMAIN == fry ]]; then
+        FBW="$HOME/etc/wallpaper/Country Stroll 2 3840x1200.png"
     else
 	FBW="$HOME/etc/wallpaper/1280x1024/Michael Whelan - Dragon Lake.png"
     fi
@@ -45,7 +47,14 @@ set_settings() {
 	python ~/etc/wallpaper/walld.py ~/etc/wallpaper/active/
 	#Esetroot ~/etc/wallpaper/active/AzlanCropped_1024.png
     elif [[ -e $FBW ]]; then
-	Esetroot $FBW
+        if whence xsri &> /dev/null; then
+            xsri $FBW
+        elif whence Esetroot &> /dev/null; then
+            Esetroot $FBW
+        # XXX I forget how to do this with ImageMagick
+#        elif whence display &> /dev/null; then
+#            display -backdrop $FBW
+        fi
     fi
 
     # No beeps!
@@ -60,7 +69,7 @@ set_settings() {
     # Grr.  Why?  This puts X into cloned 1024x768.  Otherwise, the
     # default is some kooky cloned, viewported 2048x768 which isn't
     # even one of of the xrandr layouts.
-    if [[ $DOMAIN == "drake"]]; then xrandr -s 0; fi
+    if [[ $DOMAIN == "drake" ]]; then xrandr -s 0; fi
 
     # Figure out my terminal emulator
     if whence Terminal &> /dev/null; then
@@ -179,7 +188,7 @@ fi
 
 # Adapt to my environment and adapt my environment to me
 determine_domain
-if [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening ]]; then
+if [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening || $DOMAIN == fry ]]; then
     WMANAGER=ion3
 else
     WMANAGER=fluxbox

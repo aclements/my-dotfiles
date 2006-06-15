@@ -45,7 +45,7 @@ fi
 # General environment
 #
 export MORE=-sl
-export LESSCHARSET=latin1
+#export LESSCHARSET=latin1
 export LESS="-R -h10"
 export LESS="$LESS -M"
 export LESS="$LESS \
@@ -85,6 +85,11 @@ fi
 # When at Google, do as the Goolers do
 if [[ -f .zgoogle ]]; then
     source .zgoogle
+fi
+
+# When at StreamBase, do as the StreamBasers do
+if [[ -f .zstreambase ]]; then
+    source .zstreambase
 fi
 
 export atc_profile_loaded=1

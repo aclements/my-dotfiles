@@ -1,0 +1,27 @@
+# -*- shell-script -*-
+# StreamBase configuration
+
+export MOZILLA_FIVE_HOME=/usr/lib/firefox-1.0.7
+
+# Distributed, cached compilation
+export CC="ccache distcc gcc33"
+export CXX="ccache distcc g++33"
+
+export DISTCC_HOSTS="localhost distcc1.dyn.grassybrook.com distcc2.dyn.grassybrook.com \
+                     distcc3.dyn.grassybrook.com distcc4.dyn.grassybrook.com \
+                     distcc5.dyn.grassybrook.com"
+
+export CCACHE_DIR=/mnt/local/home/$USER/.ccache
+export DISTCC_DIR=/mnt/local/home/$USER/.distcc
+
+[[ -d $CCACHE_DIR ]] || echo "Warning: $CCACHE_DIR doesn't exist"
+[[ -d $DISTCC_DIR ]] || echo "Warning: $DISTCC_DIR doesn't exist"
+
+# Friggin' Java
+export JAVA_HOME=/usr/java/j2sdk1.4.2_07
+if [[ -d $JAVA_HOME ]]; then
+    path=($path $JAVA_HOME)
+else
+    echo "Warning: Couldn't find Java"
+    unset JAVA_HOME
+fi
