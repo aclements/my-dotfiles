@@ -37,6 +37,7 @@ set help=no			# show the help lines
 set history=20			# number of lines of history to remember
 set include			# always include messages when replying
 set mark_old=no			# don't mark old when closing mailbox
+set menu_move_off=no		# keep menu bottom against screen bottom
 set menu_scroll			# no implicit next-page/prev-page
 set move=no			# don't ask about moving messages, just do it
 set pager_context=2		# no. of lines of context to give when scrolling
