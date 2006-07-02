@@ -8,82 +8,82 @@ emulate zsh
 if [[ -z $atc_profile_loaded ]]; then
     echo "Eep!  Your zprofile isn't loaded"
     if [[ -r ~/sys/dotfiles/zprofile ]]; then
-	if [[ ! -r ~/.zprofile ]]; then
-	    echo "You forgot to link .zprofile in from sys/dotfiles"
-	elif [[ ~/.zprofile -ef ~/sys/dotfiles/zprofile ]]; then
-	    echo -n "Odd.  .zprofile exists and is correct.  "
-	    echo "Try logging out and logging back in"
-	else
-	    echo "You have the wrong .zprofile.  Link in sys/dotfiles/.zprofile"
-	fi
-	echo "Sourcing sys/dotfiles/.zprofile"
-	source ~/sys/dotfiles/zprofile
+        if [[ ! -r ~/.zprofile ]]; then
+            echo "You forgot to link .zprofile in from sys/dotfiles"
+        elif [[ ~/.zprofile -ef ~/sys/dotfiles/zprofile ]]; then
+            echo -n "Odd.  .zprofile exists and is correct.  "
+            echo "Try logging out and logging back in"
+        else
+            echo "You have the wrong .zprofile.  Link in sys/dotfiles/.zprofile"
+        fi
+        echo "Sourcing sys/dotfiles/.zprofile"
+        source ~/sys/dotfiles/zprofile
     else
-	if [[ ! -d ~/sys/dotfiles ]]; then
-	    echo "You appear to be missing sys/dotfiles.  Bad things shall befall you"
-	else
-	    echo "Odd.  You have sys/dotfiles, but no sys/dotfiles/zprofile"
-	fi
+        if [[ ! -d ~/sys/dotfiles ]]; then
+            echo "You appear to be missing sys/dotfiles.  Bad things shall befall you"
+        else
+            echo "Odd.  You have sys/dotfiles, but no sys/dotfiles/zprofile"
+        fi
     fi
 fi
 
 #
 # Options
 #
-setopt no_hup			# Don't HUP background processes on exit
-setopt csh_null_glob		# Be happy if at least one glob expands
-setopt no_beep			# Be quiet
-setopt correct			# Enable command spelling correction
-setopt no_short_loops		# No syntactic monstrosities
-disable test [			# Bash syntax
+setopt no_hup                   # Don't HUP background processes on exit
+setopt csh_null_glob            # Be happy if at least one glob expands
+setopt no_beep                  # Be quiet
+setopt correct                  # Enable command spelling correction
+setopt no_short_loops           # No syntactic monstrosities
+disable test [                  # Bash syntax
 
 #
 # History
 #
-HISTSIZE=1000			# History lines to store in memory
-SAVEHIST=1000			# History lines to save to disk
-HISTFILE=~/.history		# File to save history to
-setopt append_history		# Append instead of replacing history
-setopt inc_append_history	# .. do so as commands are entered
-setopt extended_history		# Keep timestamps on history entries
-setopt hist_ignore_dups		# Remove repeated commands from history
-setopt hist_reduce_blanks	# Reformat whitespace in history
+HISTSIZE=1000                   # History lines to store in memory
+SAVEHIST=1000                   # History lines to save to disk
+HISTFILE=~/.history             # File to save history to
+setopt append_history           # Append instead of replacing history
+setopt inc_append_history       # .. do so as commands are entered
+setopt extended_history         # Keep timestamps on history entries
+setopt hist_ignore_dups         # Remove repeated commands from history
+setopt hist_reduce_blanks       # Reformat whitespace in history
 
 #
 # Bindings
 #
-bindkey -e			# Default to Emacs-like bindings
+bindkey -e                      # Default to Emacs-like bindings
 
 zle -N parent-dir
 parent-dir() {
-    local cursor=$CURSOR	# Save cursor position
-    local buffer=$BUFFER	# Save buffer contents
-    BUFFER=			# Clear edit buffer
-    zle -R			# Redraw the now empty input line
-    local i cmd=..		# Consume numeric argument
+    local cursor=$CURSOR        # Save cursor position
+    local buffer=$BUFFER        # Save buffer contents
+    BUFFER=                     # Clear edit buffer
+    zle -R                      # Redraw the now empty input line
+    local i cmd=..              # Consume numeric argument
     for (( i = 1 ; i < NUMERIC ; i++ )); do
-	cmd=$cmd/..
+        cmd=$cmd/..
     done
-    print "cd $cmd"		# So it's clear what's happening from scrollback
+    print "cd $cmd"             # So it's clear what's happening from scrollback
     cd $cmd
     # XXX reset-prompt doesn't work on zsh 4.0.x
-    zle reset-prompt -N		# Redraw the prompt itself
-    BUFFER=$buffer		# Restore the buffer contents
-    CURSOR=$cursor		# And move the cursor back to where it was
+    zle reset-prompt -N         # Redraw the prompt itself
+    BUFFER=$buffer              # Restore the buffer contents
+    CURSOR=$cursor              # And move the cursor back to where it was
 }
 bindkey '\C-u' parent-dir
 
 #
 # Line editing
 #
-WORDCHARS=${WORDCHARS//['\/.&']}	# Be more allowing with word skipping
+WORDCHARS=${WORDCHARS//['\/.&']}        # Be more allowing with word skipping
 # The single quotes above are a workaround for zsh 4.0 compatibility
 
 #
 # Customize prompt
 #
-autoload -U colors; colors	# Get control sequences for standard colors
-if [[ -n $SSH_CONNECTION || $name == 'athena' ]]; then	# Check ssh or Athena
+autoload -U colors; colors      # Get control sequences for standard colors
+if [[ -n $SSH_CONNECTION || $name == 'athena' ]]; then  # Check ssh or Athena
     PROMPTFLUFF=$name
 fi
 PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}\
@@ -99,7 +99,7 @@ precmd_prettyreturn() {
     # Update psvar[0] to reflect pretty-printed output status
     local pretty=$result
     if (( pretty > 128 )); then
-	pretty=${signals[$(( pretty - 128 + 1 ))]}
+        pretty=${signals[$(( pretty - 128 + 1 ))]-$pretty}
     fi
     psvar[0]=$pretty
 }
@@ -124,36 +124,36 @@ setupls() {
     # The complexity of this is necessary because some systems (*cough*
     # Athena) have ancient versions of gls floating around
     for ls in `whence -ap gls ls`; do
-	# The / is for BSD ls, which ignores --version (in fact, there
-	# is no way to ask its version), to lock in on a directory I
-	# know is local and small
-	lsver="`command $ls --version / 2> /dev/null`"
-	if [[ $lsver == *Stallman* ]]; then
-	    foundls=1
-	    lsver=${${=lsver}[3]}
-	    break
-	fi
+        # The / is for BSD ls, which ignores --version (in fact, there
+        # is no way to ask its version), to lock in on a directory I
+        # know is local and small
+        lsver="`command $ls --version / 2> /dev/null`"
+        if [[ $lsver == *Stallman* ]]; then
+            foundls=1
+            lsver=${${=lsver}[3]}
+            break
+        fi
     done
-    ls="command $ls"		# Just to be sure
+    ls="command $ls"            # Just to be sure
 
     if (( foundls )); then
         # Find a dircolors that matches the version of ls
-	for dircolors in `whence -p gdircolors dircolors`; do
-	    dcver="`command $dircolors --version`"
-	    if [[ $lsver == ${${=dcver}[3]} ]];  then
-		# We have a winner
-		eval `command $dircolors -b`
-		ZLS_COLORS="$LS_COLORS"
-		unset LSCOLORS
-		ls="$ls --color"
-		break
-	    fi
-	done
+        for dircolors in `whence -p gdircolors dircolors`; do
+            dcver="`command $dircolors --version`"
+            if [[ $lsver == ${${=dcver}[3]} ]];  then
+                # We have a winner
+                eval `command $dircolors -b`
+                ZLS_COLORS="$LS_COLORS"
+                unset LSCOLORS
+                ls="$ls --color"
+                break
+            fi
+        done
     else
-	# Didn't find a satisfactory ls, fall back to what is
-	# hopefully BSD ls.  This isn't quite right, because this
-	# could also be an old version of GNU ls.
-	ls="ls -G"
+        # Didn't find a satisfactory ls, fall back to what is
+        # hopefully BSD ls.  This isn't quite right, because this
+        # could also be an old version of GNU ls.
+        ls="ls -G"
     fi
 
     # Show symbols after file names
@@ -169,10 +169,10 @@ truncatedls() {
     local lines="`ls -C $*`"
     integer nlines=$(( `wc -l <<< $lines` - 1 ))
     if (( nlines > 10 )); then
-	head -n 9 <<< $lines
-	print -- .. $(( nlines - 9 )) more lines ..
+        head -n 9 <<< $lines
+        print -- .. $(( nlines - 9 )) more lines ..
     else
-	print -nr -- $lines
+        print -nr -- $lines
     fi
 }
 
@@ -181,7 +181,7 @@ truncatedls() {
 #
 chpwd() {
     # List the new directory on change
-    [[ -t 1 ]] || return
+    [[ -t 1 && -t 0 ]] || return
     truncatedls
 }
 
@@ -192,14 +192,14 @@ screentitle() {
     # Set the title of the screen window or terminal to $1
     local title
     if [[ -n $1 ]]; then
-	title=$1
+        title=$1
     else
-	title=${ZSH_NAME}
+        title=${ZSH_NAME}
     fi
     if [[ $TERM == screen ]]; then
-	print -n -- "\ek${title}\e\\"
+        print -n -- "\ek${title}\e\\"
     elif [[ $TERM == (*xterm*|rxvt|(dt|k|E)term) ]]; then
-	print -n -- "\e]0;${title}\a"
+        print -n -- "\e]0;${title}\a"
     fi
 }
 
@@ -210,10 +210,10 @@ preexec() {
     line=(${(z)2})
     local cmd foo
     if [[ $line[1] == fg || $line[1] == %* ]]; then
-	local jobid=${line[(r)%*]}
-	if [[ -z $jobid ]]; then jobid=%+; fi
-	jobs $jobid | read jobid foo
-	line=(${(z)${(e):-\$jobtexts$jobid}})
+        local jobid=${line[(r)%*]}
+        if [[ -z $jobid ]]; then jobid=%+; fi
+        jobs $jobid | read jobid foo
+        line=(${(z)${(e):-\$jobtexts$jobid}})
     fi
     cmd=${line[(r)^(*=*|sudo)]:t}
     screentitle $cmd
