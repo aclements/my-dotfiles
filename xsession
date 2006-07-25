@@ -177,13 +177,13 @@ wait_for_wm() {
 # SSH agent must be done before anything else because of environment
 # changes
 if [[ -z $SSH_AGENT_PID ]]; then
-    ssh-agent -s > ~/.ssh/agent-env
-    source ~/.ssh/agent-env
+    ssh-agent -s > ~/.ssh/agent-env-$HOST
+    source ~/.ssh/agent-env-$HOST
 else
     # Probably started by display manager scripts
-    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" > .ssh/agent-env
-    echo "export SSH_AGENT_PID=$SSH_AGENT_PID" >> .ssh/agent-env
-    echo "echo Agent PID $SSH_AGENT_PID" >> .ssh/agent-env
+    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" > .ssh/agent-env-$HOST
+    echo "export SSH_AGENT_PID=$SSH_AGENT_PID" >> .ssh/agent-env-$HOST
+    echo "echo Agent PID $SSH_AGENT_PID" >> .ssh/agent-env-$HOST
 fi
 
 # Adapt to my environment and adapt my environment to me
