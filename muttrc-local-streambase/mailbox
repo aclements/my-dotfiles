@@ -14,3 +14,7 @@ mailboxes =INBOX
 
 # Misc
 set certificate_file=~/.muttrc-local/certificates
+
+# A lot of people at StreamBase send html emails (this must be
+# combined with the appropriate mailcap magic)
+auto_view text/html
