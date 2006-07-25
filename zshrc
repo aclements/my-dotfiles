@@ -83,7 +83,9 @@ WORDCHARS=${WORDCHARS//['\/.&']}        # Be more allowing with word skipping
 # Customize prompt
 #
 autoload -U colors; colors      # Get control sequences for standard colors
-if [[ -n $SSH_CONNECTION || $name == 'athena' ]]; then  # Check ssh or Athena
+if [[ -z $PROMPTFLUFF &&
+            (-n $SSH_CONNECTION ||
+                $name == 'athena') ]]; then  # Check ssh or Athena
     PROMPTFLUFF=$name
 fi
 PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}\
@@ -180,6 +182,7 @@ truncatedls() {
 # Change directory helper
 #
 chpwd() {
+    screentitle
     # List the new directory on change
     [[ -t 1 && -t 0 ]] || return
     truncatedls
@@ -188,13 +191,32 @@ chpwd() {
 #
 # Screen title support
 #
+simplifydir() {
+    local dir=$1
+
+    # Replace home dir with ~
+    dir=${dir/#${HOME}/'~'}
+    # Replace other home dirs with ~username (not quite correct, but
+    # generally works)
+    dir=${dir/#\/home\//'~'}
+
+    # Reverse
+    local -a xsplit
+    for c in ${(s:/:)dir}; do
+        xsplit=($c $xsplit)
+    done
+
+    # Rejoin
+    echo ${(j: :)xsplit}
+}
+
 screentitle() {
     # Set the title of the screen window or terminal to $1
     local title
     if [[ -n $1 ]]; then
-        title=$1
+        title="${ZSH_NAME} $1"
     else
-        title=${ZSH_NAME}
+        title="${ZSH_NAME} $(simplifydir $PWD)"
     fi
     if [[ $TERM == screen ]]; then
         print -n -- "\ek${title}\e\\"
