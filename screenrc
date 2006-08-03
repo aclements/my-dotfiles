@@ -13,7 +13,7 @@ autodetach on
 startup_message off
 
 # scroll back
-defscrollback 1000
+defscrollback 5000
 
 # setup the caption
 #hardstatus alwayslastline "%{-b gk}%-Lw%{+b kg}%50>%n%f %t%{-b gk}%+Lw%<"
@@ -33,8 +33,10 @@ bind ''
 bind ^a
 
 # change the command combination to be Ctrl+`
-bindkey "^`" command
-escape ^``
+#bindkey "^`" command
+#escape ^``
+bindkey "^\" command
+escape ^\^\
 
 # aterm bindings
 bindkey "^[[c" next
@@ -55,6 +57,10 @@ bindkey "^[[5D" prev
 termcapinfo xterm* ti@:te@
 termcapinfo Eterm ti@:te@
 termcapinfo rxvt ti@:te@
+
+# Allow dimmed text on xterms (this works in XFCE Terminal; doesn't
+# work in xterm, but doesn't seem to have any bad effects)
+termcapinfo xterm mh=\E[2m
 
 
 ################
