@@ -30,7 +30,7 @@ set confirmcreate		# prompt when creating new files
 set copy=yes			# always save a copy of outgoing messages
 set delete=yes			# purge deleted messages without asking
 set edit_headers		# let me edit the message header when composing
-set editor="emacs -nw --eval \"(progn (set-background-color \\\"none\\\"))\""	# editor to use when composing messages
+set editor="EMACS_LOAD_FAST=1 emacs -nw --eval \"(progn (set-background-color \\\"none\\\"))\""	# editor to use when composing messages
 set fast_reply			# skip initial prompts when replying
 set folder_format=" %2C %t%N %8s %d %f"	# folder list format
 set help=no			# show the help lines
