@@ -37,7 +37,7 @@
 # diff3-cmd = diff3_program (diff3, gdiff3, etc.)
 # diff3-has-program-arg = [true | false]
 [helpers]
-diff-cmd = /home/amthrax/bin/mydiff
+diff-cmd = mydiff
 
 ### Section for configuring tunnel agents.
 # [tunnels]
