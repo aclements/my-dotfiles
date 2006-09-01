@@ -1,16 +1,25 @@
+alias aclements aclements@streambase.com (Austin Clements)
+
 # IPA
 alias klumpp klumpp@streambase.com (Jim Klumpp)
 alias michaelt michaelt@streambase.com (Michael Teixeira)
-alias joan joan@streambase.com (Joan Friedman)
 alias awald awald@streambase.com (Aaron Wald)
-alias rfh rfh@streambase.com (Robert Hoffman)
 
 # Runtime
 alias tibbetts tibbets@streambase.com (Richard Tibbetts)
 alias mcneill mcneill@streambase.com (Keith McNeill)
+alias campbell campbell@streambase.com (Jim Campbell)
+alias haydens haydens@streambase.com (Hayden Schultz)
 
 # Documentation
 alias smart smart@streambase.com (John Smart)
 
 # Misc
 alias eddie eddie@streambase.com (Eddie Galvez)
+alias rfh rfh@streambase.com (Robert Hoffman)
+alias kim kim@streambase.com (Kimberly Burchett)
+
+# QA
+alias joan joan@streambase.com (Joan Friedman)
+alias kevin kevin@streambase.com (Kevin Willoughby)
+alias aconrad aconrad@streambase.com (Adam Conrad)
