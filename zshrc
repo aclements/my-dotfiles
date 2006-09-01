@@ -214,9 +214,11 @@ screentitle() {
     # Set the title of the screen window or terminal to $1
     local title
     if [[ -n $1 ]]; then
-        title="${ZSH_NAME} $1"
+        title="$1"
+    elif [[ $TERM == screen ]]; then
+        title="${ZSH_NAME}"
     else
-        title="${ZSH_NAME} $(simplifydir $PWD)"
+        title="[$(simplifydir $PWD)]"
     fi
     if [[ $TERM == screen ]]; then
         print -n -- "\ek${title}\e\\"
