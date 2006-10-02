@@ -102,6 +102,12 @@ precmd_prettyreturn() {
     local pretty=$result
     if (( pretty > 128 )); then
         pretty=${signals[$(( pretty - 128 + 1 ))]-$pretty}
+    elif (( pretty == 127 )); then
+        # Command not found
+        pretty=":("
+    elif (( pretty == 126 )); then
+        # Command found, but permission denied
+        pretty="XP"
     fi
     psvar[0]=$pretty
 }
