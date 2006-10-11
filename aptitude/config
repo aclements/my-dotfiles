@@ -1,0 +1,11 @@
+aptitude "";
+aptitude::UI "";
+aptitude::UI::Menubar-Autohide "true";
+aptitude::UI::Minibuf-Prompts "true";
+aptitude::UI::Prompt-On-Exit "false";
+aptitude::UI::Pause-After-Download "No";
+aptitude::UI::Advance-On-Action "true";
+aptitude::UI::Package-Display-Format "%c%a%M %p# %Z %R %12v %12V";
+aptitude::Recommends-Important "false";
+aptitude::Keep-Unused-Pattern "";
+aptitude::Delete-Unused-Pattern "";
