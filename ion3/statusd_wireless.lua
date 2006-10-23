@@ -63,7 +63,7 @@ local function read_proc_file()
 end
 
 local function get_iface_essid(iface)
-   local essid = io.popen("/usr/sbin/iwgetid "..iface.." --raw")
+   local essid = io.popen("/sbin/iwgetid "..iface.." --raw")
 
    if not essid then
       warn("Failed to read essid for "..iface)
