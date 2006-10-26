@@ -1,6 +1,11 @@
 -- Ion3 bindings
 -- By Austin Clements <amdragon@mit.edu>
 
+
+-- WScreen context bindings
+--
+-- The bindings in this context are available all the time.
+
 defbindings("WScreen", {
 	       bdoc("Switch to n:th object (workspace, full screen client window) "..
 		    "within current screen."),
@@ -24,11 +29,35 @@ defbindings("WScreen", {
 	       bdoc("Toggle between two active objects."),
 	       kpress(MOD1.."space", "ioncore.goto_previous()"),
 
+	       bdoc("Query for workspace to go to or create a new one."),
+	       kpress(MOD2.."F9", "mod_query.query_workspace(_)"),
+
 	       bdoc("Display the main menu."),
 	       kpress(MOD2.."F12",
                       "mod_menu.menu(_, _sub, 'mainmenu', {big=true})"),
 	       mpress("Button3", "mod_menu.pmenu(_, _sub, 'mainmenu')"),
-	    })
+
+	       bdoc("Forward-circulate focus."),
+	       kpress(MOD1.."Tab", "ioncore.goto_next(_chld, 'right')", 
+		      "_chld:non-nil"),
+})
+
+-- Client window bindings
+--
+-- These bindings affect client windows directly.
+
+defbindings("WClientWin", {
+               bdoc("Quote the next key press"),
+               kpress(MOD1.."Q",
+                      "WClientWin.quote_next(_sub)", "_sub:WClientWin"),
+               
+	       bdoc("Nudge current client window. This might help with some "..
+		    "programs' resizing problems."),
+	       kpress_wait(MOD1.."P", 
+			   "WClientWin.nudge(_sub)", "_sub:WClientWin"),
+})
+
+-- Client window group bindings
 
 function WClientWin.smart_fullscreen(window)
    local scr = window:screen_of()
@@ -42,23 +71,22 @@ function WClientWin.smart_fullscreen(window)
    ws:goto()
 end
 
-defbindings("WMPlex", {
-               bdoc("Quote the next key press"),
-               kpress(MOD1.."Q",
-                      "WClientWin.quote_next(_sub)", "_sub:WClientWin"),
-               
-	       bdoc("Nudge current client window. This might help with some "..
-		    "programs' resizing problems."),
-	       kpress_wait(MOD1.."P", 
-			   "WClientWin.nudge(_sub)", "_sub:WClientWin"),
-
-	       bdoc("Toggle fullscreen mode of current client window."),
+defbindings("WGroupCW", {
+	       bdoc("Toggle client window group full-screen mode"),
                kpress(MOD1.."1",
                       "WClientWin.smart_fullscreen(_sub)", "_sub:WClientWin"),
--- 	       kpress_wait(MOD1.."1", 
--- 			   "WClientWin.set_fullscreen(_sub, 'toggle')", 
--- 			   "_sub:WClientWin"),
+--               kpress_wait(MOD1.."1",
+--                      "WClientWin.set_fullscreen(_:bottom(), 'toggle')"),
+})
 
+-- WMPlex context bindings
+--
+-- These bindings work in frames and on screens. The innermost of such
+-- contexts/objects always gets to handle the key press. Most of these 
+-- bindings define actions on client windows. (Remember that client windows 
+-- can be put in fullscreen mode and therefore may not have a frame.)
+
+defbindings("WMPlex", {
 	       bdoc("Query for a client window to go to."),
 	       kpress(MOD1.."G", "mod_query.query_gotoclient(_)"),
 
@@ -87,26 +115,15 @@ defbindings("WMPlex", {
 
                bdoc("Xlock"),
                kpress(MOD2.."F8", "ioncore.exec_on(_, 'xscreensaver-command -lock')"),
-
-	       bdoc("Query for workspace to go to or create a new one."),
-	       kpress(MOD2.."F9", "mod_query.query_workspace(_)"),
 	    })
 
+-- WFrame context bindings
+--
+-- These bindings are common to all types of frames. The rest of frame
+-- bindings that differ between frame types are defined in the modules' 
+-- configuration files.
+
 defbindings("WFrame", {
-	       bdoc("Tag current object within the frame."),
-	       kpress(MOD1.."T", "WRegion.set_tagged(_sub, 'toggle')",
-                      "_sub:non-nil"),
-
-	       bdoc("Switch to next/previous object within the frame."),
-	       kpress(MOD1.."I", "WFrame.switch_next(_)"),
-	       kpress(MOD1.."U", "WFrame.switch_prev(_)"),
-
-	       bdoc("Maximize the frame vertically."),
-	       kpress(MOD1.."V", "WFrame.maximize_vert(_)"),
-
-	       bdoc("Attach tagged objects to this frame."),
-	       kpress(MOD1.."A", "WFrame.attach_tagged(_)"),
-
 	       bdoc("Display frame context menu."),
 	       mpress("Button3", "mod_menu.pmenu(_, _sub, 'ctxmenu')"),
 
@@ -130,6 +147,48 @@ defbindings("WFrame", {
 	       mdrag("Button1@tab", "WFrame.p_tabdrag(_)"),
 	       mdrag("Button2@tab", "WFrame.p_tabdrag(_)"),
 	    })
+
+-- Frames for transient windows ignore this bindmap
+
+defbindings("WFrame.toplevel", {
+	       bdoc("Tag current object within the frame."),
+	       kpress(MOD1.."T", "WRegion.set_tagged(_sub, 'toggle')",
+                      "_sub:non-nil"),
+
+	       bdoc("Switch to next/previous object within the frame."),
+	       kpress(MOD1.."I", "WFrame.switch_next(_)"),
+	       kpress(MOD1.."U", "WFrame.switch_prev(_)"),
+
+	       bdoc("Maximize the frame vertically."),
+	       kpress(MOD1.."V", "WFrame.maximize_vert(_)"),
+
+	       bdoc("Attach tagged objects to this frame."),
+	       kpress(MOD1.."A", "WFrame.attach_tagged(_)"),
+})
+
+-- Bindings for floating frames.
+
+defbindings("WFrame.floating", {
+    bdoc("Toggle shade mode"),
+    mdblclick("Button1@tab", "WFrame.set_shaded(_, 'toggle')"),
+    
+    bdoc("Raise the frame."),
+    mpress("Button1@tab", "WRegion.rqorder(_, 'front')"),
+    mpress("Button1@border", "WRegion.rqorder(_, 'front')"),
+    mclick(META.."Button1", "WRegion.rqorder(_, 'front')"),
+    
+    bdoc("Lower the frame."),
+    mclick(META.."Button3", "WRegion.rqorder(_, 'back')"),
+    
+    bdoc("Move the frame."),
+    mdrag("Button1@tab", "WFrame.p_move(_)"),
+})
+
+-- WMoveresMode context bindings
+-- 
+-- These bindings are available keyboard move/resize mode. The mode
+-- is activated on frames with the command begin_kbresize (bound to
+-- META.."R" above by default).
 
 defbindings("WMoveresMode", {
 	       bdoc("Cancel the resize mode."),
@@ -168,3 +227,63 @@ defbindings("WMoveresMode", {
 	       kpress(MOD1.."K",     "WMoveresMode.move(_, 0,-1)"),
 	       kpress(MOD1.."J",     "WMoveresMode.move(_, 0, 1)"),
 	    })
+
+--
+-- Menu definitions
+--
+
+
+-- Main menu
+defmenu("mainmenu", {
+    submenu("Programs",         "appmenu"),
+    menuentry("Lock screen",    "ioncore.exec_on(_, 'xlock')"),
+    menuentry("Help",           "mod_query.query_man(_)"),
+    menuentry("About Ion",      "mod_query.show_about_ion(_)"),
+    submenu("Styles",           "stylemenu"),
+    submenu("Session",          "sessionmenu"),
+})
+
+
+-- Application menu
+defmenu("appmenu", {
+    menuentry("XTerm",          "ioncore.exec_on(_, 'xterm')"),
+    menuentry("W3M",            "ioncore.exec_on(_, ':w3m -v')"),
+    menuentry("Rxvt",           "ioncore.exec_on(_, 'rxvt')"),
+    menuentry("Opera",          "ioncore.exec_on(_, 'opera')"),
+    menuentry("Links",          "ioncore.exec_on(_, ':links')"),
+    menuentry("Konqueror",      "ioncore.exec_on(_, 'konqueror')"),
+    menuentry("Dillo",          "ioncore.exec_on(_, 'dillo')"),
+    menuentry("Run...",         "mod_query.query_exec(_)"),
+})
+
+
+-- Session control menu
+defmenu("sessionmenu", {
+    menuentry("Save",           "ioncore.snapshot()"),
+    menuentry("Restart",        "ioncore.restart()"),
+    menuentry("Restart TWM",    "ioncore.restart_other('twm')"),
+    menuentry("Exit",           "ioncore.shutdown()"),
+})
+
+
+-- Context menu (frame/client window actions)
+defctxmenu("WFrame", "Frame", {
+    menuentry("Close",          "WRegion.rqclose_propagate(_, _sub)"),
+    menuentry("Kill",           "WClientWin.kill(_sub)",
+                                "_sub:WClientWin"),
+    menuentry("Toggle tag",     "WRegion.set_tagged(_sub, 'toggle')",
+                                "_sub:non-nil"),
+    menuentry("Attach tagged",  "WFrame.attach_tagged(_)"),
+    menuentry("Clear tags",     "ioncore.clear_tags()"),
+    menuentry("Window info",    "mod_query.show_tree(_, _sub)"),
+})
+
+
+-- Context menu for screens
+defctxmenu("WScreen", "Screen", {
+    menuentry("New workspace",  "ioncore.create_ws(_)"),
+    menuentry("New empty workspace",
+                                "ioncore.create_ws(_, nil, true)"),
+    menuentry("Close workspace","WRegion.rqclose(_sub)"),
+})
+

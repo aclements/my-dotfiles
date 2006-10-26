@@ -1,5 +1,19 @@
 -- Statusbar module
 
+local sep = "  :.  "
+
+local batacpi = ""
+if ioncore.lookup_script("statusd_batacpi.lua") then
+   batacpi = sep ..
+     "%>batacpi_percent %|batacpi_bar %>batacpi_time"
+end
+
+local wireless = ""
+if ioncore.lookup_script("statusd_wireless.lua") then
+   wireless = sep ..
+     "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"
+end
+
 -- Create primary statusbar
 mod_statusbar.create{
    -- First screen, bottom left corner
@@ -9,10 +23,7 @@ mod_statusbar.create{
    systray=true,
 
    -- Template
-   template="%date  :.  %load  :.  "..
-      "%>batacpi_percent %|batacpi_bar %>batacpi_time  :.  "..
-      "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"..
-      "%filler%systray",
+   template="%date"..sep.."%load"..batacpi..wireless.."%filler%systray",
 }
 
 -- Launch ion-statusd.  This must be done after creating statusbars
