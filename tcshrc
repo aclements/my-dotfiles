@@ -34,9 +34,11 @@ if ( x$name == "xathena" ) then
 endif
 # Note that '%{\ek\e\\%} ' is for screen
 if ($?PROMPTFLUFF) then
-    set prompt=${PROMPTFLUFF}':%B%c2%b%#%{\ek\e\\%} '
+#    set prompt=${PROMPTFLUFF}':%B%c2%b%#%{\ek\e\\%} '
+    set prompt=${PROMPTFLUFF}':%B%c2%b%# '
 else
-    set prompt='%B%c2%b%#%{\ek\e\\%} '
+#    set prompt='%B%c2%b%#%{\ek\e\\%} '
+    set prompt='%B%c2%b%# '
 endif
 set rprompt="%B%?%b %p"
 set promptchars='>#'  # Athena tcsh is dumb about this
