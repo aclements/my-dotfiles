@@ -246,23 +246,35 @@ defmenu("mainmenu", {
 
 -- Application menu
 defmenu("appmenu", {
+    menuentry("Terminal",       "ioncore.exec_on(_, '$XTERMCMD')"),
     menuentry("XTerm",          "ioncore.exec_on(_, 'xterm')"),
-    menuentry("W3M",            "ioncore.exec_on(_, ':w3m -v')"),
-    menuentry("Rxvt",           "ioncore.exec_on(_, 'rxvt')"),
-    menuentry("Opera",          "ioncore.exec_on(_, 'opera')"),
-    menuentry("Links",          "ioncore.exec_on(_, ':links')"),
-    menuentry("Konqueror",      "ioncore.exec_on(_, 'konqueror')"),
-    menuentry("Dillo",          "ioncore.exec_on(_, 'dillo')"),
+--    menuentry("W3M",            "ioncore.exec_on(_, ':w3m -v')"),
+--    menuentry("Rxvt",           "ioncore.exec_on(_, 'rxvt')"),
+--    menuentry("Opera",          "ioncore.exec_on(_, 'opera')"),
+--    menuentry("Links",          "ioncore.exec_on(_, ':links')"),
+--    menuentry("Konqueror",      "ioncore.exec_on(_, 'konqueror')"),
+--    menuentry("Dillo",          "ioncore.exec_on(_, 'dillo')"),
+    menuentry("aterm",          "ioncore.exec_on(_, 'aterm')"),
+    menuentry("firefox",        "ioncore.exec_on(_, 'firefox')"),
     menuentry("Run...",         "mod_query.query_exec(_)"),
 })
 
 
 -- Session control menu
+function shutdownDWIM()
+   if os.getenv("XSESSION") then
+      -- Athena is funky, as usual
+      ioncore.exec('kill -HUP $XSESSION')
+   else
+      ioncore.shutdown()
+   end
+end
+
 defmenu("sessionmenu", {
     menuentry("Save",           "ioncore.snapshot()"),
     menuentry("Restart",        "ioncore.restart()"),
     menuentry("Restart TWM",    "ioncore.restart_other('twm')"),
-    menuentry("Exit",           "ioncore.shutdown()"),
+    menuentry("Exit",           "shutdownDWIM()"),
 })
 
 
