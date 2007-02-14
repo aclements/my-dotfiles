@@ -8,9 +8,11 @@ alias mom Robin Clements <robinsky5@juno.com>
 #alias dad Hank Clements <hclements@sisna.com>, Hank Clements <heber.clements@ssaglobal.com>
 #alias dad Hank Clements <hclements@catapulsion.net>, Hank Clements <heber.clements@ssaglobal.com>
 alias dad Hank Clements <hclements@catapulsion.net>
+alias kyliea Kyleia Clements <kyleiac@catapulsion.net>
 alias grandma Marion Stedman <mlstedfri@earthlink.net>
 alias mitchels Mitchells <mitch0mail@earthlink.net>
-alias carlsens Carlsens <emailuno@juno.com>
+#alias carlsens Carlsens <emailuno@juno.com>  # Still active?
+alias kathy Kathy Carlsen <kcarlsen@k-com.net>
 alias family mom, grandma, mitchels, carlsens
 
 # *** PC Friends
@@ -41,9 +43,16 @@ alias 6001ers04 benlu@mit.edu, carterj@mit.edu, jenmitch@mit.edu, mwangi@mit.edu
 alias 6001ers05 mavara@mit.edu, hurwitz@mit.edu, stclaire@mit.edu, cvnguyen@mit.edu
 alias 6829 Jeff Arnold <jbarnold@mit.edu>, Dan Ports <drkp@mit.edu>
 
-# *** 6.001
+# *** 6.001 Spring '06
 #alias 6001-esg Preeya Phadnis <preeya>, Kendra Beckler <kkb>, Matthew Goldstein <austein>, Anika Huhn <ahuhn>, Greg Perkins <gregp>, Joy Perkinson <joyp>, Alex Schwendner <alexrs>, Adam Seering <aseering>, Xiao Xiao <x_x>, Anna Goldie <agoldie>, Lucas Gonzalez <mxssoft>, Aviv Ovadya <avivo>, Chris Varenhorst <varenc>
 #alias 6001-m12 Agshin Heybatov <aqshin>, Kevin Luu <luuk>, Thomas Snider <tjps>, Eli Stickgold <estick>, Natania Antler <nantler>
 #alias 6001-m2 Andrea Bradshaw <abrad>, Robert Gens <rcg>, Julie Maison <mjklaure>, Omoshalewa Odusanya <shalewa>, Karl Rieb <karusan>, Alejandro Vazquez <mc2>
 #alias 6001-t12 Alice Ainsworth <alice_a>, Richard Chan <wing>, Samuel Dyar <sammyd>, David Harvison <dharv720>, Alex Rothberg <rothberg>, Joyatee Sarker <joyatees>, Phyllis Xu <phyllis>
 #alias 6001-t4 Minjeong Ahn <ahnmj>, Ammar Ammar <ammar>, Julia Fu <jufu>, Bhaskar Mookerji <mookerji>, Kimberly Reinhold <kimrein>, Andrew Westerdale <arwest>
+
+# *** 6.001 Spring '07
+alias 6001-esg Kristin Berry <kree>, Jacky Chang <kyoki>, Stephanie Cheng <chengs>, David Farhi <dfarhi>, Amy Hailes <ahailes>, Evan Hefner <ehefner>, Drew Hilliard <cdhill>, Kevin Hwang <kevh>, Carrie Keach <keach>, Cordelia Link <cslink>, Huan Liu <liuhuan>, Bayo Olatunji <lilibayo>, Samantha Palazzolo <sammp>, Sukrit Ranjan <sukrit>, Mike Scarito <scarito>, Josh Slocum <jslocum>, Tynan Smith <tssmith>, Christian Ternus <ternus>, Daniel Whitlow <dwhitlow>
+alias 6001-m12 Kallie Hedberg <kallie>, Camille Kemble <c_kemble>, Sarang Kulkarni <sarang>, Mark Sullivan <marks3>, Hayk Yegoryan <hayky>
+alias 6001-t12 Doris Dobi <dorisd>, Catherine Hooppell <chimerin>, Esteban Hufstedler <ehufsted>, Clara Rhee <rhec>
+alias 6001-t1 Courtland Allen <csallen>, Subha Gollakota <subha>, Sarah Hopp <hopp>, Zviad Metreveli <zvio>, Darren Yin <darreny>
+alias 6001-t2 Aleksandr Arkhipov <arkhipov>, Patrick Collison <patrickc>, Joshua Horowitz <joshuah>, Andrew Hsiao <ahsiao>, Julian Jones <jmjones>

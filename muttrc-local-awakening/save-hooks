@@ -4,6 +4,7 @@ save-hook ~C"esg-\\(notices\\|frosh\\|staff\\|tutors\\)@" =esg
 save-hook ~Ccicdo@ =esg
 save-hook ~Cmacgregor@ =macgregor
 save-hook ~Cmac-official@ =macgregor
+save-hook ~C"macg-summer-\\(high\\|low\\)@" =macgregor
 save-hook ~Cc-entry@ =macgregor
 save-hook ~Cc-entry-in-exile@ =macgregor
 save-hook ~Cc-summer@ =macgregor
@@ -15,12 +16,17 @@ save-hook ~Cbadminton =activities
 save-hook ~Cieee =activities
 save-hook ~Cjobslist@altoids.mit.edu =jobslist
 save-hook ~Cpdos@ =pdos
-save-hook ~Ccsail-.*@csail\.mit\.edu =pdos
 save-hook ~C2006class@ =mitmisc
 save-hook ~Cundergrads@ =mitmisc
 save-hook ~Cmainlist@ =courseiv
 save-hook ~Ctbp-eligibles@ =tbp
 save-hook ~feragon@info\.randomhouse\.com =alagaesia
+save-hook ~C"tang-\\(social\\|residents\\)@" =tang
+save-hook ~ftangdesk@ =tang
+save-hook ~fcollinsm@mit\.edu =tang
+save-hook ~Cjos@am =jos
+save-hook ~C"csail-\\(related\\|announce\\|all\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
+save-hook ~C"\\(seminars\\|g9\\|grads\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
 
 # Freshman classes
 save-hook ~fpatti@ =classes           # 5.112
@@ -64,15 +70,27 @@ save-hook ~fapm@math\.mit\.edu =classes # 18.100A
 
 save-hook ~C6\.115-students@ =classes # 6.115
 
-save-hook ~fdkauf@ =6.001-06-sp       # 6.001
-save-hook ~Cesg-sicpeople@ =6.001-06-sp
-save-hook ~fesg-sicpeople@ =6.001-06-sp
-save-hook ~Cesg-sicp@ =6.001-06-sp
-save-hook ~fesg-sicp@ =6.001-06-sp
-save-hook ~fwelg@ =6.001-06-sp
-save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001-06-sp
+# save-hook ~fdkauf@ =6.001-06-sp       # 6.001
+# save-hook ~Cesg-sicpeople@ =6.001-06-sp
+# save-hook ~fesg-sicpeople@ =6.001-06-sp
+# save-hook ~Cesg-sicp@ =6.001-06-sp
+# save-hook ~fesg-sicp@ =6.001-06-sp
+# save-hook ~fwelg@ =6.001-06-sp
+# save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001-06-sp
 
 save-hook ~C^l@am =atcc
+
+# M.Eng classes
+save-hook ~C6823-all@ =classes        # 6.823
+save-hook ~C6827-students@ =classes   # 6.827
+
+save-hook ~fdkauf@ =6.001             # 6.001
+save-hook ~Cesg-sicpeople@ =6.001
+save-hook ~fesg-sicpeople@ =6.001
+save-hook ~Cesg-sicp@ =6.001
+save-hook ~fesg-sicp@ =6.001
+save-hook ~fwelg@ =6.001
+save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001
 
 # Development mailing lists
 save-hook ~C.*@sourceforge\.net =sf
@@ -95,3 +113,5 @@ save-hook ~fpetras@mit\.edu =friends
 save-hook ~ftohn@ =friends
 save-hook ~fal_chiou@mit\.edu =friends
 save-hook ~fdrkp@mit\.edu =friends
+save-hook ~fegrosse@mit\.edu =friends
+save-hook ~fevenstar@gmail\.com =friends
