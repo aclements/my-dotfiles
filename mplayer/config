@@ -1,7 +1,7 @@
 # Write your default config options here!
 
 vo = xv
-ao = alsa:device=hw=1
+ao = alsa:device=hw=0
 subpos = 80
 font = /usr/share/mplayer/font/cp1251/arial-24/font.desc
 stop-xscreensaver = 1

@@ -33,6 +33,11 @@ dispatch() {
 }
 
 set_settings() {
+    # Grr.  Why?  This puts X into cloned 1024x768.  Otherwise, the
+    # default is some kooky cloned, viewported 2048x768 which isn't
+    # even one of of the xrandr layouts.
+    if [[ $DOMAIN == "drake" ]]; then xrandr -s 0; fi
+
     # Set the wallpaper as early as possible to get it out of the way
     xsetroot -solid black
     local FBW
@@ -65,11 +70,6 @@ set_settings() {
 
     # Set up mouse
     if [[ $DOMAIN == "awakening" ]]; then xset m 3/1 4; fi
-
-    # Grr.  Why?  This puts X into cloned 1024x768.  Otherwise, the
-    # default is some kooky cloned, viewported 2048x768 which isn't
-    # even one of of the xrandr layouts.
-    if [[ $DOMAIN == "drake" ]]; then xrandr -s 0; fi
 
     # Figure out my terminal emulator
     if whence Terminal &> /dev/null; then
