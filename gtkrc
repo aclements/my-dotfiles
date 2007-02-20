@@ -1,4 +1,4 @@
-include "/usr/share/themes/ThinIce/gtk/gtkrc"
+include "/usr/share/themes/Mist/gtk/gtkrc"
 
 style "user-font"
 {

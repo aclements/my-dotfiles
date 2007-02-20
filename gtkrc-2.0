@@ -1,9 +1,15 @@
+# Use the Mist theme
 include "/usr/share/themes/Mist/gtk-2.0/gtkrc"
 
+# Use Emacs-like key bindings
+gtk-key-theme-name = "Emacs"
+
+# We have to specify the font in two ways.  The first is for
+# backwards compatibility.
 style "user-font"
 {
   font_name="Sans 8"
 }
 widget_class "*" style "user-font"
-
-gtk-key-theme-name = "Emacs"
+# And this is for newer applications (ie, Firefox)
+gtk-font-name = "Sans 8"
