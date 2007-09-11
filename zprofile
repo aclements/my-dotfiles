@@ -58,13 +58,17 @@ export PAGER=less
 
 export EDITOR=emacs
 export VISUAL="emacs -nw"
-if whence -p emacs21 &> /dev/null; then
-    if [[ ! `whence -p emacs21` -ef `whence -p emacs` ]]; then
-	export ATC_USE_EMACS21=1
-	export EDITOR=emacs21
-	export VISUAL="emacs21 -nw"
+for TRY in emacs22 emacs21; do
+    if whence -p $TRY &> /dev/null; then
+        if [[ ! `whence -p $TRY` -ef `whence -p emacs` ]]; then
+            export ATC_USE_EMACS=$TRY
+            export EDITOR=$TRY
+            export VISUAL="$TRY -nw"
+        fi
+        break
     fi
-fi
+done
+unset $TRY
 
 setupgrep() {
     local foo="`grep --help`"
