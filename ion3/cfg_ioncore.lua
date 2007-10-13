@@ -184,8 +184,8 @@ defbindings("WFrame.toplevel", {
 	       kpress(MOD1.."U", "WFrame.switch_prev(_)"),
 
                bdoc("Move current object within the frame left/right."),
-               kpress(MOD1.."Shift+I", "WFrame.dec_index(_, _sub)", "_sub:non-nil"),
-               kpress(MOD1.."Shift+U", "WFrame.inc_index(_, _sub)", "_sub:non-nil"),
+               kpress(MOD1.."Shift+I", "WFrame.inc_index(_, _sub)", "_sub:non-nil"),
+               kpress(MOD1.."Shift+U", "WFrame.dec_index(_, _sub)", "_sub:non-nil"),
 
 	       bdoc("Maximize the frame vertically."),
 	       kpress(MOD1.."V", "WFrame.maximize_vert(_)"),
