@@ -48,36 +48,44 @@ defbindings("WScreen", {
 
 defbindings("WClientWin", {
                bdoc("Quote the next key press"),
-               kpress(MOD1.."Q",
-                      "WClientWin.quote_next(_sub)", "_sub:WClientWin"),
+               kpress(MOD1.."Q", "WClientWin.quote_next(_)"),
                
 	       bdoc("Nudge current client window. This might help with some "..
 		    "programs' resizing problems."),
-	       kpress_wait(MOD1.."P", 
-			   "WClientWin.nudge(_sub)", "_sub:WClientWin"),
+	       kpress_wait(MOD1.."P", "WClientWin.nudge(_)"),
 })
 
 -- Client window group bindings
 
-function WClientWin.smart_fullscreen(window)
-   local scr = window:screen_of()
-   local ws = ioncore.lookup_region("Fullscreen", "WIonWS")
+function WRegion.smart_fullscreen(region)
+   local scr = region:screen_of()
+   local ws = ioncore.lookup_region("Fullscreen", "WGroupWS")
    if not ws then
       ws = scr:attach_new({type="WIonWS",
                              name="Fullscreen",
                              index=scr:lcount(1)})
    end
-   ws:current():attach(window, {switchto=true})
-   ws:goto()
+   local function find_and_attach (m)
+      if obj_is(m, "WRegion") then
+         ioncore.defer(function ()
+                          WMPlex.attach(m:current(), region,
+                                        {switchto=true})
+                          ws:goto()
+                       end)
+         return false
+      else
+         return true
+      end
+   end
+   if ws:managed_i(find_and_attach) then
+      ioncore.warn("Fullscreen frame not found")
+   end
 end
 
 defbindings("WGroupCW", {
 	       bdoc("Toggle client window group full-screen mode"),
-               kpress(MOD1.."1",
-                      "WClientWin.smart_fullscreen(_sub)", "_sub:WClientWin"),
---               kpress_wait(MOD1.."1",
---                      "WClientWin.set_fullscreen(_:bottom(), 'toggle')"),
-})
+               kpress(MOD1.."1", "WRegion.smart_fullscreen(_)"),
+            })
 
 -- WMPlex context bindings
 --
@@ -87,6 +95,16 @@ defbindings("WGroupCW", {
 -- can be put in fullscreen mode and therefore may not have a frame.)
 
 defbindings("WMPlex", {
+               bdoc("Detach (float) or reattach an object to its previous location."),
+               kpress(MOD1.."F", "ioncore.detach(_chld, 'toggle')", "_chld:non-nil"),
+            })
+
+-- Frames for transient windows ignore this bindmap
+
+defbindings("WMPlex.toplevel", {
+               bdoc("Toggle tag of current object."),
+               kpress(META.."T", "WRegion.set_tagged(_sub, 'toggle')", "_sub:non-nil"),
+
 	       bdoc("Query for a client window to go to."),
 	       kpress(MOD1.."G", "mod_query.query_gotoclient(_)"),
 
@@ -124,6 +142,9 @@ defbindings("WMPlex", {
 -- configuration files.
 
 defbindings("WFrame", {
+	       bdoc("Maximize the frame vertically."),
+	       kpress(MOD1.."V", "WFrame.maximize_vert(_)"),
+
 	       bdoc("Display frame context menu."),
 	       mpress("Button3", "mod_menu.pmenu(_, _sub, 'ctxmenu')"),
 
@@ -151,19 +172,19 @@ defbindings("WFrame", {
 -- Frames for transient windows ignore this bindmap
 
 defbindings("WFrame.toplevel", {
-	       bdoc("Tag current object within the frame."),
-	       kpress(MOD1.."T", "WRegion.set_tagged(_sub, 'toggle')",
-                      "_sub:non-nil"),
-
 	       bdoc("Switch to next/previous object within the frame."),
 	       kpress(MOD1.."I", "WFrame.switch_next(_)"),
 	       kpress(MOD1.."U", "WFrame.switch_prev(_)"),
+
+               bdoc("Move current object within the frame left/right."),
+               kpress(MOD1.."Shift+I", "WFrame.dec_index(_, _sub)", "_sub:non-nil"),
+               kpress(MOD1.."Shift+U", "WFrame.inc_index(_, _sub)", "_sub:non-nil"),
 
 	       bdoc("Maximize the frame vertically."),
 	       kpress(MOD1.."V", "WFrame.maximize_vert(_)"),
 
 	       bdoc("Attach tagged objects to this frame."),
-	       kpress(MOD1.."A", "WFrame.attach_tagged(_)"),
+	       kpress(MOD1.."A", "ioncore.tagged_attach(_)"),
 })
 
 -- Bindings for floating frames.
@@ -236,12 +257,23 @@ defbindings("WMoveresMode", {
 -- Main menu
 defmenu("mainmenu", {
     submenu("Programs",         "appmenu"),
-    menuentry("Lock screen",    "ioncore.exec_on(_, 'xlock')"),
+--    menuentry("Lock screen",    "ioncore.exec_on(_, 'xlock')"),
     menuentry("Help",           "mod_query.query_man(_)"),
     menuentry("About Ion",      "mod_query.show_about_ion(_)"),
     submenu("Styles",           "stylemenu"),
+    submenu("Debian",           "Debian"),
     submenu("Session",          "sessionmenu"),
 })
+
+-- Auto-generated Debian menu definitions
+-- Install the "menu" package to make this work
+if os.execute("test -x /usr/bin/update-menus") == 0 then
+    if ioncore.is_i18n() then
+        dopath("debian-menu-i18n")
+    else
+        dopath("debian-menu")
+    end
+end
 
 
 -- Application menu
@@ -278,24 +310,37 @@ defmenu("sessionmenu", {
 })
 
 
--- Context menu (frame/client window actions)
+-- Context menu (frame actions etc.)
 defctxmenu("WFrame", "Frame", {
+    -- Note: this propagates the close to any subwindows; it does not
+    -- destroy the frame itself, unless empty. An entry to destroy tiled
+    -- frames is configured in cfg_tiling.lua.
     menuentry("Close",          "WRegion.rqclose_propagate(_, _sub)"),
-    menuentry("Kill",           "WClientWin.kill(_sub)",
-                                "_sub:WClientWin"),
-    menuentry("Toggle tag",     "WRegion.set_tagged(_sub, 'toggle')",
-                                "_sub:non-nil"),
-    menuentry("Attach tagged",  "WFrame.attach_tagged(_)"),
-    menuentry("Clear tags",     "ioncore.clear_tags()"),
-    menuentry("Window info",    "mod_query.show_tree(_, _sub)"),
+    -- Low-priority entries
+    menuentry("Attach tagged", "ioncore.tagged_attach(_)", { priority = 0 }),
+    menuentry("Clear tags",    "ioncore.tagged_clear()", { priority = 0 }),
+    menuentry("Window info",   "mod_query.show_tree(_, _sub)", { priority = 0 })
+,
 })
 
 
--- Context menu for screens
-defctxmenu("WScreen", "Screen", {
-    menuentry("New workspace",  "ioncore.create_ws(_)"),
-    menuentry("New empty workspace",
-                                "ioncore.create_ws(_, nil, true)"),
-    menuentry("Close workspace","WRegion.rqclose(_sub)"),
+-- Context menu for groups (workspaces, client windows)
+defctxmenu("WGroup", "Group", {
+    menuentry("Toggle tag",     "WRegion.set_tagged(_, 'toggle')"),
+    menuentry("De/reattach",    "ioncore.detach(_, 'toggle')"), 
+})
+
+
+-- Context menu for workspaces
+defctxmenu("WGroupWS", "Workspace", {
+    menuentry("Close",          "WRegion.rqclose(_)"),
+    menuentry("Rename",         "mod_query.query_renameworkspace(nil, _)"),
+    menuentry("Attach tagged",  "ioncore.tagged_attach(_)"),
+})
+
+
+-- Context menu for client windows
+defctxmenu("WClientWin", "Client window", {
+    menuentry("Kill",           "WClientWin.kill(_)"),
 })
 

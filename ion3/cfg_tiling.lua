@@ -100,6 +100,8 @@ defctxmenu("WTiling", "Tiling", {
     menuentry("Flip", "WTiling.flip_at(_, _sub)"),
     menuentry("Transpose", "WTiling.transpose_at(_, _sub)"),
     
+    menuentry("Untile", "mod_tiling.untile(_)"),
+    
     submenu("Float split", {
         menuentry("At left", 
                   "WTiling.set_floating_at(_, _sub, 'toggle', 'left')"),
@@ -135,7 +137,13 @@ defctxmenu("WFrame.floating", "Floating frame", {
     menuentry("New tiling", "mod_tiling.mkbottom(_)"),
 })
 
--- Adjust default workspace layout
+-- Add workspace layouts
+
+local screen_width = ioncore.find_screen_id(0):geom()["w"]
+local screen_height = ioncore.find_screen_id(0):geom()["h"]
+local emacs_width = 500
+local term_width = 482
+local term_height = 375
 
 local a_frame = {
     type="WSplitRegion",
@@ -144,32 +152,28 @@ local a_frame = {
         frame_style = "frame-tiled"
     }
 }
-
-local screen_width = ioncore.find_screen_id(0):geom()["w"]
-local emacs_width = 500
-
-ioncore.set{
-    default_ws_params = {
-        -- Destroy workspace if the 'bottom' tiling is destroyed last
-        bottom_last_close = true,
-        -- Layout
-        managed = {
-            {
-                type = "WTiling",
-                bottom = true,
-                -- The default is a single horizontal split, where the
-                -- left is wide enough for an 80 column emacs
-                split_tree = {
-                    type = "WSplitSplit",
-                    dir = "horizontal",
-                    tls = emacs_width,
-                    brs = screen_width - emacs_width,
-                    tl = a_frame,
-                    br = a_frame
-                }
-                -- For a single frame
-                --split_tree = nil
-            }
-        }
-    }
+local emacs_layout = {
+   type = "WTiling",
+   bottom = true,
+   -- Single horizontal split, where the right is wide enough for an
+   -- 80 column terminal
+   split_tree = {
+      type = "WSplitSplit",
+      dir = "horizontal",
+      tls = screen_width - term_width,
+      brs = term_width,
+      tl = a_frame,
+      -- Single vertical split, where the bottom is tall enough for a
+      -- 36 row terminal
+      br = {
+         type = "WSplitSplit",
+         dir = "vertical",
+         tls = screen_height - term_height,
+         brs = term_height,
+         tl = a_frame,
+         br = a_frame
+      }
+   }
 }
+
+ioncore.deflayout("emacs", { managed = { emacs_layout } })
