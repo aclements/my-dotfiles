@@ -58,12 +58,19 @@ defbindings("WClientWin", {
 -- Client window group bindings
 
 function WRegion.smart_fullscreen(region)
-   local scr = region:screen_of()
    local ws = ioncore.lookup_region("Fullscreen", "WGroupWS")
    if not ws then
-      ws = scr:attach_new({type="WIonWS",
-                             name="Fullscreen",
-                             index=scr:lcount(1)})
+      local scr = region:screen_of()
+      local fullscreen = {
+         type = "WTiling",
+         bottom = true,
+         split_tree = {
+            type = "WSplitRegion",
+            regparams = {
+               type = "WFrame",
+               frame_style = "frame-tiled" } } }
+      ws = ioncore.create_ws(scr, { managed = { fullscreen } })
+      ws:set_name("Fullscreen")
    end
    local function find_and_attach (m)
       if obj_is(m, "WRegion") then
