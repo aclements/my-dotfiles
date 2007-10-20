@@ -6,6 +6,27 @@
 --
 -- The bindings in this context are available all the time.
 
+function ioncore.toggle_screens()
+   -- Simply finding out the current screen is annoyingly difficult
+   -- and buggy.  'ioncore.current():screen_of():id()' doesn't work in
+   -- an empty frame.
+
+   local target = 0
+   if ioncore.find_screen_id(0):is_active() then
+      target = 1
+   end
+
+   if ioncore.find_screen_id(target) then
+      local tab = ioncore.get()
+      local oldwarp = tab.warp
+      tab.warp = true
+      ioncore.set(tab)
+      ioncore.goto_nth_screen(target)
+      tab.warp = oldwarp
+      ioncore.set(tab)
+   end
+end
+
 defbindings("WScreen", {
 	       bdoc("Switch to n:th object (workspace, full screen client window) "..
 		    "within current screen."),
@@ -40,6 +61,9 @@ defbindings("WScreen", {
 	       bdoc("Forward-circulate focus."),
 	       kpress(MOD1.."Tab", "ioncore.goto_next(_chld, 'right')", 
 		      "_chld:non-nil"),
+
+               bdoc("Toggle between screens 0 and 1."),
+               kpress(MOD1.."M", "ioncore.toggle_screens()"),
 })
 
 -- Client window bindings
