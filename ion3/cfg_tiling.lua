@@ -53,6 +53,22 @@ function ioncore.goto_dir_xinerama(ws, dir)
    end
 end
 
+-- Based on http://modeemi.fi/~tuomov/repos/ion-scripts-3/scripts/move_current.lua
+function move_current(region, dir)
+   local cur = region:current()
+   local mgr = region:manager()
+
+   if not cur or not obj_is(mgr, "WTiling") then 
+      return
+   end
+
+   local target = mgr:nextto(region, dir)
+   if target then
+      target:attach(cur, { switchto=true })
+      target:goto()
+   end
+end
+
 defbindings("WTiling", {
 	       bdoc("Close the current frame"),
 	       kpress(MOD1.."0", "WTiling.unsplit_at(_, _sub)"),
@@ -84,6 +100,16 @@ defbindings("WTiling", {
 		      "ioncore.goto_dir_xinerama(_sub, 'up')"),
 	       kpress(MOD1.."l",
 		      "ioncore.goto_dir_xinerama(_sub, 'right')"),
+
+	       bdoc("Move frame up/down/right/left with alphabetic keys"),
+	       kpress(MOD1.."Shift+h",
+		      "move_current(_sub, 'left')"),
+	       kpress(MOD1.."Shift+j",
+		      "move_current(_sub, 'down')"),
+	       kpress(MOD1.."Shift+k",
+		      "move_current(_sub, 'up')"),
+	       kpress(MOD1.."Shift+l",
+		      "move_current(_sub, 'right')"),
 	    })
 
 -- Context menu for tiled workspaces.
