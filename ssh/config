@@ -2,9 +2,9 @@ ForwardX11 yes
 
 ServerAliveInterval 120
 
-host awk awakening awk.mit.edu awakening.mit.edu awakening.dyndns.org
+host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csail.mit.edu awakening.dyndns.org
         user amthrax
-        hostname awakening.mit.edu
+        hostname awakening.csail.mit.edu
         ForwardX11Trusted yes
 
 host *.flux.utah.edu
