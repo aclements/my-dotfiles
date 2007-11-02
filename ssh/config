@@ -10,7 +10,7 @@ host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csa
 host *.flux.utah.edu
         user aclement
 
-host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu
+host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu linerva linerva.mit.edu
         user amdragon
         # Enable Kerberos authentication
         GssapiAuthentication yes
