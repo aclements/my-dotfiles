@@ -33,11 +33,6 @@ dispatch() {
 }
 
 set_settings() {
-    # Grr.  Why?  This puts X into cloned 1024x768.  Otherwise, the
-    # default is some kooky cloned, viewported 2048x768 which isn't
-    # even one of of the xrandr layouts.
-    if [[ $DOMAIN == "drake" ]]; then xrandr -s 0; fi
-
     # Set the wallpaper as early as possible to get it out of the way
     xsetroot -solid black
     local FBW
@@ -50,7 +45,8 @@ set_settings() {
     fi
     if [[ -e ~/etc/wallpaper/walld.py ]]; then
 	python ~/etc/wallpaper/walld.py ~/etc/wallpaper/active/
-	#Esetroot ~/etc/wallpaper/active/AzlanCropped_1024.png
+    elif [[ -e ~/sys/bin/walld.py ]]; then
+	python ~/sys/bin/walld.py ~/etc/wallpaper/active/
     elif [[ -e $FBW ]]; then
         if whence xsri &> /dev/null; then
             xsri $FBW
@@ -72,7 +68,13 @@ set_settings() {
     if [[ $DOMAIN == "awakening" ]]; then xset m 3/1 4; fi
 
     # Figure out my terminal emulator
-    if whence Terminal &> /dev/null; then
+    if whence xfce4-terminal &> /dev/null; then
+        if whence xfce4-terminal.wrapper &> /dev/null; then
+            XTERMCMD=xfce4-terminal.wrapper
+        else
+            XTERMCMD=xfce4-terminal
+        fi
+    elif whence Terminal &> /dev/null; then
 	if whence Terminal.wrapper &> /dev/null; then
 	    XTERMCMD=Terminal.wrapper
 	else
