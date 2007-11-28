@@ -2,14 +2,24 @@
 
 local sep = "  :.  "
 
+local function trydopath(name)
+   local path = ioncore.lookup_script(name)
+   if path then
+      dofile(path)
+      return true
+   else
+      return false
+   end
+end
+
 local batacpi = ""
-if ioncore.lookup_script("statusd_batacpi.lua") then
+if trydopath("statusd_batacpi.lua") and check_batacpi() then
    batacpi = sep ..
-     "%>batacpi_percent %|batacpi_bar %>batacpi_time"
+      "%>batacpi_percent %|batacpi_bar %>batacpi_time"
 end
 
 local wireless = ""
-if ioncore.lookup_script("statusd_wireless.lua") then
+if trydopath("statusd_wireless.lua") and check_wireless() then
    wireless = sep ..
      "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"
 end

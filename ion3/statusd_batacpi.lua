@@ -14,7 +14,12 @@ local defaults = {
    testing=false,               -- Set to true to run standalone
 }
 
-local settings = table.join(statusd.get_config(me), defaults)
+local settings
+if statusd then
+   settings = table.join(statusd.get_config(me), defaults)
+else
+   settings = defaults
+end
 
 local me = "batacpi"
 
@@ -30,9 +35,9 @@ end
 
 local function read_proc_file(fname)
    local info = {}
-   local lines = io.lines(fname)
+   local success, lines = pcall(io.lines, fname)
 
-   if not lines then
+   if not success then
       return nil
    end
 
@@ -137,8 +142,22 @@ local function get_battery_info()
    end
 end
 
--- Start the timer
-if not settings.testing then
-   setup_statusd()
+function check_batacpi()
+   local dir = string.format('/proc/acpi/battery/BAT%d/', settings.battery)
+   local info = read_proc_file(dir .. 'info')
+   local state = read_proc_file(dir .. 'state')
+
+   if info and state then
+      return true
+   else
+      return false
+   end
 end
-get_battery_info()
+
+if statusd or settings.testing then
+   -- Start the timer
+   if not settings.testing then
+      setup_statusd()
+   end
+   get_battery_info()
+end

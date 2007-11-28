@@ -15,9 +15,11 @@ local defaults = {
 
 local me = "wireless"
 
-local settings = defaults
-if not settings.testing then
-   settings = table.join(statusd.get_config(me), settings)
+local settings
+if statusd then
+   settings = table.join(statusd.get_config(me), defaults)
+else
+   settings = defaults
 end
 
 local timer = nil
@@ -25,8 +27,10 @@ local timer = nil
 local function warn(msg)
    if settings.testing then
       print("Warning: "..msg)
-   else
+   elseif statusd then
       statusd.warn(msg)
+   else
+      warn(msg)
    end
 end
 
@@ -46,9 +50,9 @@ end
 
 local function read_proc_file()
    local levels = {}
-   local lines = io.lines('/proc/net/wireless')
+   local success, lines = pcall(io.lines, '/proc/net/wireless')
 
-   if not lines then
+   if not success then
       return nil
    end
 
@@ -63,10 +67,10 @@ local function read_proc_file()
 end
 
 local function get_iface_essid(iface)
-   local essid = io.popen("/sbin/iwgetid "..iface.." --raw")
+   local success, essid = pcall(io.popen, "/sbin/iwgetid "..iface.." --raw")
 
-   if not essid then
-      warn("Failed to read essid for "..iface)
+   if not success then
+      warn("Failed to read essid for "..iface..": "..essid)
       return ""
    end
 
@@ -82,9 +86,9 @@ local function get_iface_essid(iface)
 end
 
 local function iface_has_lease(iface)
-   local lines = io.lines('/proc/net/route')
+   local success, lines = pcall(io.lines, '/proc/net/route')
 
-   if not lines then
+   if not success then
       return false
    end
 
@@ -164,8 +168,30 @@ local function get_wireless_info()
    end
 end
 
--- Start the timer
-if not settings.testing then
-   setup_statusd()
+function check_wireless()
+   local function exists(path)
+      local fh = io.open(path, "r")
+      if fh then
+         io.close(fh)
+         return true
+      else
+         return false
+      end
+   end
+
+   if (exists('/proc/net/wireless') and
+       exists('/sbin/iwgetid') and
+       exists('/proc/net/route')) then
+      return true
+   else
+      return false
+   end
 end
-get_wireless_info()
+
+if statusd or settings.testing then
+   -- Start the timer
+   if not settings.testing then
+      setup_statusd()
+   end
+   get_wireless_info()
+end
