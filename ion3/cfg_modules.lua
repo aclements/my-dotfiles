@@ -1,4 +1,6 @@
-dopath("mod_xinerama")
+if ioncore.lookup_script("mod_xinerama") then
+   dopath("mod_xinerama")
+end
 
 dopath("mod_query")
 dopath("mod_menu")
