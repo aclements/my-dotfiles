@@ -151,9 +151,13 @@ defbindings("WMPlex.toplevel", {
 	       bdoc("Query for host to connect to with SSH."),
 	       kpress(MOD2.."F4", "mod_query.query_ssh(_, ':ssh')"),
 
-	       bdoc("Query for file to edit."),
-	       kpress(MOD2.."F5", "mod_query.query_editfile"..
-                      "(_, 'run-mailcap --action=edit')"),
+               bdoc("SSH to awakening and attach to the default screen."),
+               kpress(MOD2.."F5",
+                      "ioncore.exec_on(_, \"$XTERMCMD -T 'ssh awk' -e awkscreen\")"),
+
+	       -- bdoc("Query for file to edit."),
+	       -- kpress(MOD2.."F5", "mod_query.query_editfile"..
+               --        "(_, 'run-mailcap --action=edit')"),
 
 	       bdoc("Query for file to view."),
 	       kpress(MOD2.."F6", "mod_query.query_runfile"..
