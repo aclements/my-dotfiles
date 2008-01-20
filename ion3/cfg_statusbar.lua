@@ -24,6 +24,16 @@ if trydopath("statusd_wireless.lua") and check_wireless() then
      "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"
 end
 
+-- Embed docker in the system tray.  Without this, docker is placed in
+-- the status bar, but uses the standard 64x64 WM dockapp dimensions.
+defwinprop {
+   class = "Docker",
+   statusbar = "dock",
+   -- XXX Without this it's 2 pixels wide, but it probably won't
+   -- resize for new icons
+   min_size = {w=24,h=24}
+}
+
 -- Create primary statusbar
 mod_statusbar.create{
    -- First screen, bottom left corner
@@ -33,7 +43,7 @@ mod_statusbar.create{
    systray=true,
 
    -- Template
-   template="%date"..sep.."%load"..batacpi..wireless.."%filler%systray",
+   template="%date"..sep.."%load"..batacpi..wireless.."%filler%systray%systray_dock",
 }
 
 -- Launch ion-statusd.  This must be done after creating statusbars

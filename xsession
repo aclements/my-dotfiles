@@ -144,6 +144,11 @@ start_apps_and_daemons() {
     dispatch start_apps_and_daemons
 
     xscreensaver -nosplash &
+
+    if [[ $WMANAGER == ion3 ]]; then
+        # Translate GTK tray icons into WindowMaker dockapps
+        docker &
+    fi
 }
 
 # Wait for window manager to exit gracefully
