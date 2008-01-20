@@ -149,13 +149,5 @@ de.defstyle("actnotify", {
     based_on = "*",
 })
 
-de.defstyle("stdisp-dock",{
-               based_on="*",
-               tile_size={
-                  width=24,
-                  height=24,
-               },
-            })
-
 gr.refresh()
 
