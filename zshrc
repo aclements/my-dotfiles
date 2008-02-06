@@ -109,7 +109,7 @@ precmd_prettyreturn() {
         # Command found, but permission denied
         pretty="XP"
     fi
-    psvar[0]=$pretty
+    psvar=($pretty)
 }
 # Replace return status in prompts to use pretty-printing
 PROMPT=${PROMPT//\%\?/\%v}
