@@ -47,6 +47,12 @@ defbindings("WScreen", {
 	       kpress(MOD1.."comma", "WScreen.switch_prev(_)"),
 	       kpress(MOD1.."period", "WScreen.switch_next(_)"),
 
+               bdoc("Move workspace left/right."),
+               kpress(MOD1.."Shift+comma", "WFrame.dec_index(_, _sub)",
+                      "_sub:non-nil"),
+               kpress(MOD1.."Shift+period", "WFrame.inc_index(_, _sub)",
+                      "_sub:non-nil"),
+
 	       bdoc("Toggle between two active objects."),
 	       kpress(MOD1.."space", "ioncore.goto_previous()"),
 
