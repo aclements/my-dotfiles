@@ -16,12 +16,12 @@ XTerm*saveLines:		1000
 XTerm*font:			fixed
 XTerm*visualBell:		on
 
-! rxvt inherits XTerm's resources
+! rxvt inherits XTerm resources
 rxvt.cursorColor2:		#ffffff
 rxvt.scrollBar_right:		true
 rxvt.scrollBar_floating:	true
 
-! aterm inherits rxvt's resources
+! aterm inherits rxvt resources
 aterm.transparent:		true
 aterm.shading:			50
 aterm.fade:			50

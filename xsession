@@ -67,6 +67,8 @@ set_settings() {
     # Set up mouse
     if [[ $DOMAIN == "awakening" ]]; then xset m 3/1 4; fi
 
+    if [[ -e ~/.Xresources ]]; then xrdb -merge ~/.Xresources; fi
+
     # Figure out my terminal emulator
     if whence xfce4-terminal &> /dev/null; then
         if whence xfce4-terminal.wrapper &> /dev/null; then
