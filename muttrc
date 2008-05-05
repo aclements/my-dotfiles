@@ -30,7 +30,7 @@ set confirmcreate		# prompt when creating new files
 set copy=yes			# always save a copy of outgoing messages
 set delete=yes			# purge deleted messages without asking
 set edit_headers		# let me edit the message header when composing
-set editor="EMACS_LOAD_FAST=1 emacs -nw --eval \"(progn (set-background-color \\\"none\\\"))\""	# editor to use when composing messages
+set editor="emacs -nw --eval \"(progn (set-background-color \\\"none\\\"))\""	# editor to use when composing messages
 set fast_reply			# skip initial prompts when replying
 set folder_format=" %2C %t%N %8s %d %f"	# folder list format
 set help=no			# show the help lines
@@ -39,7 +39,9 @@ set include			# always include messages when replying
 set mark_old=no			# don't mark old when closing mailbox
 set menu_move_off=no		# keep menu bottom against screen bottom
 set menu_scroll			# no implicit next-page/prev-page
+set mime_forward=ask-no		# prompt for MIME attach forwarding
 set move=no			# don't ask about moving messages, just do it
+set narrow_tree=yes		# narrow the thread display
 set pager_context=2		# no. of lines of context to give when scrolling
 set pager_index_lines=6		# how many index lines to show in the pager
 set pager_stop			# don't move to the next message on next-page
@@ -48,6 +50,7 @@ set print_command="enscript -2GrEmail"		# how to print things
 set read_inc=25			# show progress when reading a mailbox
 set reply_to			# always use reply-to if present
 set reverse_alias		# attempt to look up my names for people
+set reverse_name                # get from: from to:
 set save_empty=no		# remove files when no messages are left
 set sort=threads		# primary sorting method
 set sort_aux=last-date		# date of the last message in thread
