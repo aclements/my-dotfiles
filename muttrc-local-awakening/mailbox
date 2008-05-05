@@ -7,8 +7,10 @@ set timeout=10
 # Address information
 set from="Austin Clements <amdragon@mit.edu>"
 set hostname="mit.edu"
-set signature="~/.sig3"
-alternates aclement@.*\.utah\.edu|(amdragon\+[^@]*|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu
+#set signature="~/.sig3"
+reply-hook . "set signature=\"~/.sig-short\""
+reply-hook "~t aclements@" "set signature=\"~/.sig-short-aclements\""
+alternates aclement@.*\.utah\.edu|(amdragon\+[^@]*|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu|aclements@csail\.mit\.edu
 
 # Mailboxes to watch for new mail
 mailboxes =inbox-athena =inbox =inbox-flux =inbox-foo =spamin =inbox-root
