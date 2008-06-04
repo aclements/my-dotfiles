@@ -19,7 +19,7 @@ if trydopath("statusd_batacpi.lua") and check_batacpi() then
 end
 
 local wireless = ""
-if trydopath("statusd_wireless.lua") and check_wireless() then
+if trydopath("statusd_wireless.lua") and check_wireless("eth1") then
    wireless = sep ..
      "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"
 end

@@ -168,7 +168,7 @@ local function get_wireless_info()
    end
 end
 
-function check_wireless()
+function check_wireless(iface)
    local function exists(path)
       local fh = io.open(path, "r")
       if fh then
@@ -181,7 +181,8 @@ function check_wireless()
 
    if (exists('/proc/net/wireless') and
        exists('/sbin/iwgetid') and
-       exists('/proc/net/route')) then
+       exists('/proc/net/route') and
+       read_proc_file()[iface]) then
       return true
    else
       return false
