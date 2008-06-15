@@ -51,12 +51,29 @@ local function read_proc_file(fname)
    return info
 end
 
+local function read_sysfs(name)
+   local fname = string.format('/sys/class/power_supply/BAT%d/%s',
+                               settings.battery, name)
+   local success, lines = pcall(io.lines, fname)
+
+   if not success then
+      return nil
+   end
+
+   for line in lines do
+      return line
+   end
+
+   return nil
+end
+
 local function get_number(str)
    local _, _, num = string.find(str, '^(%d*)')
    return tonumber(num)
 end
 
-local function get_battery_info()
+local function get_battery_info_procfs()
+   -- Used to work, not tested since the procfs/sysfs split
 
    local dir = string.format('/proc/acpi/battery/BAT%d/', settings.battery)
 
@@ -64,6 +81,59 @@ local function get_battery_info()
    local info = read_proc_file(dir .. 'info')
    local state = read_proc_file(dir .. 'state')
    if not info or not state then
+      return nil
+   end
+
+   -- Read current state
+   local charging = state['charging state']
+   if charging == 'charging' then
+      charging = 1
+   elseif charging == 'discharging' then
+      charging = -1
+   elseif charging == 'charged' then
+      charging = 0
+   else
+      charging = nil
+   end
+
+   return {capacity  = get_number(info['last full capacity']),
+           charging  = charging,
+           rate      = get_number(state['present rate']),
+           remaining = get_number(state['remaining capacity'])}
+end
+
+local function get_battery_info_sysfs()
+   local capacity = read_sysfs('energy_full')
+   local charging = read_sysfs('status')
+   local rate = read_sysfs('current_now')
+   local remaining = read_sysfs('energy_now')
+
+   if not (capacity and charging and rate and remaining) then
+      return nil
+   end
+
+   if charging == 'Charging' then
+      charging = 1
+   elseif charging == 'Discharging' then
+      charging = -1
+   elseif charging == 'Charged' then
+      charging = 0
+   else
+      charging = nil
+   end
+
+   return {capacity  = get_number(capacity),
+           charging  = charging,
+           rate      = get_number(rate),
+           remaining = get_number(remaining)}
+end
+
+local function get_battery_info()
+   info = get_battery_info_procfs()
+   if not info then
+      info = get_battery_info_sysfs()
+   end
+   if not info then
       statusd.warn("Failed to read battery info files")
       timer:set(settings.interval/1000, get_battery_info)
       return
@@ -74,22 +144,21 @@ local function get_battery_info()
       timer:set(settings.interval, get_battery_info)
    end
 
-   -- Read current state
-   local capacity = get_number(info['last full capacity'])
-   local charging = state['charging state']
-   local rate = get_number(state['present rate'])
-   local remaining = get_number(state['remaining capacity'])
+   remaining = info.remaining
+   capacity = info.capacity
+   charging = info.charging
+   rate = info.rate
 
    -- Compute percentage
    local percentage = math.min(math.max(100*remaining/capacity,0),100)
 
    -- Compute percentage bar
    local elem
-   if charging == 'charging' then
+   if charging == 1 then
       elem = '>>'
-   elseif charging == 'discharging' then
+   elseif charging == -1 then
       elem = '<<'
-   elseif charging == 'charged' then
+   elseif charging == 0 then
       elem = '><'
    else
       elem = '??'
@@ -101,11 +170,11 @@ local function get_battery_info()
 
    -- Compute remaining time
    local hours
-   if charging == 'charged' or rate == 0 then
+   if charging == 0 or rate == 0 then
       hours = 0
-   elseif charging == 'charging' then
+   elseif charging == 1 then
       hours = math.max(capacity-remaining, 0)/rate
-   elseif charging == 'discharging' then
+   elseif charging == -1 then
       hours = remaining/rate
    else
       hours = -1
@@ -143,11 +212,7 @@ local function get_battery_info()
 end
 
 function check_batacpi()
-   local dir = string.format('/proc/acpi/battery/BAT%d/', settings.battery)
-   local info = read_proc_file(dir .. 'info')
-   local state = read_proc_file(dir .. 'state')
-
-   if info and state then
+   if get_battery_info_procfs() or get_battery_info_sysfs() then
       return true
    else
       return false
