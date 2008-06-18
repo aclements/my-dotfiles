@@ -125,6 +125,8 @@ start_apps_and_daemons_drake() {
 
     # Daemons
     #tpb -d  # tpb is started by a global Xsession script
+
+    knetworkmanager &
 }
 
 start_apps_and_daemons_awakening() {
