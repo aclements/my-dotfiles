@@ -1,4 +1,4 @@
-if ioncore.lookup_script("mod_xinerama") then
+if ioncore.lookup_script("mod_xinerama.lc") then
    dopath("mod_xinerama")
 end
 

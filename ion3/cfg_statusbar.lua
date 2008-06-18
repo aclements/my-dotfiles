@@ -19,10 +19,10 @@ if trydopath("statusd_batacpi.lua") and check_batacpi() then
 end
 
 local wireless = ""
-if trydopath("statusd_wireless.lua") and check_wireless("eth1") then
-   wireless = sep ..
-     "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"
-end
+-- if trydopath("statusd_wireless.lua") and check_wireless() then
+--    wireless = sep ..
+--      "%>wireless_eth1_level %|wireless_eth1_bar %wireless_eth1_essid"
+-- end
 
 -- Embed docker in the system tray.  Without this, docker is placed in
 -- the status bar, but uses the standard 64x64 WM dockapp dimensions.
