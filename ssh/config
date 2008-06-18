@@ -4,7 +4,7 @@ ServerAliveInterval 120
 
 host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csail.mit.edu awakening.dyndns.org
         user amthrax
-        hostname awakening.csail.mit.edu
+        hostname awakening
         ForwardX11Trusted yes
 
 host *.flux.utah.edu
@@ -16,5 +16,8 @@ host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu linerva liner
         GssapiAuthentication yes
         GssapiDelegateCredentials yes
 
-host *.lcs *.lcs.mit.edu *.csail *.csail.mit.edu
-	user amdragon
+host am.lcs am.lcs.mit.edu am.csail am.csail.mit.edu
+        user amdragon
+
+host login.csail login.csail.mit.edu
+        user aclements
