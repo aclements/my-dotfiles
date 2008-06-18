@@ -9,3 +9,7 @@ aptitude::UI::Package-Display-Format "%c%a%M %p# %Z %R %12v %12V";
 aptitude::Recommends-Important "false";
 aptitude::Keep-Unused-Pattern "";
 aptitude::Delete-Unused-Pattern "";
+aptitude::Auto-Fix-Broken "false";
+aptitude::Ignore-Recommends-Important "true";
+APT "";
+APT::Install-Recommends "false";
