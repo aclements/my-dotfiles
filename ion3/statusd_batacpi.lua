@@ -116,9 +116,13 @@ local function get_battery_info_sysfs()
       charging = 1
    elseif charging == 'Discharging' then
       charging = -1
-   elseif charging == 'Charged' then
+   elseif charging == 'Not charging' or charging == 'Full' then
       charging = 0
    else
+      -- XXX
+      if statusd then
+         statusd.warn('Unknown charge status '..charging)
+      end
       charging = nil
    end
 
