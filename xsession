@@ -35,23 +35,19 @@ dispatch() {
 set_settings() {
     # Set the wallpaper as early as possible to get it out of the way
     xsetroot -solid black
-    local FBW
-    if [[ $DOMAIN == chimera ]]; then
-	FBW="$HOME/etc/wallpaper/Oxygen_3840x1200.png"
-    elif [[ $DOMAIN == fry ]]; then
-        FBW="$HOME/etc/wallpaper/Country Stroll 2 3840x1200.png"
-    else
-	FBW="$HOME/etc/wallpaper/1280x1024/Michael Whelan - Dragon Lake.png"
-    fi
-    if [[ -e ~/etc/wallpaper/walld.py ]]; then
-	python ~/etc/wallpaper/walld.py ~/etc/wallpaper/active/
-    elif [[ -e ~/sys/bin/walld.py ]]; then
-	python ~/sys/bin/walld.py ~/etc/wallpaper/active/
-    elif [[ -e $FBW ]]; then
+    # xwininfo -root | awk '/Width:/ {W=$2}; /Height:/ {H=$2}; END {print W "x" H}'
+    if [[ -e ~/sys/bin/walld.py ]]; then
+        python ~/sys/bin/walld.py ~/etc/wallpaper/active/
+    elif [[ -e ~/etc/wallpaper/walld.py ]]; then
+        python ~/etc/wallpaper/walld.py ~/etc/wallpaper/active/
+    elif [[ -d ~/etc/wallpaper/active ]]; then
+        local WPN=`find ~/etc/wallpaper/active -not -type d | wc -l`
+        local FBW="$(find ~/etc/wallpaper/active -not -type d \
+            | awk "BEGIN {n=int(rand()*9999)%$WPN}; NR-1==n {print \$0}")"
         if whence xsri &> /dev/null; then
             xsri $FBW
         elif whence Esetroot &> /dev/null; then
-            Esetroot $FBW
+            Esetroot -center $FBW
         # XXX I forget how to do this with ImageMagick
 #        elif whence display &> /dev/null; then
 #            display -backdrop $FBW
