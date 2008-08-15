@@ -1,0 +1,24 @@
+# -*- shell-script -*-
+
+if [[ ! -d /build/trees ]]; then
+    echo "/build/trees is not mounted."
+    echo "See https://wiki.eng.vmware.com/Build/Toolchain/Access"
+else
+    path=(/build/apps/bin /build/trees/bin $path)
+fi
+
+export P4CONFIG=.p4config
+
+export http_proxy="http://proxy.vmware.com:3128"
+
+tree() {
+    local d=/mts/dbc2-a/aclements/$1/bora
+    if [[ ! -e $d ]]; then
+        echo "Unknown tree $1"
+        return 1
+    fi
+    cd $d
+    export VMTREE=$d
+    PROMPTFLUFF=$1
+    updateprompt
+}

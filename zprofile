@@ -86,14 +86,6 @@ if [[ $HOME -ef . && $HOME != $PWD ]]; then
     cd $HOME
 fi
 
-# When at Google, do as the Goolers do
-if [[ -f .zgoogle ]]; then
-    source .zgoogle
-fi
-
-# When at StreamBase, do as the StreamBasers do
-if [[ -f .zstreambase ]]; then
-    source .zstreambase
-fi
-
 export atc_profile_loaded=1
+
+export zprofile_generation=1

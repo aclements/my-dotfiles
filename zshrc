@@ -25,6 +25,13 @@ if [[ -z $atc_profile_loaded ]]; then
             echo "Odd.  You have sys/dotfiles, but no sys/dotfiles/zprofile"
         fi
     fi
+else
+    if [[ -e ~/.zprofile && \
+          $(sed -ne 's/.*zprofile_generation=\(.*\)/\1/p' < ~/.zprofile) \
+          != $zprofile_generation ]]; then
+        echo "Your zprofile has changed.  Reloading."
+        source ~/.zprofile
+    fi
 fi
 
 #
@@ -88,11 +95,14 @@ if [[ -z $PROMPTFLUFF &&
                 $name == 'athena') ]]; then  # Check ssh or Athena
     PROMPTFLUFF=$name
 fi
-PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}\
+updateprompt() {
+    PROMPT="%{${fg[white]}%}${PROMPTFLUFF+${PROMPTFLUFF}:}\
 %{${fg_bold[green]}%}%16<..<%2~%<<%{${fg_no_bold[default]}%}\
 %(!.%{${fg[red]}%}#%{${fg[default]}%}.>) "
-RPROMPT="%B%{%(0?..${fg_bold[red]})%}%?\
+    RPROMPT="%B%{%(0?..${fg_bold[red]})%}%?\
 %{%(0?..${fg_no_bold[default]})%}%b %*"
+}
+updateprompt
 
 #
 # Pretty-print return status
@@ -267,6 +277,14 @@ precmd() {
         $x
     done
 }
+
+# Load site-local configuration
+for file in ~/.zgoogle ~/.zstreambase ~/.zvmware; do
+    if [[ -f $file ]]; then
+        source $file
+        break
+    fi
+done
 
 # Use completion cache
 zstyle ':completion::complete:*' use-cache 1
