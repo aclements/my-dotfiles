@@ -198,7 +198,14 @@ determine_domain
 if [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening || $DOMAIN == fry ]]; then
     WMANAGER=ion3
 else
-    WMANAGER=fluxbox
+#    WMANAGER=fluxbox
+    if which ion3 > /dev/null; then
+        WMANAGER=ion3
+    elif which fluxbox > /dev/null; then
+        WMANAGER=fluxbox
+    else
+        WMANAGER=twm
+    fi
 fi
 set_settings
 
