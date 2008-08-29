@@ -211,3 +211,9 @@ save-hook . =Trash       # Default rule
 alias dad Hank Clements <hclements@catapulsion.net>
 
 source ~/.muttrc-local/aliases
+
+##################################################################
+# Other configuration
+#
+
+source ~/.muttrc-local/misc
