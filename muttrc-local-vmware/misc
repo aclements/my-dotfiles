@@ -1,0 +1,10 @@
+set record="=Sent Items"
+set postponed="=Drafts"
+set trash="=Deleted Items"
+folder-hook . 'save-hook . =Archive'
+
+# Bugzilla messages don't have threading headers.  Unfortunately,
+# since they specially mark the _first_ message and _not_ the rest of
+# them, reply_regexp doesn't do us any good.  Give up and just thread
+# the non-first messages since they have identical subjects.
+set sort_re=no

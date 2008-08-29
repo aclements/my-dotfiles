@@ -1,0 +1,20 @@
+# Spool information
+set folder="imaps://imap4.vmware.com/"
+set spoolfile="imaps://imap4.vmware.com/INBOX"
+set imap_user="aclements"
+set mail_check=60
+set timeout=60
+
+# Address information
+set from="Austin Clements <aclements@vmware.com>"
+set hostname="vmware.com"
+
+# Mailboxes to watch for new mail
+mailboxes =INBOX
+
+# Misc
+#set certificate_file=~/.muttrc-local/certificates
+
+# A lot of people at StreamBase send html emails (this must be
+# combined with the appropriate mailcap magic)
+#auto_view text/html
