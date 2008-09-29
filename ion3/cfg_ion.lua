@@ -27,3 +27,5 @@ dopath("cfg_kludges")
 
 -- Load modules
 dopath("cfg_modules")
+
+dopath("flashhack")
