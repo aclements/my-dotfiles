@@ -31,7 +31,7 @@ defwinprop {
    statusbar = "dock",
    -- XXX Without this it's 2 pixels wide, but it probably won't
    -- resize for new icons
-   min_size = {w=24,h=24}
+   min_size = {w=48,h=24}
 }
 
 -- Create primary statusbar
