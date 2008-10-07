@@ -64,6 +64,7 @@ set wait_key=no			# prompt when a pipe returns normal status
 set write_inc=25		# show progress while writing mailboxes
 set write_bcc=no		# no bcc header by default
 set envelope_from               # derive sender from From:
+set implicit_autoview           # implicitly view MIME types with copiousoutput
 
 set mailcap_path="~/.mailcap:/etc/mailcap"
 
