@@ -1,18 +1,14 @@
 ! drake xmodmap
 !
-! This changes the left control key into a super key on mod3 to emulate
-! the flag key, since Thinkpads have no flag key.  The proper control
-! key is mapped by the X keyboard rules, so it is not necessary to do
-! that here.
+! This changes the left control key into a super key.  The proper
+! control key is mapped by the X keyboard rules, so it is not
+! necessary to do that here.
 
 ! Change the left control key into a super key
 keycode 37 = Super_L
 
 ! Wipe the modifier maps that interact with control and super
 clear Control
-clear Mod3
-clear Mod4
 
 ! And rewrite those modifier maps
 add Control = Control_L Control_R
-add Mod3 = Super_L

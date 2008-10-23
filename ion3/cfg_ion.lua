@@ -3,7 +3,7 @@
 --
 -- Written for ion-3rc-20070927
 
-MOD1="Mod3+"			-- Use the flag key
+MOD1="Mod4+"			-- Use the flag key
 MOD2=""
 
 ioncore.set{

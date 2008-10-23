@@ -101,6 +101,12 @@ start_ion3() {
     echo "Ion3 pid $WMPID"
 }
 
+start_xmonad() {
+    xmonad &
+    WMPID=$!
+    echo "xmonad pid $WMPID"
+}
+
 emergency_live_stop() {
     # Gentoo and Debian will catch nicely if xsession dies too quickly,
     # but if the WM starts acting up later, invoke this
@@ -110,12 +116,12 @@ emergency_live_stop() {
 
 start_apps_and_daemons_drake() {
     # Apps
-    if [[ $WMANAGER != ion3 ]]; then
+    if [[ $WMANAGER != ion3 && $WMANAGER != xmonad ]]; then
 	torsmo -d
     fi
 
     # Slit apps
-    if [[ $WMANAGER != ion3 ]]; then
+    if [[ $WMANAGER != ion3 && $WMANAGER != xmonad ]]; then
 	wmacpi &
     fi
 
@@ -123,6 +129,8 @@ start_apps_and_daemons_drake() {
     #tpb -d  # tpb is started by a global Xsession script
 
     knetworkmanager &
+    kpowersave &
+    liferea --mainwindow-state=hidden &
 }
 
 start_apps_and_daemons_awakening() {
@@ -141,14 +149,28 @@ start_apps_and_daemons_awakening() {
 }
 
 start_apps_and_daemons() {
-    dispatch start_apps_and_daemons
+    # Compositing
+    if [[ $WMANAGER == xmonad ]]; then
+        # XXX -f -I 0.1 -O 0.1 to fade in and out, but some layouts
+        # cause this just when switching between windows
+        xcompmgr -c &
+    fi
 
-    xscreensaver -nosplash &
-
+    # System tray
     if [[ $WMANAGER == ion3 ]]; then
         # Translate GTK tray icons into WindowMaker dockapps
         docker &
+    elif [[ $WMANAGER == xmonad ]]; then
+        stalonetray -bg black --icon-size 16 --window-layer top \
+            --geometry 1x1-0+0 --grow-gravity E --icon-gravity NW &
+        # stalonetray 0.7.6 fails to absorb existing KDE icons.
+        # Better, we could wait for the appropriate log messages.
+        sleep 1
     fi
+
+    dispatch start_apps_and_daemons
+
+    xscreensaver -nosplash &
 }
 
 # Wait for window manager to exit gracefully
@@ -195,17 +217,16 @@ fi
 
 # Adapt to my environment and adapt my environment to me
 determine_domain
-if [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening || $DOMAIN == fry ]]; then
+if [[ $DOMAIN == drake ]]; then
+    WMANAGER=xmonad
+elif [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening || $DOMAIN == fry ]]; then
     WMANAGER=ion3
 else
-#    WMANAGER=fluxbox
-    if which ion3 > /dev/null; then
-        WMANAGER=ion3
-    elif which fluxbox > /dev/null; then
-        WMANAGER=fluxbox
-    else
-        WMANAGER=twm
-    fi
+    for WMANAGER in xmonad ion3 fluxbox twm; do
+        if which $MANAGER > /dev/null; then
+            break
+        fi
+    done
 fi
 set_settings
 
