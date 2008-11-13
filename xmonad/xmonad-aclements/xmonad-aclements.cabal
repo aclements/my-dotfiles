@@ -1,0 +1,16 @@
+Name:           xmonad-aclements
+Version:        0.1
+Cabal-version:  >= 1.2
+License:        BSD3
+Author:         Austin Clements
+Build-type:     Simple
+Synopsis:       Austin Clements\' XMonad modules
+
+Library
+  Build-depends:        base >= 3, containers
+  Build-depends:        xmonad >= 0.8, xmonad < 0.9
+  Build-depends:        xmonad-contrib >= 0.8, xmonad-contrib < 0.9
+  GHC-options:          -Wall
+
+  Exposed-modules:      XMonad.Layout.DynamicColumns
+                        XMonad.Layout.StackDistributed
