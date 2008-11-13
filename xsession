@@ -135,11 +135,11 @@ start_apps_and_daemons_drake() {
 
 start_apps_and_daemons_awakening() {
     # X clients
-    Eterm &
+    $XTERMCMD &
     #xmms &
-    gkrellm &
-    xwrits typetime=30 breaktime=1 beep clock after=5 flashtime=:1 \
-        after=10 flashtim e=:.03 &
+    #gkrellm &
+    #xwrits typetime=30 breaktime=1 beep clock after=5 flashtime=:1 \
+    #    after=10 flashtim e=:.03 &
 
     # Daemons
     if [[ $WMANAGER == fluxbox ]]; then
@@ -191,7 +191,7 @@ wait_for_wm() {
                     return
                 else
                     echo "WM lasted fewer than 10 seconds, not restarting it"
-                    emergency_stop
+                    emergency_live_stop
                     return
                 fi
             else
@@ -217,17 +217,11 @@ fi
 
 # Adapt to my environment and adapt my environment to me
 determine_domain
-if [[ $DOMAIN == drake ]]; then
-    WMANAGER=xmonad
-elif [[ $DOMAIN == drake || $DOMAIN == chimera || $DOMAIN == awakening || $DOMAIN == fry ]]; then
-    WMANAGER=ion3
-else
-    for WMANAGER in xmonad ion3 fluxbox twm; do
-        if which $MANAGER > /dev/null; then
-            break
-        fi
-    done
-fi
+for WMANAGER in xmonad ion3 fluxbox twm; do
+    if which $MANAGER > /dev/null; then
+        break
+    fi
+done
 set_settings
 
 # Start D-BUS so XFCE Terminal instances can share a process
