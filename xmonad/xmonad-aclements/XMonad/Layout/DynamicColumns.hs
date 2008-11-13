@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances,
-    MultiParamTypeClasses, TypeSynonymInstances, PatternGuards #-}
+    MultiParamTypeClasses, TypeSynonymInstances, PatternGuards,
+    ExistentialQuantification, Rank2Types #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -24,17 +25,27 @@
 module XMonad.Layout.DynamicColumns
     ( -- * Usage
       -- $usage
-      DynamicColumns
-    , DCMessage(..)
-    , dynamicColumns)
+
+      -- ** Dynamic columns as a top-level layout
+      -- $toplevel
+
+      -- * Layout
+      DynamicColumns, dynamicColumns
+    , DCMessage(DCBroadcast)
+      -- * Hierarchical stack modification
+    , HSXForm, modifyHS, modifyHSOr
+      -- ** Standard modifiers
+    , focusUpHS, focusDownHS, swapUpHS, swapDownHS, interMoveUpHS, interMoveDownHS
+      -- ** Standard combinators
+    , intraHS, reversedHS)
     where
 
 import XMonad hiding (focus)
-import XMonad.StackSet (Stack(..), Workspace(Workspace), modify', integrate)
+import XMonad.StackSet (Stack(..), Workspace(Workspace))
+import qualified XMonad.StackSet as W
 
-import XMonad.Hooks.ManageDocks (Direction(..))
-
-import Control.Monad (zipWithM)
+import Control.Monad (zipWithM, liftM)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isNothing)
 import qualified Data.Set as S
@@ -51,21 +62,9 @@ import qualified Data.Set as S
 -- > main = xmonad defaultConfig { layoutHook = myLayouts }
 --
 -- will add a dynamic column layout which divides the screen into
--- columns, each themselves laid out using Tall (note that the use of
--- @0@ as the first argument to Tall will disable the master pane and
--- just stack the windows evenly).  Alternatively, dynamic columns
--- works well as the top-level layout with a choice of layouts in each
--- column.  For example,
---
--- > myLayouts = dynamicColumns (Tall 0 (3/100) (1/2) ||| Full)
--- > main = xmonad defaultConfig { layoutHook = myLayouts }
---
--- Note that @|||@ here is used /inside/ the argument to
--- dynamicColumns.  This allows you to switch between layouts within
--- each column independently (using, for example, mod-space).  With
--- this approach, columns are always available, but you also have the
--- choice of using a single column, which reduces to simply using the
--- active sub-layout for the whole screen.
+-- columns, each themselves laid out using 'XMonad.Layout.Tall' (note
+-- that the use of @0@ as the first argument to 'XMonad.Layout.Tall'
+-- will disable the master pane and just stack the windows equally).
 --
 -- In general, dynamic columns combines well with stack-oriented
 -- layouts such as "XMonad.Layout.Accordion", "XMonad.Layout.Dishes",
@@ -79,14 +78,14 @@ import qualified Data.Set as S
 -- for moving windows between columns.  Without these, you will not be
 -- able to create more than one column:
 --
--- > , ((modMask x .|. shiftMask, xK_h), sendMessage $ DCMove L)
--- > , ((modMask x .|. shiftMask, xK_l), sendMessage $ DCMove R)
+-- > , ((modMask x .|. shiftMask, xK_h), modifyHS interMoveUpHS)
+-- > , ((modMask x .|. shiftMask, xK_l), modifyHS interMoveDownHS)
 --
 -- Likewise, the following bindings allow you to move the focus
 -- between columns
 --
--- > , ((modMask x,               xK_h), sendMessages $ DCGo L)
--- > , ((modMask x,               xK_l), sendMessages $ DCGo R)
+-- > , ((modMask x,               xK_h), modifyHS focusUpHS)
+-- > , ((modMask x,               xK_l), modifyHS focusDownHS)
 --
 -- For consistency, you can also add the following bindings for moving
 -- windows within a column and for moving focus within a column.  The
@@ -94,16 +93,33 @@ import qualified Data.Set as S
 -- occasionally cause windows to move between columns in unexpected
 -- ways.  Likewise mod-j and mod-k still work, but wrap the focus
 -- between columns, whereas the following stops the focus from moving
--- at the top or bottom of a column.
+-- at the top or bottom of a column.  Here we use 'modifyHSOr' to fall
+-- back on the default actions in other layouts.
 --
--- > , ((modMask x .|. shiftMask, xK_k), sendMessage $ DCMove U)
--- > , ((modMask x .|. shiftMask, xK_j), sendMessage $ DCMove D)
--- > , ((modMask x,               xK_k), sendMessage $ DCGo U)
--- > , ((modMask x,               xK_j), sendMessage $ DCGo D)
+-- > , ((modMask x .|. shiftMask, xK_j), modifyHSOr (intraHS swapDownHS)  (windows W.swapDown))
+-- > , ((modMask x .|. shiftMask, xK_k), modifyHSOr (intraHS swapUpHS)    (windows W.swapUp))
+-- > , ((modMask x,               xK_j), modifyHSOr (intraHS focusDownHS) (windows W.focusDown))
+-- > , ((modMask x,               xK_k), modifyHSOr (intraHS focusUpHS)   (windows W.focusUp))
+
+-- $toplevel
 --
--- Note that these last four bindings, as written, will replace
--- existing general bindings, but will only work in dynamic columns
--- layouts.
+-- Typically, the top-level layout is constructed using the
+-- 'XMonad.Layout.|||' choice operator to combine multiple layouts
+-- such that it's possible to switch between layouts for the entire
+-- screen.  Dynamic columns is a good replacement top-level layout
+-- when used with the choice operator for the sub-layout.
+--
+-- For example,
+--
+-- > myLayouts = dynamicColumns (Tall 0 (3/100) (1/2) ||| Full)
+-- > main = xmonad defaultConfig { layoutHook = myLayouts }
+--
+-- Note that @|||@ here is used /inside/ the argument to
+-- dynamicColumns.  This allows you to switch between layouts within
+-- each column independently (using, for example, mod-space).  With
+-- this approach, using a single column reduces to applying the
+-- selected sub-layout to the entire screen like usual, but columns
+-- are always available.
 
 -- XXX Variable column widths
 data DynamicColumns sl a
@@ -115,27 +131,18 @@ data DynamicColumns sl a
 dynamicColumns :: sl a -> DynamicColumns sl a
 dynamicColumns sl = DC (Right sl) sl
 
--- XXX Variations on L/R window moving: Should focus stay with the
--- moving window or go to the next window in the stack?  Should a
--- window form a new stack in preference to moving into another stack?
--- There are some other options which are dictated by XMonad
--- standards, but could be done differently.  Should a window move in
--- above or below the focused window in a stack?  Should the focus in
--- the stack it left move up or down?
---
--- Variations on L/R focus moving: Should focus stop or wrap?
---
--- Variations on U/D focus moving: Should focus stop, wrap within the
--- column, or wrap to the next column?
+-- | A hierarchical stack transformer function.  Given a default
+-- sublayout and a hierarchical stack, its value should be a new
+-- hierarchical stack.
+type HSXForm = forall a sl . sl a -> Stack (Stack a, sl a) -> Stack (Stack a, sl a)
+
 data DCMessage
-    = DCMove Direction
-      -- ^ Move the current window in the given direction.  If this is
-      -- an inter-column move and the window is being moved beyond the
-      -- last column on either side, a new column in that direction
-      -- will be created.
-    | DCGo Direction
-      -- ^ Move the focus in the given direction, stopping at the
-      -- boundaries of the screen.
+    = DCModifyHS HSXForm (IORef (Maybe (Stack Window)))
+      -- ^ Apply the given hierarchical stack transform to update the
+      -- layout state and write the resulting flat stack to the given
+      -- IORef.  The caller is responsible for updating the flat stack
+      -- and refreshing the windows.  This should be used only
+      -- internally by 'modifyHS'.
     | DCBroadcast SomeMessage
       -- ^ With the exception of 'XMonad.Core.LayoutMessage's and X
       -- events, DC only forwards messages to the sub-layout for the
@@ -209,15 +216,34 @@ handleDCMessage :: (LayoutClass sl Window) =>
                 -> X (Maybe (DynamicColumns sl Window))
 handleDCMessage layout msg =
     case msg of
-      DCMove L -> updateHS layout interMoveUp
-      DCMove R -> updateHS layout (\def -> reversed $ interMoveUp def)
-      DCMove U -> updateHS layout (\_ -> intra swapUp')
-      DCMove D -> updateHS layout (\_ -> intra (reversed swapUp'))
-      DCGo L   -> updateHS layout (\_ -> focusUp')
-      DCGo R   -> updateHS layout (\_ -> reversed focusUp')
-      DCGo U   -> updateHS layout (\_ -> intra focusUp')
-      DCGo D   -> updateHS layout (\_ -> intra (reversed focusUp'))
-      DCBroadcast m -> forwardMessage layout True m
+      DCModifyHS f rr -> updateHS layout f rr
+      DCBroadcast m   -> forwardMessage layout True m
+
+-- | Apply a transformation to the current hierarchical stack,
+-- updating the given layout state and writing the resulting flat
+-- stack to the given 'IORef'.
+--
+-- To update the hierarchical stack from an action, use 'modifyHS'.
+-- This will send a 'DCModifyHS' message containing a transformation
+-- and the mutable reference for the reply, which will be passed to
+-- this function in turn.  Note that this message is sent without
+-- refreshing.  Upon return, 'modifyHS' updates the flat stack and
+-- only then refreshes the window layout.  This round-about approach
+-- is necessary because all changes to the stack must be made through
+-- 'windows' or changes may be lost.
+updateHS :: DynamicColumns sl Window  -- ^ Current layout state
+         -> HSXForm                   -- ^ Transformation
+         -> IORef (Maybe (Stack Window)) -- ^ Result reference
+         -> X (Maybe (DynamicColumns sl Window))
+updateHS (DC (Right _) _)   _ _        = return Nothing
+updateHS (DC (Left hs) def) f replyRef = do
+  let hs' = f def hs
+      dc' = DC (Left hs') def
+      stack = flatten hs'
+  io $ writeIORef replyRef (Just stack)
+  -- XXX Could use a flag to indicate that the stack and the
+  -- hierarchical stack are known to be in sync.
+  return $ Just dc'
 
 -- | Forward a message to either the focused sub-layout or to all
 -- sub-layouts and update the sub-layout state.
@@ -258,35 +284,63 @@ forwardMessage (DC hs def) broadcast msg = do
     where send sl = handleMessage sl msg `catchX` return Nothing
           updateSL (ss, sl) sl' = (ss, fromMaybe sl sl')
 
--- | Transform a function that manipulates a stack into a function
--- that manipulates the focused stack of a hierarchical stack.
-intra :: (Stack a -> Stack a) -> (Stack (Stack a, b) -> Stack (Stack a, b))
-intra func (Stack (sf, arg) ls rs) = Stack (func sf, arg) ls rs
+-- | Modify the hierarchical stack according to some transformation.
+modifyHS :: HSXForm
+         -> X ()
+modifyHS = (`modifyHSOr` return ())
 
--- | Transform a function that manipulates a stack into a function
--- that manipulates the reversed stack.
-reversed :: (Stack a -> Stack a) -> (Stack a -> Stack a)
-reversed func (Stack f u d) =
-    let (Stack f' d' u') = func (Stack f d u)
-    in Stack f' u' d'
+-- | Like 'modifyHS', but can be supplied an alternate action to
+-- perform if the current layout is not dynamic columns.
+modifyHSOr :: HSXForm
+           -> X ()
+           -> X ()
+modifyHSOr f alt = do
+  w <- liftM (W.workspace . W.current) $ gets windowset
+  replyRef <- io $ newIORef Nothing
+  sendMessageWithNoRefresh (DCModifyHS f replyRef) w
+  reply <- io $ readIORef replyRef
+  case reply of
+    Just stack -> windows (W.modify' (const stack))
+    Nothing    -> alt
+
+-- XXX Variations on L/R window moving: Should focus stay with the
+-- moving window or go to the next window in the stack?  Should a
+-- window form a new stack in preference to moving into another stack?
+-- There are some other options which are dictated by XMonad
+-- standards, but could be done differently.  Should a window move in
+-- above or below the focused window in a stack?  Should the focus in
+-- the stack it left move up or down?
+--
+-- Variations on L/R focus moving: Should focus stop or wrap?
+--
+-- Variations on U/D focus moving: Should focus stop, wrap within the
+-- column, or wrap to the next column?
 
 -- | Move a stack's focus up one window, stopping at the edge.
-focusUp' :: Stack a -> Stack a
-focusUp' (Stack f (f':u) d) = Stack f' u (f:d)
-focusUp' st = st
+focusUpHS :: b -> Stack a -> Stack a
+focusUpHS _ (Stack f (f':u) d) = Stack f' u (f:d)
+focusUpHS _ st = st
+
+-- | Reversed 'focusUpHS'.
+focusDownHS :: b -> Stack a -> Stack a
+focusDownHS = reversedHS focusUpHS
 
 -- | Swap the focused window with the one up from it, stopping at the
 -- edge.  Keeps the window focused.
-swapUp' :: Stack a -> Stack a
-swapUp' (Stack f (u:us) d) = Stack f us (u:d)
-swapUp' st = st
+swapUpHS :: b -> Stack a -> Stack a
+swapUpHS _ (Stack f (u:us) d) = Stack f us (u:d)
+swapUpHS _ st = st
+
+-- | Reversed 'swapUpHS'.
+swapDownHS :: b -> Stack a -> Stack a
+swapDownHS = reversedHS swapUpHS
 
 -- | Move the focused window from the focused column to the next
 -- column up, constructing a new column if there is no column to the
 -- left.  Keeps the window focused and moves the column focus
 -- accordingly.
-interMoveUp :: sl a -> Stack (Stack a, sl a) -> Stack (Stack a, sl a)
-interMoveUp def hs =
+interMoveUpHS :: b -> Stack (Stack a, b) -> Stack (Stack a, b)
+interMoveUpHS def hs =
     let win = focus $ fst $ focus hs
         (focus':up') =
             case up hs of
@@ -300,41 +354,29 @@ interMoveUp def hs =
               (Stack _ su (f:sd), sl) -> (Stack f su sd, sl) : down hs
     in Stack focus' up' down'
 
--- | Apply a transformation to the current hierarchical stack,
--- updating both the layout state and the active 1-D stack to reflect
--- the new hierarchical stack.  Note that this updates the 1-D stack
--- without forcing a refresh so it can be used in message handlers
--- without resulting in extra refreshes.
---
--- XXX Does 'XMonad.Operations.windows' assume that the windowset
--- hasn't been modified behind its back in order to figure out which
--- windows to hide?  If so, then this can only be used if the set of
--- windows will not be changed.
-updateHS :: DynamicColumns sl Window  -- ^ Current layout state
-         -> (sl Window
-                 -> Stack (Stack Window, sl Window)
-                 -> Stack (Stack Window, sl Window))
-            -- ^ Transformation function.  The first argument is the
-            -- default layout
-         -> X (Maybe (DynamicColumns sl Window))
-updateHS (DC (Right _) _)   _ = return Nothing
-updateHS (DC (Left hs) def) f = do
-  let hs' = f def hs
-      dc' = DC (Left hs') def
-      stack = flatten hs'
-  -- XXX Could use a flag to indicate that the stack and the
-  -- hierarchical stack are known to be in sync.
-  modify $ \xstate ->
-    xstate { windowset = modify' (const stack) (windowset xstate) }
-  return $ Just dc'
+-- | Reversed 'interMoveUpHS'.
+interMoveDownHS :: b -> Stack (Stack a, b) -> Stack (Stack a, b)
+interMoveDownHS = reversedHS interMoveUpHS
+
+-- | Transform a function that manipulates a stack into a function
+-- that manipulates the focused stack of a hierarchical stack.
+intraHS :: (b -> Stack a -> Stack a) -> (b -> Stack (Stack a, b) -> Stack (Stack a, b))
+intraHS func def (Stack (sf, arg) ls rs) = Stack (func def sf, arg) ls rs
+
+-- | Transform a function that manipulates a stack into a function
+-- that manipulates the reversed stack.
+reversedHS :: (b -> Stack a -> Stack a) -> (b -> Stack a -> Stack a)
+reversedHS func def (Stack f u d) =
+    let (Stack f' d' u') = func def (Stack f d u)
+    in Stack f' u' d'
 
 -- | Flatten a hierarchical stack, retaining its order and primary
 -- focus.
 flatten :: Stack (Stack a, b) -> Stack a
 flatten (Stack (Stack t tls trs, _) ls rs) =
     -- XXX Could be much more efficient.
-    let ls' = tls ++ reverse (concatMap (integrate.fst) (reverse ls))
-        rs' = trs ++ concatMap (integrate.fst) rs
+    let ls' = tls ++ reverse (concatMap (W.integrate . fst) (reverse ls))
+        rs' = trs ++ concatMap (W.integrate . fst) rs
     in Stack t ls' rs'
 
 -- | Update a hierarchical stack to reflect a new set of objects,
@@ -393,7 +435,7 @@ update :: Ord a =>
        -> Stack a            -- ^ New stack
        -> Stack (Stack a, b) -- ^ Updated hierarchical stack
 update oldStack newStack =
-    let oldSet   = S.fromList (concatMap (integrate.fst) $ integrate oldStack)
+    let oldSet   = S.fromList (concatMap (W.integrate . fst) $ W.integrate oldStack)
         newCur   = stackToCursor newStack
         newSet   = S.fromList (fst newCur)
         deleted  = oldSet S.\\ newSet
@@ -417,7 +459,7 @@ type StCur a = ([a], Int)
 
 -- | /O(|up|)/.  Convert a stack to a cursor.
 stackToCursor :: Stack a -> StCur a
-stackToCursor st = (integrate st, length (up st))
+stackToCursor st = (W.integrate st, length (up st))
 
 -- | /O(|up|)/.  Convert a cursor to a stack.  This will return
 -- 'Nothing' if the focus is outside of the cursor (including if the
