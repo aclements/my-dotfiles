@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances,
     MultiParamTypeClasses, TypeSynonymInstances, PatternGuards,
-    ExistentialQuantification, Rank2Types #-}
+    Rank2Types #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -34,9 +34,11 @@ module XMonad.Layout.DynamicColumns
     , DCMessage(DCBroadcast)
       -- * Hierarchical stack modification
     , HSXForm, modifyHS, modifyHSOr
-      -- ** Standard modifiers
+      -- ** Standard transformers
     , focusUpHS, focusDownHS, swapUpHS, swapDownHS, interMoveUpHS, interMoveDownHS
-      -- ** Standard combinators
+      -- ** Cyclical versions
+    , focusUpCycleHS, focusDownCycleHS, swapUpCycleHS, swapDownCycleHS
+      -- ** Standard transformer transformers
     , intraHS, reversedHS)
     where
 
@@ -100,6 +102,9 @@ import qualified Data.Set as S
 -- > , ((modMask x .|. shiftMask, xK_k), modifyHSOr (intraHS swapUpHS)    (windows W.swapUp))
 -- > , ((modMask x,               xK_j), modifyHSOr (intraHS focusDownHS) (windows W.focusDown))
 -- > , ((modMask x,               xK_k), modifyHSOr (intraHS focusUpHS)   (windows W.focusUp))
+--
+-- Alternatively, you can use the cyclical variants 'focusUpCycleHS',
+-- 'swapUpCycleHS', etc. if you're into that sort of thing.
 
 -- $toplevel
 --
@@ -121,8 +126,10 @@ import qualified Data.Set as S
 -- selected sub-layout to the entire screen like usual, but columns
 -- are always available.
 
--- XXX Variable column widths
+-- | The dynamic columns layout.  Use 'dynamicColumns' to construct
+-- layouts of this type.
 data DynamicColumns sl a
+    -- XXX Variable column widths
     = DC (Either (Stack (Stack a, sl a)) (sl a)) (sl a)
       deriving (Show, Read)
 
@@ -185,7 +192,7 @@ instance (Show (sl Window), LayoutClass sl Window)
       let wins = tWins ++ concatMap fst (lRes ++ rRes)
       return (wins, Just dc')
 
-    -- XXX Send Hide to deleted sub-layouts
+    -- XXX Send ReleaseResources to deleted sub-layouts
     --
     -- XXX Fake XState when resending.  Or should this be controlled
     -- by the message?  For example, keep the full stack by default,
@@ -303,6 +310,43 @@ modifyHSOr f alt = do
     Just stack -> windows (W.modify' (const stack))
     Nothing    -> alt
 
+-- | Move a stack's focus up one window, stopping at the edge.
+focusUpHS :: b -> Stack a -> Stack a
+focusUpHS _ (Stack t (l:ls) rs) = Stack l ls (t:rs)
+focusUpHS _ st = st
+
+-- | Reversed 'focusUpHS'.
+focusDownHS :: b -> Stack a -> Stack a
+focusDownHS = reversedHS focusUpHS
+
+-- | Like 'focusUpHS', but cycle around at the edge.
+focusUpCycleHS :: b -> Stack a -> Stack a
+focusUpCycleHS _ (Stack t [] rs) = Stack x xs [] where (x:xs) = reverse (t:rs)
+focusUpCycleHS d st = focusUpHS d st
+
+-- | Reversed 'focusUpCycleHS'.
+focusDownCycleHS :: b -> Stack a -> Stack a
+focusDownCycleHS = reversedHS focusDownCycleHS
+
+-- | Swap the focused window with the one up from it, stopping at the
+-- edge.  Keeps the window focused.
+swapUpHS :: b -> Stack a -> Stack a
+swapUpHS _ (Stack t (l:ls) rs) = Stack t ls (l:rs)
+swapUpHS _ st = st
+
+-- | Reversed 'swapUpHS'.
+swapDownHS :: b -> Stack a -> Stack a
+swapDownHS = reversedHS swapUpHS
+
+-- | Like 'swapUpHS', but cycle around at the edge.
+swapUpCycleHS :: b -> Stack a -> Stack a
+swapUpCycleHS _ (Stack t [] rs) = Stack t (reverse rs) []
+swapUpCycleHS d st = swapUpHS d st
+
+-- | Reversed 'swapDownCycleHS'.
+swapDownCycleHS :: b -> Stack a -> Stack a
+swapDownCycleHS = reversedHS swapUpCycleHS
+
 -- XXX Variations on L/R window moving: Should focus stay with the
 -- moving window or go to the next window in the stack?  Should a
 -- window form a new stack in preference to moving into another stack?
@@ -310,30 +354,6 @@ modifyHSOr f alt = do
 -- standards, but could be done differently.  Should a window move in
 -- above or below the focused window in a stack?  Should the focus in
 -- the stack it left move up or down?
---
--- Variations on L/R focus moving: Should focus stop or wrap?
---
--- Variations on U/D focus moving: Should focus stop, wrap within the
--- column, or wrap to the next column?
-
--- | Move a stack's focus up one window, stopping at the edge.
-focusUpHS :: b -> Stack a -> Stack a
-focusUpHS _ (Stack f (f':u) d) = Stack f' u (f:d)
-focusUpHS _ st = st
-
--- | Reversed 'focusUpHS'.
-focusDownHS :: b -> Stack a -> Stack a
-focusDownHS = reversedHS focusUpHS
-
--- | Swap the focused window with the one up from it, stopping at the
--- edge.  Keeps the window focused.
-swapUpHS :: b -> Stack a -> Stack a
-swapUpHS _ (Stack f (u:us) d) = Stack f us (u:d)
-swapUpHS _ st = st
-
--- | Reversed 'swapUpHS'.
-swapDownHS :: b -> Stack a -> Stack a
-swapDownHS = reversedHS swapUpHS
 
 -- | Move the focused window from the focused column to the next
 -- column up, constructing a new column if there is no column to the
@@ -345,13 +365,13 @@ interMoveUpHS def hs =
         (focus':up') =
             case up hs of
               [] -> [(Stack win [] [], def)]
-              (Stack f su sd, sl):ss ->
-                  (Stack win su (f:sd), sl):ss
+              (Stack st sls srs, slay):ss ->
+                  (Stack win sls (st:srs), slay):ss
         down' =
             case focus hs of
-              (Stack _ [] [],     _)  -> down hs
-              (Stack _ (f:su) [], sl) -> (Stack f su [], sl) : down hs
-              (Stack _ su (f:sd), sl) -> (Stack f su sd, sl) : down hs
+              (Stack _ [] [],        _)    -> down hs
+              (Stack _ (sl:sls) [],  slay) -> (Stack sl sls [], slay) : down hs
+              (Stack _ sls (sr:srs), slay) -> (Stack sr sls srs, slay) : down hs
     in Stack focus' up' down'
 
 -- | Reversed 'interMoveUpHS'.
@@ -361,14 +381,14 @@ interMoveDownHS = reversedHS interMoveUpHS
 -- | Transform a function that manipulates a stack into a function
 -- that manipulates the focused stack of a hierarchical stack.
 intraHS :: (b -> Stack a -> Stack a) -> (b -> Stack (Stack a, b) -> Stack (Stack a, b))
-intraHS func def (Stack (sf, arg) ls rs) = Stack (func def sf, arg) ls rs
+intraHS func def (Stack (t, arg) ls rs) = Stack (func def t, arg) ls rs
 
 -- | Transform a function that manipulates a stack into a function
 -- that manipulates the reversed stack.
 reversedHS :: (b -> Stack a -> Stack a) -> (b -> Stack a -> Stack a)
-reversedHS func def (Stack f u d) =
-    let (Stack f' d' u') = func def (Stack f d u)
-    in Stack f' u' d'
+reversedHS func def (Stack t ls rs) =
+    let (Stack t' rs' ls') = func def (Stack t rs ls)
+    in Stack t' ls' rs'
 
 -- | Flatten a hierarchical stack, retaining its order and primary
 -- focus.
