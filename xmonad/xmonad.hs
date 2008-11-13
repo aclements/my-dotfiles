@@ -41,7 +41,8 @@
 -- ** It would be nice if non-active columns could somehow indicate
 --    which window would become active if they were switched to.
 --
--- * Separate dzen for each display
+-- * Separate dzen for each display and dynamically deal with
+--   screen reconfiguration
 
 -- Changes
 --
@@ -81,9 +82,14 @@ import XMonad.Util.NamedWindows
 import XMonad.Layout.Accordion
 import XMonad.Layout.Circle
 import XMonad.Layout.LayoutCombinators hiding ((|||))
+import XMonad.Layout.SimpleFloat
 import XMonad.Layout.WindowNavigation
 
+import XMonad.Layout.DragPane
+
 --import RaiseFocused
+import XMonad.Layout.DynamicColumns
+import XMonad.Layout.StackDistributed
 
 import Control.Monad ((>=>))
 import Data.List (intercalate)
@@ -121,20 +127,36 @@ myKeys x =
     , ((modMask x,               xK_i), windows W.focusDown)
     , ((modMask x .|. shiftMask, xK_i), windows W.swapDown)
     ] ++
-    -- 2-D window switching
-    [ ((modMask x,               xK_l), sendMessage $ Go R)
-    , ((modMask x,               xK_h), sendMessage $ Go L)
-    , ((modMask x,               xK_k), sendMessage $ Go U)
-    , ((modMask x,               xK_j), sendMessage $ Go D)
-    , ((modMask x .|. shiftMask, xK_l), sendMessage $ Swap R)
-    , ((modMask x .|. shiftMask, xK_h), sendMessage $ Swap L)
-    , ((modMask x .|. shiftMask, xK_k), sendMessage $ Swap U)
-    , ((modMask x .|. shiftMask, xK_j), sendMessage $ Swap D)
+    -- 2-D WindowNavigation switching
+    -- [ ((modMask x,               xK_h), sendMessage $ Go L)
+    -- , ((modMask x,               xK_l), sendMessage $ Go R)
+    -- , ((modMask x,               xK_j), sendMessage $ Go D)
+    -- , ((modMask x,               xK_k), sendMessage $ Go U)
+    -- , ((modMask x .|. shiftMask, xK_h), sendMessage $ Swap L)
+    -- , ((modMask x .|. shiftMask, xK_l), sendMessage $ Swap R)
+    -- , ((modMask x .|. shiftMask, xK_j), sendMessage $ Swap D)
+    -- , ((modMask x .|. shiftMask, xK_k), sendMessage $ Swap U)
+    -- ] ++
+    -- 2-D DynamicColumns switching
+    [ ((modMask x,               xK_h), modifyHS $ focusUpHS)
+    , ((modMask x,               xK_l), modifyHS $ focusDownHS)
+    , ((modMask x,               xK_j), modifyHS $ intraHS focusDownHS)
+    , ((modMask x,               xK_k), modifyHS $ intraHS focusUpHS)
+    , ((modMask x .|. shiftMask, xK_h), modifyHS $ interMoveUpHS)
+    , ((modMask x .|. shiftMask, xK_l), modifyHS $ interMoveDownHS)
+    , ((modMask x .|. shiftMask, xK_j), modifyHS $ intraHS swapDownHS)
+    , ((modMask x .|. shiftMask, xK_k), modifyHS $ intraHS swapUpHS)
+    ] ++
+    -- StackDistributed
+    [ ((modMask x,               xK_comma),  send2Messages SDExpand (IncMasterN 1))
+    , ((modMask x,               xK_period), send2Messages SDContract (IncMasterN (-1)))
     ] ++
     -- Workspace switching
     [((m .|. modMask x, k), windows $ f i)
      | (i, k) <- zip (XMonad.workspaces x) [xK_F1 .. xK_F9]
      , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
+
+send2Messages m1 m2 = sendMessage m1 >> sendMessage m2
 
 myAntiKeys x =
     -- Run prompts
@@ -146,7 +168,9 @@ myAntiKeys x =
      | k <- [xK_1 .. xK_9]
      , m <- [0, shiftMask]]
 
-myLayouts = ({-raiseFocused $-} windowNavigation $ Tall 2 (3/100) (1/2)) ||| Full ||| Circle
+-- myLayouts = ({-raiseFocused $-} windowNavigation $ Tall 2 (3/100) (1/2)) ||| Full ||| Circle ||| dragPane Vertical 0.1 0.5 ||| dynamicColumns (StackDistributed 5.0 1.0) ||| simpleFloat
+
+myLayouts = dynamicColumns (StackDistributed 5.0 1.0 ||| Full) ||| Circle ||| simpleFloat
 
 myManageHook =
     composeOne
@@ -173,9 +197,9 @@ data AllWindowsPP
 
 dzenAWPP =
     AllWindowsPP
-    { awppCurrent = dzenColor white "" . pad
+    { awppCurrent = dzenColor white    "" . pad
     , awppVisible = dzenColor darkGray "" . pad
-    , awppSep = "  "
+    , awppSep     = "  "
     }
 
 allWindows :: AllWindowsPP -> X (Maybe String)
@@ -231,7 +255,9 @@ main = do
           { terminal = fromMaybe (terminal c) $ lookup "XTERMCMD" env }
           -- Drive dzen
           { logHook = dynamicLogWithPP $ myPP { ppOutput = hPutStrLn hDzen } }
-          -- Fade inactive windows (requires compositing manager)
-          ^> \c -> c
-          { logHook = fadeInactiveLogHook 0xaaaaaaaa >> logHook c }
+          -- Indicate inactive windows by fading (requires compositing manager)
+--           ^> \c -> c
+--           { logHook = fadeInactiveLogHook 0xaaaaaaaa >> logHook c
+--           , borderWidth = 0
+--           }
          )
