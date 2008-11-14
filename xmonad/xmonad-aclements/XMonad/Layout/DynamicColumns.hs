@@ -38,7 +38,7 @@ module XMonad.Layout.DynamicColumns
     , focusUpHS, focusDownHS, swapUpHS, swapDownHS, interMoveUpHS, interMoveDownHS
       -- ** Cyclical versions
     , focusUpCycleHS, focusDownCycleHS, swapUpCycleHS, swapDownCycleHS
-      -- ** Standard transformer transformers
+      -- ** Higher-order transformers
     , intraHS, reversedHS)
     where
 
@@ -292,15 +292,12 @@ forwardMessage (DC hs def) broadcast msg = do
           updateSL (ss, sl) sl' = (ss, fromMaybe sl sl')
 
 -- | Modify the hierarchical stack according to some transformation.
-modifyHS :: HSXForm
-         -> X ()
+modifyHS :: HSXForm -> X ()
 modifyHS = (`modifyHSOr` return ())
 
 -- | Like 'modifyHS', but can be supplied an alternate action to
 -- perform if the current layout is not dynamic columns.
-modifyHSOr :: HSXForm
-           -> X ()
-           -> X ()
+modifyHSOr :: HSXForm -> X () -> X ()
 modifyHSOr f alt = do
   w <- liftM (W.workspace . W.current) $ gets windowset
   replyRef <- io $ newIORef Nothing
