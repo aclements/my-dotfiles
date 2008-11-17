@@ -90,6 +90,8 @@ import XMonad.Layout.DragPane
 --import RaiseFocused
 import XMonad.Layout.DynamicColumns
 import XMonad.Layout.StackDistributed
+import XMonad.Layout.StackZoomed
+import XMonad.Util.DzenMux
 
 import Control.Monad ((>=>))
 import Data.List (intercalate)
@@ -138,18 +140,23 @@ myKeys x =
     -- , ((modMask x .|. shiftMask, xK_k), sendMessage $ Swap U)
     -- ] ++
     -- 2-D DynamicColumns switching
-    [ ((modMask x,               xK_h), modifyHS $ focusUpHS)
-    , ((modMask x,               xK_l), modifyHS $ focusDownHS)
-    , ((modMask x,               xK_j), modifyHS $ intraHS focusDownHS)
-    , ((modMask x,               xK_k), modifyHS $ intraHS focusUpHS)
-    , ((modMask x .|. shiftMask, xK_h), modifyHS $ interMoveUpHS)
-    , ((modMask x .|. shiftMask, xK_l), modifyHS $ interMoveDownHS)
-    , ((modMask x .|. shiftMask, xK_j), modifyHS $ intraHS swapDownHS)
-    , ((modMask x .|. shiftMask, xK_k), modifyHS $ intraHS swapUpHS)
+    [ ((modMask x,               xK_h), modifyHS (focusUpHS) >> szZoomThis)
+    , ((modMask x,               xK_l), modifyHS (focusDownHS) >> szZoomThis)
+    , ((modMask x,               xK_j), modifyHS (intraHS focusDownHS) >> szZoomThis)
+    , ((modMask x,               xK_k), modifyHS (intraHS focusUpHS) >> szZoomThis)
+    , ((modMask x .|. shiftMask, xK_h), modifyHS (interMoveUpHS) >> szZoomThis)
+    , ((modMask x .|. shiftMask, xK_l), modifyHS (interMoveDownHS) >> szZoomThis)
+    , ((modMask x .|. shiftMask, xK_j), modifyHS (intraHS swapDownHS) >> szZoomThis)
+    , ((modMask x .|. shiftMask, xK_k), modifyHS (intraHS swapUpHS) >> szZoomThis)
     ] ++
     -- StackDistributed
-    [ ((modMask x,               xK_comma),  send2Messages SDExpand (IncMasterN 1))
-    , ((modMask x,               xK_period), send2Messages SDContract (IncMasterN (-1)))
+    -- [ ((modMask x,               xK_comma),  send2Messages SDExpand (IncMasterN 1))
+    -- , ((modMask x,               xK_period), send2Messages SDContract (IncMasterN (-1)))
+    -- ] ++
+    -- StackZoomed
+    [ ((modMask x,               xK_comma),  send2Messages SZExpand (IncMasterN 1))
+    , ((modMask x,               xK_period), send2Messages SZContract (IncMasterN (-1)))
+    , ((modMask x,               xK_Return), szZoomThis)
     ] ++
     -- Workspace switching
     [((m .|. modMask x, k), windows $ f i)
@@ -170,7 +177,7 @@ myAntiKeys x =
 
 -- myLayouts = ({-raiseFocused $-} windowNavigation $ Tall 2 (3/100) (1/2)) ||| Full ||| Circle ||| dragPane Vertical 0.1 0.5 ||| dynamicColumns (StackDistributed 5.0 1.0) ||| simpleFloat
 
-myLayouts = dynamicColumns (StackDistributed 5.0 1.0 ||| Full) ||| Circle ||| simpleFloat
+myLayouts = dynamicColumns (StackZoomed Nothing 5.0 1.0 ||| Full) ||| Circle ||| simpleFloat
 
 myManageHook =
     composeOne
@@ -225,13 +232,17 @@ myPP =
     , ppTitle    = dzenColor white black    . dzenEscape
     , ppSep      = " " ++ dzenColor "" darkGray "^r(1,1)" ++ " "
     , ppOrder    = \(ws:l:t:aw:e) -> e++[ws,l,aw]
-    , ppExtras   = [allWindows dzenAWPP, date $ dzenColor white "" "%a %m/%d  %l:%M %p"]
+    , ppExtras   = [allWindows dzenAWPP]
     }
 
 main = do
   env <- getEnvironment
   hDzen <- spawnPipe ("dzen2 -e onstart=lower -ta l" ++
                       " -fn '" ++ myFont ++ "' -h 16 -bg black")
+  (dynamicLogOut, prodDynamicLog) <- prodExternal
+  dzenMux hDzen [ prodClock (dzenColor white "" "%a %m/%d  %l:%M %p")
+                , prodConst (ppSep myPP)
+                , prodDynamicLog]
   let v ^> f = f v
   xmonad (defaultConfig
           ^> \c -> c
@@ -254,7 +265,7 @@ main = do
           -- Derive terminal from $XTERMCMD
           { terminal = fromMaybe (terminal c) $ lookup "XTERMCMD" env }
           -- Drive dzen
-          { logHook = dynamicLogWithPP $ myPP { ppOutput = hPutStrLn hDzen } }
+          { logHook = dynamicLogWithPP $ myPP { ppOutput = dynamicLogOut } }
           -- Indicate inactive windows by fading (requires compositing manager)
 --           ^> \c -> c
 --           { logHook = fadeInactiveLogHook 0xaaaaaaaa >> logHook c
