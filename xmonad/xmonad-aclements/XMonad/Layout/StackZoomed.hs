@@ -2,9 +2,10 @@
     TypeSynonymInstances, PatternGuards #-}
 
 -- Problems
--- * It feels like new windows should be zoomed, but how do you
---   distinguish a new window from one that simply came from another
---   layout?
+--
+-- It feels like new windows should be zoomed, but how do you
+-- distinguish a new window from one that simply came from another
+-- layout?
 
 module XMonad.Layout.StackZoomed where
 
