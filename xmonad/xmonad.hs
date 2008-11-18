@@ -140,14 +140,14 @@ myKeys x =
     -- , ((modMask x .|. shiftMask, xK_k), sendMessage $ Swap U)
     -- ] ++
     -- 2-D DynamicColumns switching
-    [ ((modMask x,               xK_h), modifyHS (focusUpHS) >> szZoomThis)
-    , ((modMask x,               xK_l), modifyHS (focusDownHS) >> szZoomThis)
+    [ ((modMask x,               xK_h), modifyHS (focusUpHS))
+    , ((modMask x,               xK_l), modifyHS (focusDownHS))
     , ((modMask x,               xK_j), modifyHS (intraHS focusDownHS) >> szZoomThis)
     , ((modMask x,               xK_k), modifyHS (intraHS focusUpHS) >> szZoomThis)
-    , ((modMask x .|. shiftMask, xK_h), modifyHS (interMoveUpHS) >> szZoomThis)
-    , ((modMask x .|. shiftMask, xK_l), modifyHS (interMoveDownHS) >> szZoomThis)
-    , ((modMask x .|. shiftMask, xK_j), modifyHS (intraHS swapDownHS) >> szZoomThis)
-    , ((modMask x .|. shiftMask, xK_k), modifyHS (intraHS swapUpHS) >> szZoomThis)
+    , ((modMask x .|. shiftMask, xK_h), modifyHS (interMoveUpHS))
+    , ((modMask x .|. shiftMask, xK_l), modifyHS (interMoveDownHS))
+    , ((modMask x .|. shiftMask, xK_j), modifyHS (intraHS swapDownHS))
+    , ((modMask x .|. shiftMask, xK_k), modifyHS (intraHS swapUpHS))
     ] ++
     -- StackDistributed
     -- [ ((modMask x,               xK_comma),  send2Messages SDExpand (IncMasterN 1))
