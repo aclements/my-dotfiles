@@ -137,8 +137,8 @@ myKeys x =
     -- , ((modMask x,               xK_period), send2Messages SDContract (IncMasterN (-1)))
     -- ] ++
     -- StackZoomed
-    [ ((modMask x,               xK_comma),  send2Messages SZExpand (IncMasterN 1))
-    , ((modMask x,               xK_period), send2Messages SZContract (IncMasterN (-1)))
+    [ ((modMask x,               xK_comma),  send2Messages SZContract (IncMasterN 1))
+    , ((modMask x,               xK_period), send2Messages SZExpand (IncMasterN (-1)))
     , ((modMask x,               xK_Return), szZoomThis)
     ] ++
     -- Workspace switching
