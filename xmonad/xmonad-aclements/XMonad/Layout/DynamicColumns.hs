@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances,
     MultiParamTypeClasses, TypeSynonymInstances, PatternGuards,
-    Rank2Types #-}
+    Rank2Types, ImplicitParams #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -140,10 +140,11 @@ data DynamicColumns sl a
 dynamicColumns :: sl a -> DynamicColumns sl a
 dynamicColumns sl = DC (Right sl) sl
 
--- | A hierarchical stack transformer function.  Given a default
--- sublayout and a hierarchical stack, its value should be a new
--- hierarchical stack.
-type HSXForm = forall a sl . sl a -> Stack (Stack a, sl a) -> Stack (Stack a, sl a)
+-- | A hierarchical stack transformer function.  Through the magic of
+-- implicit parameters, a transformer has optional access to the
+-- default sublayout.
+type HSXForm = forall a sl . (?def :: sl a) =>
+    Stack (Stack a, sl a) -> Stack (Stack a, sl a)
 
 -- | The result of a 'DCModifyHS' message.
 data DCModifyResult a
@@ -259,7 +260,7 @@ updateHS (DC (Right _) _)   _ replyRef = do
   io $ writeIORef replyRef ModifyUnchanged
   return Nothing
 updateHS (DC (Left hs) def) f replyRef = do
-  let hs' = f def hs
+  let hs' = let ?def = def in f hs
       dc' = DC (Left hs') def
       stack = flatten hs'
   io $ writeIORef replyRef (ModifyTo stack)
@@ -324,40 +325,40 @@ modifyHSOr f alt = do
     ModifyNotHandled -> alt
 
 -- | Move a stack's focus up one window, stopping at the edge.
-focusUpHS :: b -> Stack a -> Stack a
-focusUpHS _ (Stack t (l:ls) rs) = Stack l ls (t:rs)
-focusUpHS _ st = st
+focusUpHS :: Stack a -> Stack a
+focusUpHS (Stack t (l:ls) rs) = Stack l ls (t:rs)
+focusUpHS st = st
 
 -- | Reversed 'focusUpHS'.
-focusDownHS :: b -> Stack a -> Stack a
+focusDownHS :: Stack a -> Stack a
 focusDownHS = reversedHS focusUpHS
 
 -- | Like 'focusUpHS', but cycle around at the edge.
-focusUpCycleHS :: b -> Stack a -> Stack a
-focusUpCycleHS _ (Stack t [] rs) = Stack x xs [] where (x:xs) = reverse (t:rs)
-focusUpCycleHS d st = focusUpHS d st
+focusUpCycleHS :: Stack a -> Stack a
+focusUpCycleHS (Stack t [] rs) = Stack x xs [] where (x:xs) = reverse (t:rs)
+focusUpCycleHS st = focusUpHS st
 
 -- | Reversed 'focusUpCycleHS'.
-focusDownCycleHS :: b -> Stack a -> Stack a
+focusDownCycleHS :: Stack a -> Stack a
 focusDownCycleHS = reversedHS focusDownCycleHS
 
 -- | Swap the focused window with the one up from it, stopping at the
 -- edge.  Keeps the window focused.
-swapUpHS :: b -> Stack a -> Stack a
-swapUpHS _ (Stack t (l:ls) rs) = Stack t ls (l:rs)
-swapUpHS _ st = st
+swapUpHS :: Stack a -> Stack a
+swapUpHS (Stack t (l:ls) rs) = Stack t ls (l:rs)
+swapUpHS st = st
 
 -- | Reversed 'swapUpHS'.
-swapDownHS :: b -> Stack a -> Stack a
+swapDownHS :: Stack a -> Stack a
 swapDownHS = reversedHS swapUpHS
 
 -- | Like 'swapUpHS', but cycle around at the edge.
-swapUpCycleHS :: b -> Stack a -> Stack a
-swapUpCycleHS _ (Stack t [] rs) = Stack t (reverse rs) []
-swapUpCycleHS d st = swapUpHS d st
+swapUpCycleHS :: Stack a -> Stack a
+swapUpCycleHS (Stack t [] rs) = Stack t (reverse rs) []
+swapUpCycleHS st = swapUpHS st
 
 -- | Reversed 'swapDownCycleHS'.
-swapDownCycleHS :: b -> Stack a -> Stack a
+swapDownCycleHS :: Stack a -> Stack a
 swapDownCycleHS = reversedHS swapUpCycleHS
 
 -- XXX Variations on L/R window moving: Should focus stay with the
@@ -372,9 +373,10 @@ swapDownCycleHS = reversedHS swapUpCycleHS
 -- column up, constructing a new column if there is no column to the
 -- left.  Keeps the window focused and moves the column focus
 -- accordingly.
-interMoveUpHS :: b -> Stack (Stack a, b) -> Stack (Stack a, b)
-interMoveUpHS def hs =
-    let win = focus $ fst $ focus hs
+interMoveUpHS :: (?def :: b) => Stack (Stack a, b) -> Stack (Stack a, b)
+interMoveUpHS hs =
+    let def = ?def
+        win = focus $ fst $ focus hs
         (focus':up') =
             case up hs of
               [] -> [(Stack win [] [], def)]
@@ -388,19 +390,19 @@ interMoveUpHS def hs =
     in Stack focus' up' down'
 
 -- | Reversed 'interMoveUpHS'.
-interMoveDownHS :: b -> Stack (Stack a, b) -> Stack (Stack a, b)
+interMoveDownHS :: (?def :: b) => Stack (Stack a, b) -> Stack (Stack a, b)
 interMoveDownHS = reversedHS interMoveUpHS
 
 -- | Transform a function that manipulates a stack into a function
 -- that manipulates the focused stack of a hierarchical stack.
-intraHS :: (b -> Stack a -> Stack a) -> (b -> Stack (Stack a, b) -> Stack (Stack a, b))
-intraHS func def (Stack (t, arg) ls rs) = Stack (func def t, arg) ls rs
+intraHS :: (Stack a -> Stack a) -> (Stack (Stack a, b) -> Stack (Stack a, b))
+intraHS func (Stack (t, arg) ls rs) = Stack (func t, arg) ls rs
 
 -- | Transform a function that manipulates a stack into a function
 -- that manipulates the reversed stack.
-reversedHS :: (b -> Stack a -> Stack a) -> (b -> Stack a -> Stack a)
-reversedHS func def (Stack t ls rs) =
-    let (Stack t' rs' ls') = func def (Stack t rs ls)
+reversedHS :: (Stack a -> Stack a) -> (Stack a -> Stack a)
+reversedHS func (Stack t ls rs) =
+    let (Stack t' rs' ls') = func (Stack t rs ls)
     in Stack t' ls' rs'
 
 -- | Flatten a hierarchical stack, retaining its order and primary
