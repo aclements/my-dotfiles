@@ -22,6 +22,8 @@
 --
 -----------------------------------------------------------------------------
 
+-- XXX Floating things out screws up ordering
+
 module XMonad.Layout.DynamicColumns
     ( -- * Usage
       -- $usage
@@ -143,8 +145,19 @@ dynamicColumns sl = DC (Right sl) sl
 -- hierarchical stack.
 type HSXForm = forall a sl . sl a -> Stack (Stack a, sl a) -> Stack (Stack a, sl a)
 
+-- | The result of a 'DCModifyHS' message.
+data DCModifyResult a
+    = ModifyNotHandled
+      -- ^ The modification message was not handled.
+    | ModifyUnchanged
+      -- ^ The modification message was handled, but didn't result in
+      -- a change.
+    | ModifyTo a
+      -- ^ The modification message was handled and resulting in the
+      -- given update.
+
 data DCMessage
-    = DCModifyHS HSXForm (IORef (Maybe (Stack Window)))
+    = DCModifyHS HSXForm (IORef (DCModifyResult (Stack Window)))
       -- ^ Apply the given hierarchical stack transform to update the
       -- layout state and write the resulting flat stack to the given
       -- IORef.  The caller is responsible for updating the flat stack
@@ -238,16 +251,18 @@ handleDCMessage layout msg =
 -- only then refreshes the window layout.  This round-about approach
 -- is necessary because all changes to the stack must be made through
 -- 'windows' or changes may be lost.
-updateHS :: DynamicColumns sl Window  -- ^ Current layout state
-         -> HSXForm                   -- ^ Transformation
-         -> IORef (Maybe (Stack Window)) -- ^ Result reference
+updateHS :: DynamicColumns sl Window              -- ^ Current layout state
+         -> HSXForm                               -- ^ Transformation
+         -> IORef (DCModifyResult (Stack Window)) -- ^ Result reference
          -> X (Maybe (DynamicColumns sl Window))
-updateHS (DC (Right _) _)   _ _        = return Nothing
+updateHS (DC (Right _) _)   _ replyRef = do
+  io $ writeIORef replyRef ModifyUnchanged
+  return Nothing
 updateHS (DC (Left hs) def) f replyRef = do
   let hs' = f def hs
       dc' = DC (Left hs') def
       stack = flatten hs'
-  io $ writeIORef replyRef (Just stack)
+  io $ writeIORef replyRef (ModifyTo stack)
   -- XXX Could use a flag to indicate that the stack and the
   -- hierarchical stack are known to be in sync.
   return $ Just dc'
@@ -300,12 +315,13 @@ modifyHS = (`modifyHSOr` return ())
 modifyHSOr :: HSXForm -> X () -> X ()
 modifyHSOr f alt = do
   w <- liftM (W.workspace . W.current) $ gets windowset
-  replyRef <- io $ newIORef Nothing
+  replyRef <- io $ newIORef ModifyNotHandled
   sendMessageWithNoRefresh (DCModifyHS f replyRef) w
   reply <- io $ readIORef replyRef
   case reply of
-    Just stack -> windows (W.modify' (const stack))
-    Nothing    -> alt
+    ModifyTo stack   -> windows (W.modify' (const stack))
+    ModifyUnchanged  -> return ()
+    ModifyNotHandled -> alt
 
 -- | Move a stack's focus up one window, stopping at the edge.
 focusUpHS :: b -> Stack a -> Stack a
