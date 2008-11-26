@@ -22,7 +22,8 @@
 --
 -----------------------------------------------------------------------------
 
--- XXX Floating things out screws up ordering
+-- XXX Switching between columns while there are floating windows
+-- unmanages the floating windows?
 
 module XMonad.Layout.DynamicColumns
     ( -- * Usage
@@ -175,19 +176,26 @@ instance Message DCMessage
 instance (Show (sl Window), LayoutClass sl Window)
     => LayoutClass (DynamicColumns sl) Window where
 
-    runLayout (Workspace tag (DC oldStack def) Nothing) rect = do
+    runLayout (Workspace tag (DC oldHS def) Nothing) rect = do
       -- Reduce to a single column and run its empty layout
-      let sl = case oldStack of
-                 Left (Stack (_, l) _ _) -> l
-                 Right l                 -> l
+      let (sl, delSLs) =
+              case oldHS of
+                Left (Stack (_, l) ls rs) -> (l, map snd (ls ++ rs))
+                Right l                   -> (l, [])
+      -- Release deleted columns
+      mapM_ (flip handleMessage (SomeMessage ReleaseResources)) delSLs
+      -- Run the one layout
       (wins, sl') <- runLayout (Workspace tag sl Nothing) rect
       return (wins, Just $ DC (Right $ fromMaybe sl sl') def)
 
-    runLayout (Workspace tag (DC oldHS' def) (Just newStack)) rect = do
+    runLayout (Workspace tag (DC oldHS def) (Just newStack)) rect = do
       -- Update the hierarchical stack
-      let hs = case oldHS' of
-                 Left oldHS -> update oldHS newStack
-                 Right layout  -> Stack (newStack, layout) [] []
+      let (hs, delSLs) =
+              case oldHS of
+                Left oldHS'  -> update oldHS' newStack
+                Right layout -> (Stack (newStack, layout) [] [], [])
+      -- Release deleted columns
+      mapM_ (flip handleMessage (SomeMessage ReleaseResources)) delSLs
       -- Compute the column rectangles
       let nCols = length (up hs) + length (down hs) + 1
           rects = splitHorizontally nCols rect
@@ -206,8 +214,6 @@ instance (Show (sl Window), LayoutClass sl Window)
       let wins = tWins ++ concatMap fst (lRes ++ rRes)
       return (wins, Just dc')
 
-    -- XXX Send ReleaseResources to deleted sub-layouts
-    --
     -- XXX Fake XState when resending.  Or should this be controlled
     -- by the message?  For example, keep the full stack by default,
     -- but have a message wrapping (X ()) that limits the action to
@@ -468,22 +474,25 @@ flatten (Stack (Stack t tls trs, _) ls rs) =
 update :: Ord a =>
           Stack (Stack a, b) -- ^ Old hierarchical stack, plus arguments
        -> Stack a            -- ^ New stack
-       -> Stack (Stack a, b) -- ^ Updated hierarchical stack
+       -> (Stack (Stack a, b), [b])
+          -- ^ Updated hierarchical stack and arguments of deleted
+          -- sub-stacks
 update oldStack newStack =
     let oldSet   = S.fromList (concatMap (W.integrate . fst) $ W.integrate oldStack)
         newCur   = stackToCursor newStack
         newSet   = S.fromList (fst newCur)
         deleted  = oldSet S.\\ newSet
         inserted = newSet S.\\ oldSet
-        -- Like upStack, but thread an argument through and
-        -- list-convert the Maybe result
+        -- Like upStack, but thread an argument through, list-convert
+        -- the Maybe result, and use the auxiliary list to track
+        -- arguments of deleted sub-stacks
         upStackArg func final new (old, arg) =
             case upStack func final new old of
-              (new', Nothing) -> (new', [])
-              (new', Just st) -> (new', [(st, arg)])
-        (_, Just hst) = (upStack (upStackArg (upElem deleted inserted)))
-                        True newCur oldStack
-    in hst
+              (new', Nothing, _) -> (new', [], [arg])
+              (new', Just st, _) -> (new', [(st, arg)], [])
+        (_, Just hst, delSLs) = (upStack (upStackArg (upElem deleted inserted)))
+                                True newCur oldStack
+    in (hst, delSLs)
 
 -- | A cursor into a stack.  This allows us to represent any suffix of
 -- a stack, making them more amenable to traversal.  The first of the
@@ -527,9 +536,11 @@ cursStraddleFocus (_, idx1) (_, idx2) = idx1 >= 0 && idx2 < 0
 -- the first element that was produced by the function when it
 -- consumed the focus of /new/ or, failing that, the first element
 -- that was produced by applying the function to the focus of /old/,
--- or, failing that, the last element of the resulting stack.  Returns
--- the unconsumed part of /new/, as well as the resulting stack or
--- Nothing if the function never returned any results.
+-- or, failing that, the last element of the resulting stack.
+-- Likewise, concatenate the returned auxiliary lists.  Returns the
+-- unconsumed part of /new/, the resulting stack or Nothing if the
+-- function never returned any results, and the concatenated auxiliary
+-- lists.
 --
 -- Note that upStack with one curried argument is almost, but not
 -- quite suitable for passing as the function to another upStack.  The
@@ -537,18 +548,18 @@ cursStraddleFocus (_, idx1) (_, idx2) = idx1 >= 0 && idx2 < 0
 -- suitable, apply 'Data.Maybe.listToMaybe' to the second part of the
 -- result.  If this becomes a problem, we could generalize the return
 -- type of /func/ to any 'Data.Foldable.Foldable'.
-upStack :: (Bool -> StCur a -> b -> (StCur a, [c])) -- ^ /func/
+upStack :: (Bool -> StCur a -> b -> (StCur a, [c], [aux])) -- ^ /func/
         -> Bool    -- ^ If True, pass True to /func/ for the final
                    --   element of /old/.
         -> StCur a -- ^ /new/
         -> Stack b -- ^ /old/
-        -> (StCur a, Maybe (Stack c))
+        -> (StCur a, Maybe (Stack c), [aux])
 upStack func final new old =
-    let join newCur ([], _) = (newCur, ([], -1), False)
+    let join newCur ([], _) = (newCur, ([], -1), [], False)
         join newCur ((o:os), oldIdx) =
             let final' = final && null os
-                (newCur', outFrag) = func final' newCur o
-                (newEnd, restCur, lockFocus) = join newCur' (os, oldIdx - 1)
+                (newCur', outFrag, aux) = func final' newCur o
+                (newEnd, restCur, restAux, lockFocus) = join newCur' (os, oldIdx - 1)
                 (out, outFocus) = curPrepend outFrag restCur
                 (outFocus', lockFocus')
                     | lockFocus                        = (outFocus, lockFocus)
@@ -558,9 +569,9 @@ upStack func final new old =
                     | cursStraddleFocus newCur newCur' = (0,        True)
                     | oldIdx == 0                      = (0,        False)
                     | otherwise                        = (outFocus, lockFocus)
-            in (newEnd, (out, outFocus'), lockFocus')
-        (new', outCur, _) = join new (stackToCursor old)
-    in (new', cursorToStack outCur)
+            in (newEnd, (out, outFocus'), aux ++ restAux, lockFocus')
+        (new', outCur, allAux, _) = join new (stackToCursor old)
+    in (new', cursorToStack outCur, allAux)
 
 -- | Update a single element from a stack, accounting for deleted and
 -- inserted elements.  This is meant to be used as the leaf function
@@ -568,24 +579,26 @@ upStack func final new old =
 -- nothing and returns no elements.  Otherwise, consumes elements from
 -- the cursor as long as they're in the inserted set, plus one more
 -- (if possible), and returns the new cursor plus the list of consumed
--- elements.
+-- elements.  Always returns an empty auxiliary list.
 upElem :: Ord a =>
           S.Set a -- ^ Deleted set
        -> S.Set a -- ^ Inserted set
        -> Bool    -- ^ If True, consume all remaining elements
        -> StCur a -- ^ Cursor from which to consume elements
        -> a       -- ^ Element from the old stack to update
-       -> (StCur a, [a])
-upElem _       _        True  new _   = curTakeAll new
+       -> (StCur a, [a], [b])
+upElem _       _        True  new _   =
+    let (cur', rest) = curTakeAll new
+    in  (cur', rest, [])
 upElem deleted inserted False new old
-    | old `S.member` deleted = (new, [])
+    | old `S.member` deleted = (new, [], [])
     | otherwise =
         -- Consume as long as the element is in inserted, plus one more
-        let consume cur@([], _) = (cur, [])
+        let consume cur@([], _) = (cur, [], [])
             consume ((x:xs), idx)
                 | x `S.member` inserted =
-                    let (lastCur, xs') = consume nextCur
-                    in (lastCur, x:xs')
-                | otherwise = (nextCur, [x])
+                    let (lastCur, xs', _) = consume nextCur
+                    in (lastCur, x:xs', [])
+                | otherwise = (nextCur, [x], [])
                 where nextCur = (xs, idx - 1)
         in consume new
