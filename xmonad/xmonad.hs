@@ -85,7 +85,7 @@ import XMonad.Layout.StackZoomed
 import XMonad.Util.DzenMux
 
 import Control.Monad ((>=>))
-import Data.List (intercalate)
+import Data.List (intercalate, isSuffixOf)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import System.Environment (getEnvironment)
@@ -215,10 +215,21 @@ data AllWindowsPP
 
 dzenAWPP =
     AllWindowsPP
-    { awppCurrent = dzenColor white    "" . pad
-    , awppVisible = dzenColor darkGray "" . pad
+    { awppCurrent = dzenColor white    "" . pad . trim 24
+    , awppVisible = dzenColor darkGray "" . pad . trim 24
     , awppSep     = "  "
     }
+    where trim n s
+              | length s > n = trim2 n (dropSuffix s suffixes)
+              | otherwise    = s
+          trim2 n s
+              | length s > n = take (n-3) s ++ ".."
+              | otherwise    = s
+          dropSuffix str (s:ss)
+              | s `isSuffixOf` str = reverse $ ".." ++ (drop (length s) $ reverse $ str)
+              | otherwise = dropSuffix str ss
+          dropSuffix str [] = str
+          suffixes = [" - Adobe Reader", " - Iceweasel", " - emacs"]
 
 allWindows :: AllWindowsPP -> X (Maybe String)
 allWindows (AllWindowsPP ppCur ppVis ppSep) = do
