@@ -1,8 +1,10 @@
 -- Note that, because XMonad blocks the entire process while waiting
 -- on X events, dzenMux depends on heavyweight process-oriented
--- concurrency.  Thus, for example, two xmonad processes will appear
--- in ps and custom producers cannot communicate with other XMonad
--- code through standard Concurrent Haskell abstractions.
+-- concurrency.  Thus, for example, an extra xmonad process will
+-- appear in ps and custom producers will not be able communicate with
+-- other XMonad code through standard Concurrent Haskell abstractions
+-- (see 'prodExternal' for one way to do this).  This would all be
+-- much simpler with -threaded.
 
 module XMonad.Util.DzenMux
     ( -- * Multiplexing a dzen
@@ -52,29 +54,25 @@ type Producer = IO Update
 -- thread-safe updates.
 data State = State (MVar Handle) [MVar (Maybe String)]
 
--- | Start a dzen multiplexer.  This will run each producer
--- concurrently.  Whenever a producer produces a new value, it will
+-- | Start a dzen multiplexer.  This will run each producer in a
+-- separate thread.  Whenever a producer produces a new value, it will
 -- concatenate the latest value of each producer and write this string
 -- to the given handle.  If this handle is the input to a dzen
 -- process, this allows multiple concurrent threads to update
 -- independent fields in the dzen output.
 dzenMux :: MonadIO m => Handle -> [Producer] -> m ()
-dzenMux hDzen prods = liftIO (dzenMux' hDzen prods)
-
--- | The real meat of 'dzenMux'.
-dzenMux' :: Handle -> [Producer] -> IO ()
-dzenMux' hDzen prods = do
+dzenMux hDzen prods = liftIO $ do
   -- Create a pipe so we can tell when the parent dies or exec's
   (child, parent) <- createPipe
   setFdOption parent CloseOnExec True
-  -- Create the process that will draw on the producers and write to
+  -- Create the process that will pull from the producers and write to
   -- the output handle
   doubleFork $ do
     -- Create our state
     partRefs <- mapM (\_ -> newMVar Nothing) prods
     hRef <- newMVar hDzen
     let st = State hRef partRefs
-    -- Start the producers
+    -- Start each producer in a thread
     zipWithM (\ref prod -> forkIO (runProducer st ref prod)) partRefs prods
     -- Wait until the parent dies
     closeFd parent
@@ -98,8 +96,7 @@ runProducer st outRef prod = do
 
 -- | Render the current state to the output handle.  If any of the
 -- parts have not yet been updated with an initial value, does
--- nothing.  Note that this is safe to call from multiple threads
--- concurrently.
+-- nothing.  This is thread-safe.
 refresh :: State -> IO ()
 refresh (State hRef partRefs) = withMVar hRef $ \hOut -> do
   parts <- mapM readMVar partRefs
@@ -126,6 +123,7 @@ prodClock fmt = produce (clockFormatGranularity fmt)
       produce cycleMicros = do
         tod <- getClockTime
         cal <- toCalendarTime tod
+        -- How long do we sleep for?
         let TOD todSecs todPicos = tod
             microsPerSec = 1000000
             picosPerMicro = 1000000
@@ -147,8 +145,8 @@ clockFormatGranularity fmt = decode fmt
           decode (_:cs)       = decode cs
           decode []           =
               -- The maximum granularity we can use without timezone
-              -- information is a quarter hour because the granularity
-              -- is applied to UTC
+              -- information is a quarter hour because the hour may
+              -- change at this point in some timezones.
               hour `quot` 4
           escape c
               | c `elem` "BbhCmntVWYy%" = day
@@ -176,16 +174,19 @@ prodTail h = do
 -- This is particularly useful for tying this module to
 -- "XMonad.Hooks.DynamicLog", as the returned action can be given as
 -- the value of 'XMonad.Hooks.DynamicLog.ppOutput'.
-prodExternal :: IO (String -> IO (), Producer)
-prodExternal = do
+prodExternal :: (MonadIO m1, MonadIO m2) => m1 (String -> m2 (), Producer)
+prodExternal = liftIO $ do
+  -- This would be trivial in concurrent Haskell, but since we have to
+  -- run in a separate process, we fall back on pipes to get messages
+  -- across.
   (from', to') <- createPipe
-  setFdOption from' CloseOnExec True  
-  setFdOption to' CloseOnExec True  
+  setFdOption from' CloseOnExec True
+  setFdOption to'   CloseOnExec True
   from <- fdToHandle from'
   to   <- fdToHandle to'
   hSetBuffering to LineBuffering
   -- XXX Would be good to close 'from' in the parent
-  return (hPutStrLn to, hClose to >> prodTail from)
+  return (liftIO . (hPutStrLn to), hClose to >> prodTail from)
 
 -- | Produce some fixed string.
 prodConst :: String -> Producer
@@ -202,6 +203,6 @@ testProducer prod = do
 
 -- main = do
 --   (l, p) <- externalProducer
---   dzenMux' stdout [p]
+--   dzenMux stdout [p]
 --   eat l
 --       where eat l = getLine >>= l >> eat l
