@@ -30,6 +30,11 @@
 --
 -- * Separate dzen for each display and dynamically deal with
 --   screen reconfiguration
+--
+-- * Full screen stack where switching windows temporarily shows a
+--   stack of title bars above and below the current window.  For
+--   performance, don't resize any windows, just shift them (like
+--   spreading a stack of cards)
 
 -- Changes
 --
@@ -50,6 +55,7 @@ import XMonad
 import qualified XMonad.StackSet as W
 
 import XMonad.Actions.Submap
+import XMonad.Actions.SwapWorkspaces
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
@@ -68,7 +74,9 @@ import XMonad.Layout.LayoutCombinators hiding ((|||))
 import XMonad.Layout.SimpleFloat
 import XMonad.Layout.WindowNavigation
 
+import XMonad.Layout.Decoration
 import XMonad.Layout.DragPane
+--import XMonad.Layout.SimpleDecoration
 
 --import RaiseFocused
 import XMonad.Layout.DynamicColumns
@@ -144,7 +152,11 @@ myKeys x =
     -- Workspace switching
     [((m .|. modMask x, k), windows $ f i)
      | (i, k) <- zip (XMonad.workspaces x) [xK_F1 .. xK_F9]
-     , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
+     , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]] ++
+    -- Workspace swapping
+    [ ((modMask x .|. controlMask, xK_u), swapTo Prev)
+    , ((modMask x .|. controlMask, xK_i), swapTo Next)
+    ]
 
 send2Messages m1 m2 = sendMessage m1 >> sendMessage m2
 
@@ -158,9 +170,25 @@ myAntiKeys x =
      | k <- [xK_1 .. xK_9]
      , m <- [0, shiftMask]]
 
+myDecoTheme =
+    defaultTheme
+    { fontName = myFont
+    , decoHeight = 11
+    , activeColor = dark
+    , inactiveColor = veryDark
+    , urgentColor = "red"
+    , activeBorderColor = dark
+    , inactiveBorderColor = veryDark
+    , activeTextColor = white
+    , inactiveTextColor = dark
+    }
+
 -- myLayouts = ({-raiseFocused $-} windowNavigation $ Tall 2 (3/100) (1/2)) ||| Full ||| Circle ||| dragPane Vertical 0.1 0.5 ||| dynamicColumns (StackDistributed 5.0 1.0) ||| simpleFloat
 
-myLayouts = dynamicColumns (StackZoomed Nothing 5.0 1.0 ||| Full) ||| Circle ||| simpleFloat
+--myLayouts = dynamicColumns (StackZoomed Nothing 5.0 1.0 ||| Full) ||| Circle ||| simpleFloat
+myLayouts = dynamicColumns (decoration shrinkText myDecoTheme DefaultDecoration (StackZoomed Nothing 5.0 1.0 ||| Full)) ||| Circle ||| simpleFloat
+--myLayouts = dynamicColumns (dragPane Horizontal 0.1 0.5)
+--myLayouts = (dragPane Horizontal 0.1 0.5)
 
 myManageHook =
     composeOne
@@ -254,4 +282,6 @@ main = do
 --           { logHook = fadeInactiveLogHook 0xaaaaaaaa >> logHook c
 --           , borderWidth = 0
 --           }
+          -- XXX
+          ^> \c -> c { borderWidth = 0 }
          )
