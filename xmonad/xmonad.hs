@@ -35,6 +35,14 @@
 --   stack of title bars above and below the current window.  For
 --   performance, don't resize any windows, just shift them (like
 --   spreading a stack of cards)
+--
+-- * In a stack that supports collapsed windows, be able to navigate
+--   just between uncollapsed windows or between all windows.  This is
+--   actually very closely related to ion's stacked tab sets
+--   (especially if navigating from an uncollapsed window to a
+--   collapsed window swaps their dimensions) and achieves the same
+--   square root navigation efficiency but in a simpler and more
+--   dynamic model.
 
 -- Changes
 --
@@ -133,8 +141,10 @@ myKeys x =
     -- 2-D DynamicColumns switching
     [ ((modMask x,               xK_h), modifyHS (focusUpHS))
     , ((modMask x,               xK_l), modifyHS (focusDownHS))
-    , ((modMask x,               xK_j), modifyHS (intraHS focusDownHS) >> szZoomThis)
-    , ((modMask x,               xK_k), modifyHS (intraHS focusUpHS) >> szZoomThis)
+    -- , ((modMask x,               xK_j), modifyHS (intraHS focusDownHS) >> szZoomThis)
+    -- , ((modMask x,               xK_k), modifyHS (intraHS focusUpHS) >> szZoomThis)
+    , ((modMask x,               xK_j), modifyHS (intraHS focusDownHS))
+    , ((modMask x,               xK_k), modifyHS (intraHS focusUpHS))
     , ((modMask x .|. shiftMask, xK_h), modifyHS (interMoveUpHS))
     , ((modMask x .|. shiftMask, xK_l), modifyHS (interMoveDownHS))
     , ((modMask x .|. shiftMask, xK_j), modifyHS (intraHS swapDownHS))

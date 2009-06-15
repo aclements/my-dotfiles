@@ -25,6 +25,10 @@
 -- XXX Switching between columns while there are floating windows
 -- unmanages the floating windows?
 
+-- XXX Put a single window in the left-most column and push it left.
+-- The column will switch to the default layout and not release the
+-- resources of the old layout.
+
 module XMonad.Layout.DynamicColumns
     ( -- * Usage
       -- $usage
