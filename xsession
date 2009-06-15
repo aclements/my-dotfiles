@@ -128,9 +128,17 @@ start_apps_and_daemons_drake() {
     # Daemons
     #tpb -d  # tpb is started by a global Xsession script
 
-    knetworkmanager &
-    kpowersave &
-    liferea --mainwindow-state=hidden &
+    #knetworkmanager &
+    nm-applet &
+    xtoolwait kpowersave
+    xtoolwait liferea --mainwindow-state=hidden
+    if ! ps awx -o command | grep ^python | grep -q ipchanged; then
+        screen -d -m -S ipchanged python -i sys/bin/ipchanged
+    fi
+    gnome-settings-daemon &
+    xtoolwait emacs wiki2
+    xtoolwait $XTERMCMD
+    (sleep 5 ; pidgin & ; $XTERMCMD -e awkscreen &) &
 }
 
 start_apps_and_daemons_awakening() {
@@ -153,7 +161,7 @@ start_apps_and_daemons() {
     if [[ $WMANAGER == xmonad ]]; then
         # XXX -f -I 0.1 -O 0.1 to fade in and out, but some layouts
         # cause this just when switching between windows
-        xcompmgr -c &
+        #xcompmgr &
     fi
 
     # System tray
@@ -163,6 +171,7 @@ start_apps_and_daemons() {
     elif [[ $WMANAGER == xmonad ]]; then
         stalonetray -bg black --icon-size 16 --window-layer top \
             --geometry 1x1-0+0 --grow-gravity E --icon-gravity NW &
+        # --dbg-level 9 >& ~/.stalonetraylog &
         # stalonetray 0.7.6 fails to absorb existing KDE icons.
         # Better, we could wait for the appropriate log messages.
         sleep 1
