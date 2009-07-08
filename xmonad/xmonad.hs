@@ -62,6 +62,7 @@
 import XMonad
 import qualified XMonad.StackSet as W
 
+import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
 import XMonad.Actions.SwapWorkspaces
 import XMonad.Hooks.DynamicLog
@@ -121,6 +122,7 @@ myKeys x =
        , (key, act) <- [(xK_m, manPrompt myXPConfig),
                         (xK_o, termPrompt myXPConfig),
                         (xK_l, sshPrompt myXPConfig)]])
+    , ((modMask x,               xK_s), spawn "xscreensaver-command -lock")
     ] ++
     -- 1-D window switching
     [ ((modMask x,               xK_u), windows W.focusUp)
@@ -166,6 +168,14 @@ myKeys x =
     -- Workspace swapping
     [ ((modMask x .|. controlMask, xK_u), swapTo Prev)
     , ((modMask x .|. controlMask, xK_i), swapTo Next)
+    ] ++
+    -- HJKL workspace switching
+    [ ((modMask x .|. controlMask, xK_h), prevWS)
+    , ((modMask x .|. controlMask, xK_l), nextWS)
+    ] ++
+    -- HJKL workspace swapping
+    [ ((modMask x .|. controlMask .|. shiftMask, xK_h), swapTo Prev)
+    , ((modMask x .|. controlMask .|. shiftMask, xK_l), swapTo Next)
     ]
 
 send2Messages m1 m2 = sendMessage m1 >> sendMessage m2
