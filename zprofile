@@ -86,6 +86,11 @@ if [[ $HOME -ef . && $HOME != $PWD ]]; then
     cd $HOME
 fi
 
+# Fix LANG on broken systems (Goobuntu)
+if [[ -z $LANG ]]; then
+  LANG=en_US.UTF-8
+fi
+
 export atc_profile_loaded=1
 
 export zprofile_generation=1

@@ -6,7 +6,8 @@ export P4CONFIG=.p4config
 export P4DIFF="/home/build/public/google/tools/p4diff -w"
 export P4MERGE=/home/build/public/eng/perforce/mergep4.tcl 
 export P4EDITOR=$EDITOR
-# export PATH=/home/build/public/google/tools:/home/build/public/eng/perforce:$PATH
+# Inhibit g4 mail calling diff
+export G4DIFFINPARALLEL=1
 
 # Google Go setup
 export GOARCH=amd64
