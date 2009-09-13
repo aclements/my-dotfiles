@@ -2,6 +2,7 @@
 save-hook ~C"esg-\\(announce\\|soc\\|discuss\\)@" =esg
 save-hook ~C"esg-\\(notices\\|frosh\\|staff\\|tutors\\)@" =esg
 save-hook ~Ccicdo@ =esg
+save-hook ~Cmitesg@MITVMA\.mit\.edu =esg
 save-hook ~Cmacgregor@ =macgregor
 save-hook ~Cmac-official@ =macgregor
 save-hook ~C"macg-summer-\\(high\\|low\\)@" =macgregor
@@ -10,7 +11,9 @@ save-hook ~Cc-entry-in-exile@ =macgregor
 save-hook ~Cc-summer@ =macgregor
 save-hook ~Cwaffle-haus@ =macgregor
 save-hook ~Cspatang@ =macgregor
-save-hook ~Csipb =activities
+save-hook ~Cthisisnorcal@ =macgregor
+save-hook ~Csipb[-@] =activities
+save-hook ~Ccluedump-announce@ =activities
 save-hook ~Cmitgoclub =activities
 save-hook ~Cbadminton =activities
 save-hook ~Cieee =activities
@@ -18,15 +21,25 @@ save-hook ~Cjobslist@altoids.mit.edu =jobslist
 save-hook ~Cpdos@ =pdos
 save-hook ~C2006class@ =mitmisc
 save-hook ~Cundergrads@ =mitmisc
-save-hook ~Cmainlist@ =courseiv
+save-hook ~Cmainlist@ =coursevi
+save-hook ~Cspecialist@altoids\.mit\.edu =coursevi
 save-hook ~Ctbp-eligibles@ =tbp
 save-hook ~feragon@info\.randomhouse\.com =alagaesia
 save-hook ~C"tang-\\(social\\|residents\\)@" =tang
 save-hook ~ftangdesk@ =tang
+save-hook ~Ctang24@ =tang
 save-hook ~fcollinsm@mit\.edu =tang
 save-hook ~Cjos@am =jos
 save-hook ~C"csail-\\(related\\|announce\\|all\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
-save-hook ~C"\\(seminars\\|g9\\|grads\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
+#save-hook ~C"\\(seminars\\|g9\\|grads\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
+save-hook ~e"\\(seminars\\|g9\\|grads\\)-bounces@lists\.csail\.mit\.edu" =csail
+save-hook ~fpeggy@eecs\.mit\.edu =eecs
+save-hook ~C"[Nn]ewgrads0708@\\(lists\\.\\)?csail\\.mit\\.edu" =eecs
+save-hook ~Ceecsnew07@mit\.edu =eecs
+save-hook ~C"gsl@\\(lists\\.\\)?csail\\.mit\\.edu" =csail
+save-hook ~fgrfp@nsf\.gov =eecs
+save-hook ~Ceecs-gsa-members@mit\.edu =eecs
+save-hook ~Cgrad-students@altoids\.mit\.edu =eecs
 
 # Freshman classes
 save-hook ~fpatti@ =classes           # 5.112
@@ -54,9 +67,9 @@ save-hook ~fedkupfer@mit =classes     # STS.003
 # Junior classes
 save-hook ~C6821-students@ =classes   # 6.821
 save-hook ~C6821-staff@ =classes      # 6.821
-save-hook ~C6\.828-class@ =classes    # 6.828
-save-hook ~f6\.828-staff@ =classes    # 6.828
-save-hook ~C6\.828-staff@ =classes    # 6.828
+#save-hook ~C6\.828-class@ =classes    # 6.828
+#save-hook ~f6\.828-staff@ =classes    # 6.828
+#save-hook ~C6\.828-staff@ =classes    # 6.828
 save-hook ~fsipser@ =classes          # 6.840
 save-hook ~C18\.404-students@ =classes# 6.840
 
@@ -78,7 +91,8 @@ save-hook ~C6\.115-students@ =classes # 6.115
 # save-hook ~fwelg@ =6.001-06-sp
 # save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001-06-sp
 
-save-hook ~C^l@am =atcc
+save-hook ~C^l@am =xoc
+save-hook ~C^xoc@am =xoc
 
 # M.Eng classes
 save-hook ~C6823-all@ =classes        # 6.823
@@ -92,11 +106,23 @@ save-hook ~fesg-sicp@ =6.001
 save-hook ~fwelg@ =6.001
 save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001
 
+# PhD '07-08 classes
+save-hook ~C6830-2007@ =classes       # 6.830
+
+# PhD Fall '09
+save-hook ~C6\.828-class@ =6.828-09-fa    # 6.828
+save-hook ~f6\.828-staff@ =6.828-09-fa    # 6.828
+save-hook ~C6\.828-staff@ =6.828-09-fa    # 6.828
+
 # Development mailing lists
 save-hook ~C.*@sourceforge\.net =sf
 save-hook ~Cpykde@mats.imk.fraunhofer.de =pykde
 save-hook ~Cicq-devel@blipp\.com =icq-devel
 save-hook ~C.*@bugs\.debian\.org =debian
+save-hook ~f.*@bugs\.debian\.org =debian
+save-hook ~C.*@lists\.debian\.org =debian
+save-hook ~C"bugzilla@mit\\.edu" =bugzilla
+save-hook ~C"amdragon.gentoo@mit\\.edu" =bugzilla
 
 # Family
 save-hook ~frobinsky5@juno\.com =family
@@ -115,3 +141,15 @@ save-hook ~fal_chiou@mit\.edu =friends
 save-hook ~fdrkp@mit\.edu =friends
 save-hook ~fegrosse@mit\.edu =friends
 save-hook ~fevenstar@gmail\.com =friends
+save-hook ~f"taraku@\\(alum\.\\)?mit\.edu" =friends
+save-hook ~ftarakju@gmail\.com =friends
+save-hook ~fankitg@mit\.edu =friends
+
+# Misc
+save-hook ~s"<rbackup@awakening>" =system
+save-hook ~s"<rbackup@drake>" =system
+save-hook ~s"<root@awakening>" =system
+save-hook ~s"<root@drake>" =system
+save-hook ~C"amdragon.monstertrak@mit\\.edu" =monstertrak
+#save-hook ~C"amdragon.thefacebook@mit\\.edu" =facebook
+save-hook ~f"@facebookmail\\.com" =facebook
