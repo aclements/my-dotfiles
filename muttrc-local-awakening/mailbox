@@ -1,6 +1,8 @@
 # Spool information
-set folder="imap://amthrax@localhost"
+set folder="imap://localhost"
 set spoolfile="=INBOX"
+# Use preauthenticated IMAP over a pipe
+set tunnel="/usr/sbin/dovecot --exec-mail imap"
 
 set mail_check=60
 set timeout=15
