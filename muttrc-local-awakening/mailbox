@@ -1,7 +1,6 @@
 # Spool information
-set folder="imap://localhost"
+set folder="imap://amthrax@localhost"
 set spoolfile="=INBOX"
-set imap_login="amthrax"
 
 set mail_check=60
 set timeout=15
