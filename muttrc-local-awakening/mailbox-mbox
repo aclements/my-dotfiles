@@ -1,11 +1,8 @@
 # Spool information
-set folder="imap://localhost"
-set spoolfile="=INBOX"
-set imap_login="amthrax"
-
-set mail_check=60
-set timeout=15
-set imap_idle=yes
+set folder=~/Mail
+set spoolfile="~/Mail/inbox-athena"
+set mail_check=10
+set timeout=10
 
 # Address information
 set from="Austin Clements <amdragon@mit.edu>"
@@ -16,4 +13,4 @@ send-hook "~f aclements@" "set signature=\"~/.sig-short-aclements\""
 alternates aclement@.*\.utah\.edu|(amdragon\+[^@]*|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu|aclements@csail\.mit\.edu
 
 # Mailboxes to watch for new mail
-mailboxes =INBOX =inbox-local =inbox-flux =inbox-foo =spamin =inbox-root
+mailboxes =inbox-athena =inbox =inbox-flux =inbox-foo =spamin =inbox-root
