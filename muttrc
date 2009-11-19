@@ -12,8 +12,8 @@ source ~/.muttrc-local/mailbox
 # Magic folders
 #
 
-set record=+sent-mail		# default location to save outgoing mail
-set postponed=+postponed	# mailbox to store postponed messages in
+set record=+Sent		# default location to save outgoing mail
+set postponed=+Drafts		# mailbox to store postponed messages in
 
 ##################################################################
 # User interface
