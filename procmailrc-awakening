@@ -1,0 +1,73 @@
+MAILDIR=$HOME/Mail
+LOGFILE=$MAILDIR/.procmaillog
+LOCKFILE=$HOME/.lockmail
+DEFAULT=/var/mail/amthrax
+
+MD=$MAILDIR
+
+#
+# Spam/virus handling
+#
+
+# If the mail has a virus, it's probably not important.
+# Put in a folder to review once a week.
+:0:
+* ^X-MimeDefang-Filtered: Yes
+$MD/virusin
+
+# If the mail is almost very certainly spam (hits 10 and above) send it
+# away to the land of spam
+:0
+* ^X-Spam-Status: .*(hits|score)=([1-9][0-9][0-9]|[1-9][0-9])[\. ]
+$MD/spam
+
+# Same thing if IS&T thinks it's spam
+:0
+* ^X-Athena-Spam-Flag: \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+$MD/spam
+
+# If it's probably spam (hits 5 and above) put it in a folder to be
+# reviewed
+:0
+* ^X-spam-status: .*(hits|score)=([5-9])[\. ]
+$MD/spamin
+
+# Same thing for IS&T spam flags above 11 (a lot of non-spam shows up
+# with almost exactly 10)
+:0
+* ^X-Athena-Spam-Level: \*\*\*\*\*\*\*\*\*\*\*
+$MD/spamin
+
+#
+# Close enough to maybe not be spam
+#
+
+# If to reuse-*@mit.edu, push to reuse box
+:0
+* ^(To|CC):.* <?reuse[^@]*@mit\.edu>?
+$MD/reuse
+
+# If from Athena (amdragon@mit.edu) via fetchmail, push to Athena inbox
+:0
+* ^X-Origin: athena
+$MD/inbox-athena
+
+# If from Flux (aclement@flux.utah.edu) via fetchmail, push to Flux inbox
+:0
+* ^X-Origin: flux
+$MD/inbox-flux
+
+# If to foo (foo-*@localhost), push to foo inbox
+:0
+* ^To: <?foo-.*
+$MD/inbox-foo
+
+# If from a root alias or root, push to root inbox
+:0
+* ? grep -q "^`grep ^To: | sed 's/To:[[:space:]]*\(.*\)@.*/\1/'`:[^A-Za-z]*root" /etc/aliases
+$MD/inbox-root
+
+:0
+* ^To: root@.*
+$MD/inbox-root
+
