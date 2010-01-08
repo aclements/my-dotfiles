@@ -56,6 +56,7 @@ set sort=threads		# primary sorting method
 set sort_aux=last-date		# date of the last message in thread
 set status_format="-%r-Mutt: %f [Msgs:%?M?%M/?%m%?n? New:%n?%?d? Del:%d?%?F? Flag:%F?%?t? Tag:%t?%?p? Post:%p?%?b? Inc:%b?  %l]---%>-(%P)---"
 set status_on_top=no		# some people prefer the status bar on top
+set time_inc=100                # update progress every 100 ms
 set use_domain		        # qualify addresses with $hostname
 set use_from			# always generate the `From:' header field
 set user_agent			# use user-agent header
