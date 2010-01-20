@@ -7,6 +7,7 @@ set tunnel="/usr/sbin/dovecot --exec-mail imap"
 set mail_check=60
 set timeout=15
 set imap_idle=yes
+set imap_delim_chars="/"  # default disallows .'s in folder names
 
 # Address information
 set from="Austin Clements <amdragon@mit.edu>"
