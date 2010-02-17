@@ -8,8 +8,8 @@ gtk-key-theme-name = "Emacs"
 # backwards compatibility.
 style "user-font"
 {
-  font_name="Sans 7"
+  font_name="Sans 9"
 }
 widget_class "*" style "user-font"
 # And this is for newer applications (ie, Firefox)
-gtk-font-name = "Sans 7"
+gtk-font-name = "Sans 9"
