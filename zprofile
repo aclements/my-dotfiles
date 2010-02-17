@@ -58,7 +58,7 @@ export PAGER=less
 
 export EDITOR=emacs
 export VISUAL="emacs -nw"
-for TRY in emacs22 emacs21; do
+for TRY in emacs23 emacs22 emacs21; do
     if whence -p $TRY &> /dev/null; then
         if [[ ! `whence -p $TRY` -ef `whence -p emacs` ]]; then
             export ATC_USE_EMACS=$TRY
