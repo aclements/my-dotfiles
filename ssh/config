@@ -20,6 +20,11 @@ host am.lcs am.lcs.mit.edu am.csail am.csail.mit.edu
         user amdragon
 
 host josmp josmp.csail josmp.csail.mit.edu
+        hostname josmp.csail.mit.edu
+        user amdragon
+
+host tom tom.csail tom.csail.mit.edu
+        hostname tom.csail.mit.edu
         user amdragon
 
 host login.csail login.csail.mit.edu
