@@ -278,6 +278,27 @@ precmd() {
     done
 }
 
+#
+# 'use' function
+#
+use() {
+    for env in $*; do
+        if [[ ! -f ~/.envs/$env ]]; then
+            echo "Unknown environment $env" >&2
+            return 1
+        fi
+    done
+    for env in $*; do
+        if [[ -z $PROMPTFLUFF ]]; then
+            PROMPTFLUFF=$env
+        else
+            PROMPTFLUFF=${PROMPTFLUFF}+$env
+        fi
+        source ~/.envs/$env
+    done
+    updateprompt
+}
+
 # Load site-local configuration
 for file in ~/.zgoogle ~/.zstreambase ~/.zvmware; do
     if [[ -f $file ]]; then
