@@ -133,12 +133,17 @@ start_apps_and_daemons_drake() {
     xtoolwait kpowersave
     xtoolwait liferea --mainwindow-state=hidden
     if ! ps awx -o command | grep ^python | grep -q ipchanged; then
-        screen -d -m -S ipchanged python -i sys/bin/ipchanged
+        screen -d -m -S daemon python -i sys/bin/ipchanged
     fi
+    screen -S daemon -X screen python -i tmi.py
     gnome-settings-daemon &
     xtoolwait emacs wiki2
     xtoolwait $XTERMCMD
     (sleep 5 ; pidgin & ; $XTERMCMD -e awkscreen &) &
+
+    # XXX Not really the right place for this
+    killall afuse
+    afuse -o mount_template="sshfs %r:/ %m -o reconnect -o cache_timeout=1 -o workaround=rename" -o unmount_template="fusermount -u -z %m" ~/ssh
 }
 
 start_apps_and_daemons_awakening() {
