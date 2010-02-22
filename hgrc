@@ -1,0 +1,48 @@
+%include .hgrc.local
+
+[merge-tools]
+# ediff has not the most friendly shell interface.  The best way to
+# terminate the merge with this setup is 'wcC-xC-c'.  If you use
+# ediff's quit command it will ask a bunch of stupid questions and not
+# actually quit Emacs.  There's also no good way to abort a merge and
+# exit with a non-zero status, so we set checkchanged to true.  This
+# thread has an excellent analysis of why this is broken and what
+# should be done about it:
+#   http://kerneltrap.org/mailarchive/git/2007/6/28/250230
+ediff.executable = emacs
+ediff.args = --eval "(let ((ediff-window-setup-function 'ediff-setup-windows-plain)) (ediff-merge-files-with-ancestor \"$local\" \"$other\" \"$base\" nil \"$output\"))"
+ediff.checkchanged = true
+# emerge isn't nearly as spiffy as ediff, but it's actually designed
+# to be used as a merge tool from the shell.
+emerge.executable = emacs
+emerge.args = -f emerge-files-with-ancestor-command "$local" "$other" "$base" "$output"
+
+[extensions]
+hgext.children =
+hgext.color =
+hgext.graphlog =
+hgext.hgk =
+hgext.inotify =
+hgext.mq =
+hgext.notify =
+hgext.record =
+
+[color]
+# Colors to match svn-msg-mode
+status.modified = yellow bold
+status.added = green bold
+status.removed = red bold
+status.deleted = red_background bold
+status.unknown = blue bold
+status.ignored = white
+
+# Defaults plus bold
+diff.diffline = bold
+diff.extended = cyan bold
+diff.file_a = red bold
+diff.file_b = green bold
+diff.hunk = magenta bold
+diff.deleted = red bold
+diff.inserted = green bold
+diff.changed = white bold
+diff.trailingwhitespace = bold red_background
