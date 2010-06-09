@@ -130,7 +130,8 @@ start_apps_and_daemons_drake() {
 
     #knetworkmanager &
     nm-applet &
-    xtoolwait kpowersave
+    #xtoolwait kpowersave
+    xtoolwait xfce4-power-manager
     xtoolwait liferea --mainwindow-state=hidden
     if ! ps awx -o command | grep ^python | grep -q ipchanged; then
         screen -d -m -S daemon python -i sys/bin/ipchanged
