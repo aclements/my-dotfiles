@@ -310,6 +310,9 @@ done
 # Use completion cache
 zstyle ':completion::complete:*' use-cache 1
 
+# Don't offer completion functions as completions
+zstyle ':completion:*:functions' ignored-patterns '_*'
+
 # The following lines were added by compinstall
 
 zstyle ':completion:*' completer _expand _complete
