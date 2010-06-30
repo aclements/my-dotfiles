@@ -299,6 +299,20 @@ use() {
     updateprompt
 }
 
+#
+# Make run-help more awesome
+#
+run-help-sudo () {
+    # run-help gets the command from the edit buffer, so have to strip
+    # off sudo from there.
+    print -z ${@:#-*}
+    run-help ${@:#-*}
+    # Now put sudo back in the edit buffer for the user.
+    print -z sudo ${@:#-*}
+}
+autoload run-help-svn
+autoload run-help-git
+
 # Load site-local configuration
 for file in ~/.zgoogle ~/.zstreambase ~/.zvmware; do
     if [[ -f $file ]]; then
