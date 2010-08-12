@@ -3,6 +3,8 @@
 # LDAP hack...), but this will do for now (this also means that I can't
 # update them with Mutt running)
 
+set alias_file="~/.muttrc-local/aliases"
+
 # *** Family
 alias mom Robin Clements <robinsky5@juno.com>
 #alias dad Hank Clements <hclements@sisna.com>, Hank Clements <heber.clements@ssaglobal.com>
@@ -57,3 +59,11 @@ alias 6001-m12 Kallie Hedberg <kallie>, Camille Kemble <c_kemble>, Sarang Kulkar
 alias 6001-t12 Doris Dobi <dorisd>, Catherine Hooppell <chimerin>, Esteban Hufstedler <ehufsted>, Clara Rhee <rhec>
 alias 6001-t1 Courtland Allen <csallen>, Subha Gollakota <subha>, Sarah Hopp <hopp>, Zviad Metreveli <zvio>, Darren Yin <darreny>
 alias 6001-t2 Aleksandr Arkhipov <arkhipov>, Patrick Collison <patrickc>, Joshua Horowitz <joshuah>, Andrew Hsiao <ahsiao>, Julian Jones <jmjones>
+
+# Automatic aliases
+alias frans Frans Kaashoek <kaashoek@mit.edu>
+alias sbw Silas Boyd-Wickizer <sbw@mit.edu>
+alias nickolai Nickolai Zeldovich <nickolai@mit.edu>
+alias claus Claus de Bansa <de.bansa@gmail.com>
+alias rtm Robert Morris <rtm@csail.mit.edu>
+alias brenda Brenda Baker <brendasuebaker@gmail.com>

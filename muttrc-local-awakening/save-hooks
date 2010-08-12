@@ -109,10 +109,10 @@ save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001
 # PhD '07-08 classes
 save-hook ~C6830-2007@ =classes       # 6.830
 
-# PhD Fall '09
-save-hook ~C6\.828-class@ =6.828-09-fa    # 6.828
-save-hook ~f6\.828-staff@ =6.828-09-fa    # 6.828
-save-hook ~C6\.828-staff@ =6.828-09-fa    # 6.828
+# PhD Fall '10
+save-hook ~C6\.828-class@ =6.828-10-fa    # 6.828
+save-hook ~f6\.828-staff@ =6.828-10-fa    # 6.828
+save-hook ~C6\.828-staff@ =6.828-10-fa    # 6.828
 
 # Development mailing lists
 save-hook ~C.*@sourceforge\.net =sf
@@ -131,6 +131,8 @@ save-hook ~fhclements@catapulsion\.net =family
 save-hook ~femailuno@juno\.com =family
 save-hook ~fmitch0mail@earthlink\.net =family
 save-hook ~fmlstedfri@earthlink\.net =family
+save-hook ~fegrosse@mit\.edu =family
+save-hook ~fevenstar@gmail\.com =family
 
 # Friends
 save-hook ~fjal0326@ =friends
@@ -139,8 +141,6 @@ save-hook ~fpetras@mit\.edu =friends
 save-hook ~ftohn@ =friends
 save-hook ~fal_chiou@mit\.edu =friends
 save-hook ~fdrkp@mit\.edu =friends
-save-hook ~fegrosse@mit\.edu =friends
-save-hook ~fevenstar@gmail\.com =friends
 save-hook ~f"taraku@\\(alum\.\\)?mit\.edu" =friends
 save-hook ~ftarakju@gmail\.com =friends
 save-hook ~fankitg@mit\.edu =friends
@@ -153,3 +153,4 @@ save-hook ~s"<root@drake>" =system
 save-hook ~C"amdragon.monstertrak@mit\\.edu" =monstertrak
 #save-hook ~C"amdragon.thefacebook@mit\\.edu" =facebook
 save-hook ~f"@facebookmail\\.com" =facebook
+save-hook ~f"golang-dev\\\\+noreply@googlegroups\\.com" =go
