@@ -22,6 +22,8 @@ hardstatus alwayslastline "%{= g}%-Lw%{+rb}%50>%n%f %t%{-}%+Lw%<"
 
 nethack on
 
+defutf8 on
+
 ################
 # keybindings
 
@@ -52,6 +54,10 @@ bindkey "^[OD" prev
 termcapinfo xterm "ks=\E[?1l\E=:ku=\E[A:kd=\E[B:kl=\E[D:kr=\E[C:kh=\E[5~:kH=\E[F"
 bindkey "^[[5C" next
 bindkey "^[[5D" prev
+
+# XFCE Terminal bindings (2007-05-30 The xterm bindings used to work)
+bindkey "^[[1;5C" next
+bindkey "^[[1;5D" prev
 
 # Make terminal scrollback work.
 termcapinfo xterm* ti@:te@
