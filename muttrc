@@ -76,7 +76,7 @@ set mailcap_path="~/.mailcap:/etc/mailcap"
 # Hide all headers by default
 ignore *
 unignore from: subject to cc mail-followup-to \
-         date x-mailer x-url user-agent x-spam-status x-origin
+         date x-mailer x-url user-agent x-origin
 
 unhdr_order *				# forget the previous settings
 hdr_order from subject date to cc
