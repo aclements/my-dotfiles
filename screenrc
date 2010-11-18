@@ -24,6 +24,9 @@ nethack on
 
 defutf8 on
 
+# screen-256color puts emacs into dumb terminal mode
+term xterm-256color
+
 ################
 # keybindings
 
