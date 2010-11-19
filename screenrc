@@ -55,6 +55,7 @@ bindkey "^[OD" prev
 
 # define Ctrl+ left/right arrow to change between screens
 termcapinfo xterm "ks=\E[?1l\E=:ku=\E[A:kd=\E[B:kl=\E[D:kr=\E[C:kh=\E[5~:kH=\E[F"
+termcapinfo xterm-256color "ks=\E[?1l\E=:ku=\E[A:kd=\E[B:kl=\E[D:kr=\E[C:kh=\E[5~:kH=\E[F"
 bindkey "^[[5C" next
 bindkey "^[[5D" prev
 
