@@ -27,6 +27,7 @@ hgext.mq =
 hgext.notify =
 hgext.record =
 hgext.rebase =
+hgext.pager =
 
 [color]
 # Colors to match svn-msg-mode
