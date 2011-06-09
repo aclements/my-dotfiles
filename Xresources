@@ -16,11 +16,6 @@ XTerm*saveLines:		1000
 XTerm*font:			fixed
 XTerm*visualBell:		on
 
-! rxvt inherits XTerm resources
-rxvt.cursorColor2:		#ffffff
-rxvt.scrollBar_right:		true
-rxvt.scrollBar_floating:	true
-
 ! aterm inherits rxvt resources
 aterm.transparent:		true
 aterm.shading:			50
@@ -32,6 +27,34 @@ aterm.scrolTtyOutput:		true
 aterm.color4:			#8080ff
 aterm.color12:			#a0a0ff
 aterm.geometry:			80x30
+
+URxvt.transparent:		on
+URxvt.shading:			30
+URxvt.background:		black
+URxvt.foreground:		white
+URxvt.cursorColor:		green
+URxvt.font:			6x10
+URxvt.boldFont:			6x10
+URxvt.scrollBar:		off
+URxvt.saveLines:		5000
+URxvt.scrollTtyOutput:		off
+URxvt.scrollWithBuffer:		off
+URxvt.scrollTtyKeypress:	on
+! Use the Xterm palette, since it contrasts better
+URxvt.color1:			#cd0000
+URxvt.color2:			#00cd00
+URxvt.color3:			#cdcd00
+URxvt.color4:			#0000ee
+URxvt.color5:			#cd00cd
+URxvt.color6:			#00cdcd
+URxvt.color7:			#e5e5e5
+URxvt.color8:			#7f7f7f
+URxvt.color9:			#ff0000
+URxvt.color10:			#00ff00
+URxvt.color11:			#ffff00
+URxvt.color12:			#5c5cff
+URxvt.color13:			#ff00ff
+URxvt.color14:			#00ffff
 
 !!!
 !!! xdvi
