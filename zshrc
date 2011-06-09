@@ -231,14 +231,14 @@ screentitle() {
     local title
     if [[ -n $1 ]]; then
         title="$1"
-    elif [[ $TERM == screen ]]; then
+    elif [[ -n $STY ]]; then
         title="${ZSH_NAME}"
     else
         title="[$(simplifydir $PWD)]"
     fi
-    if [[ $TERM == screen ]]; then
+    if [[ -n $STY ]]; then
         print -n -- "\ek${title}\e\\"
-    elif [[ $TERM == (*xterm*|rxvt|(dt|k|E)term) ]]; then
+    elif [[ $TERM == (*xterm*|rxvt*|(dt|k|E)term) ]]; then
         print -n -- "\e]0;${title}\a"
     fi
 }
