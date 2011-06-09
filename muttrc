@@ -66,6 +66,7 @@ set write_inc=25		# show progress while writing mailboxes
 set write_bcc=no		# no bcc header by default
 set envelope_from               # derive sender from From:
 set implicit_autoview           # implicitly view MIME types with copiousoutput
+set honor_disposition=yes       # .. but only for "inline" attachments
 
 set mailcap_path="~/.mailcap:/etc/mailcap"
 
