@@ -13,3 +13,17 @@ style "user-font"
 widget_class "*" style "user-font"
 # And this is for newer applications (ie, Firefox)
 gtk-font-name = "Sans 9"
+
+# XFCE panel color scheme
+
+style "panel"
+{
+  bg[NORMAL] = "black"
+  fg[NORMAL] = "white"
+  bg[ACTIVE] = "#00aa00"
+  fg[ACTIVE] = "white"
+}
+
+widget_class "*Panel*" style "panel"
+widget "*Panel*" style "panel"
+class "*Panel*" style "panel"
