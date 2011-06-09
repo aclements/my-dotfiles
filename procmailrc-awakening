@@ -40,9 +40,9 @@ spamin/
 #
 
 # If to reuse-*@mit.edu, push to reuse box
-:0
-* ^(To|CC):.* <?reuse[^@]*@mit\.edu>?
-reuse/
+#:0
+#* ^(To|CC):.* <?reuse[^@]*@mit\.edu>?
+#reuse/
 
 # If from Athena (amdragon@mit.edu) via fetchmail, push to Athena inbox
 :0
@@ -68,3 +68,11 @@ inbox-root/
 * ^To: root@.*
 inbox-root/
 
+#:0
+#* ^TO_amthrax-googlevoice@.*
+#{
+#  :0c
+#  voicemail/
+#  :0
+#  | md5sum > ~/.voicemailpush && pidof -x voicemailpush.py > /dev/null && kill -USR1 `pidof -x voicemailpush.py`
+#}
