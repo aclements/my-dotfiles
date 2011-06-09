@@ -7,8 +7,12 @@ host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csa
         hostname awakening
         ForwardX11Trusted yes
 
-host *.flux.utah.edu
-        user aclement
+host drake.dyndns.org
+        port 2222
+
+#
+# Athena
+#
 
 host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu linerva linerva.mit.edu
         user amdragon
@@ -16,7 +20,10 @@ host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu linerva liner
         GssapiAuthentication yes
         GssapiDelegateCredentials yes
 
-host am.lcs am.lcs.mit.edu am.csail am.csail.mit.edu
+#
+# PDOS
+
+host amsterdam am.lcs am.lcs.mit.edu am.csail am.csail.mit.edu pdos.csail pdos.csail.mit.edu
         user amdragon
 
 host josmp josmp.csail josmp.csail.mit.edu
@@ -27,5 +34,26 @@ host tom tom.csail tom.csail.mit.edu
         hostname tom.csail.mit.edu
         user amdragon
 
+host ben ben.csail ben.csail.mit.edu
+        hostname ben.csail.mit.edu
+        user amdragon
+
+host oc-*.csail.mit.edu brick-*.csail.mit.edu brick-*.lcs.mit.edu hooverdam.lcs.mit.edu ud0.csail.mit.edu
+        user amdragon
+
+#
+# CSAIL
+#
+
 host login.csail login.csail.mit.edu
         user aclements
+
+host flute flute.csail flute.csail.mit.edu
+        user aclements
+
+#
+# Flux
+#
+
+host *.flux.utah.edu
+        user aclement
