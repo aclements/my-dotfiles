@@ -66,26 +66,12 @@ set_settings() {
     if [[ -e ~/.Xresources ]]; then xrdb -merge ~/.Xresources; fi
 
     # Figure out my terminal emulator
-    if whence xfce4-terminal &> /dev/null; then
-        if whence xfce4-terminal.wrapper &> /dev/null; then
-            XTERMCMD=xfce4-terminal.wrapper
-        else
-            XTERMCMD=xfce4-terminal
+    for XTERMCMD in urxvtcd urxvt Eterm aterm xterm; do
+        if whence $XTERMCMD &> /dev/null; then
+            export XTERMCMD
+            break
         fi
-    elif whence Terminal &> /dev/null; then
-	if whence Terminal.wrapper &> /dev/null; then
-	    XTERMCMD=Terminal.wrapper
-	else
-	    XTERMCMD=Terminal
-	fi
-    elif whence Eterm &> /dev/null; then
-	XTERMCMD=Eterm
-    elif whence aterm &> /dev/null; then
-	XTERMCMD=aterm
-    else
-	XTERMCMD=xterm
-    fi
-    export XTERMCMD
+    done
 }
 
 start_fluxbox() {
@@ -131,20 +117,22 @@ start_apps_and_daemons_drake() {
     #knetworkmanager &
     nm-applet &
     #xtoolwait kpowersave
-    xtoolwait xfce4-power-manager
-    xtoolwait liferea --mainwindow-state=hidden
+    xfce4-power-manager &
+    liferea --mainwindow-state=hidden &
     if ! ps awx -o command | grep ^python | grep -q ipchanged; then
         screen -d -m -S daemon python -i sys/bin/ipchanged
     fi
-    screen -S daemon -X screen python -i tmi.py
+    screen -S daemon -X screen ~/tmi
+    screen -S daemon -X screen xrandrd
     gnome-settings-daemon &
-    xtoolwait emacs wiki2
-    xtoolwait $XTERMCMD
-    (sleep 5 ; pidgin & ; $XTERMCMD -e awkscreen &) &
+    pidgin &
+    emacs wiki2 &
+    $XTERMCMD &
+    $XTERMCMD -e awkscreen &
 
     # XXX Not really the right place for this
     killall afuse
-    afuse -o mount_template="sshfs %r:/ %m -o reconnect -o cache_timeout=1 -o workaround=rename" -o unmount_template="fusermount -u -z %m" ~/ssh
+    afuse -o mount_template="sshfs %r:/ %m -o reconnect -o cache_timeout=1 -o workaround=rename -o transform_symlinks -o idmap=user" -o unmount_template="fusermount -u -z %m" ~/ssh
 }
 
 start_apps_and_daemons_awakening() {
@@ -167,7 +155,7 @@ start_apps_and_daemons() {
     if [[ $WMANAGER == xmonad ]]; then
         # XXX -f -I 0.1 -O 0.1 to fade in and out, but some layouts
         # cause this just when switching between windows
-        #xcompmgr &
+        xcompmgr &
     fi
 
     # System tray
@@ -175,12 +163,15 @@ start_apps_and_daemons() {
         # Translate GTK tray icons into WindowMaker dockapps
         docker &
     elif [[ $WMANAGER == xmonad ]]; then
-        stalonetray -bg black --icon-size 16 --window-layer top \
-            --geometry 1x1-0+0 --grow-gravity E --icon-gravity NW &
+#        stalonetray -bg black --icon-size 16 --window-layer top \
+#            --geometry 1x1-0+0 --grow-gravity E --icon-gravity NW &
         # --dbg-level 9 >& ~/.stalonetraylog &
         # stalonetray 0.7.6 fails to absorb existing KDE icons.
         # Better, we could wait for the appropriate log messages.
-        sleep 1
+#        sleep 1
+        # (June 2011) stalonetray finally gave up the ghost
+
+        xtoolwait xfce4-panel
     fi
 
     dispatch start_apps_and_daemons
@@ -233,15 +224,14 @@ fi
 # Adapt to my environment and adapt my environment to me
 determine_domain
 for WMANAGER in xmonad ion3 fluxbox twm; do
-    if which $MANAGER > /dev/null; then
+    if which $WMANAGER > /dev/null; then
         break
     fi
 done
 set_settings
 
-# Start D-BUS so XFCE Terminal instances can share a process
-if [[ $XTERMCMD == Terminal* && -z $DBUS_SESSION_BUS_ADDRESS ]] && \
-    whence dbus-launch &> /dev/null; then
+# Start D-BUS
+if [[ -z $DBUS_SESSION_BUS_ADDRESS ]] && whence dbus-launch &> /dev/null; then
     eval `dbus-launch --sh-syntax --exit-with-session`
 fi
 
