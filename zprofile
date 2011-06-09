@@ -34,6 +34,31 @@ unset x
 #     fi
 
 #
+# Degrade to an alternate TERM (e.g., when ssh'ing)
+#
+degradeterm() {
+    local alts
+    alts=($TERM)
+    while (( $#alts )); do
+        for alt in $alts; do
+            if tput -T$alt init >& /dev/null; then
+                TERM=$alt
+                return
+            fi
+        done
+        if [[ $alt == rxvt-unicode-256color ]]; then
+            alts=(rxvt-256color)
+        elif [[ $alt == rxvt-256color ]]; then
+            alts=(rxvt-color)
+        elif [[ $alt == rxvt* ]]; then
+            alts=(vt102)
+        fi
+    done
+    TERM=vt100
+}
+degradeterm
+
+#
 # Plan 9 from User Space
 #
 if [[ -d ~/plan9 ]]; then
