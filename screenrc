@@ -50,8 +50,9 @@ bindkey "^[Oc" next
 bindkey "^[Od" prev
 
 # putty bindings
-bindkey "^[OC" next
-bindkey "^[OD" prev
+# These conflict with regular left/right on numerous terminals
+#bindkey "^[OC" next
+#bindkey "^[OD" prev
 
 # define Ctrl+ left/right arrow to change between screens
 termcapinfo xterm "ks=\E[?1l\E=:ku=\E[A:kd=\E[B:kl=\E[D:kr=\E[C:kh=\E[5~:kH=\E[F"
