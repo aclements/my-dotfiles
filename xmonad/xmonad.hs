@@ -66,6 +66,7 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
 import XMonad.Actions.SwapWorkspaces
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
@@ -90,7 +91,7 @@ import XMonad.Layout.DragPane
 --import RaiseFocused
 import XMonad.Layout.DynamicColumns
 import XMonad.Layout.StackDistributed
-import XMonad.Layout.StackZoomed
+--import XMonad.Layout.StackZoomed
 import XMonad.Util.DzenMux
 
 import Control.Monad ((>=>))
@@ -98,6 +99,12 @@ import Data.List (intercalate, isSuffixOf)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import System.Environment (getEnvironment)
+
+-- XXX
+import XMonad.Layout.CairoTest
+import XMonad.Layout.StackZoomed2
+import XMonad.Layout.TitleBarBuilder
+--import XMonad.Layout.ShowWName
 
 myFont = "-*-helvetica-medium-r-*-*-10-*-*-*-*-*-*-*"
 
@@ -122,7 +129,8 @@ myKeys x =
        , (key, act) <- [(xK_m, manPrompt myXPConfig),
                         (xK_o, termPrompt myXPConfig),
                         (xK_l, sshPrompt myXPConfig)]])
-    , ((modMask x,               xK_s), spawn "xscreensaver-command -lock")
+--    , ((modMask x,               xK_s), spawn "xscreensaver-command -lock")
+    , ((modMask x,               xK_s), sendMessage ToggleStruts)
     ] ++
     -- 1-D window switching
     [ ((modMask x,               xK_u), windows W.focusUp)
@@ -164,7 +172,7 @@ myKeys x =
     -- Workspace switching
     [((m .|. modMask x, k), windows $ f i)
      | (i, k) <- zip (XMonad.workspaces x) [xK_F1 .. xK_F9]
-     , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]] ++
+     , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]] ++
     -- Workspace swapping
     [ ((modMask x .|. controlMask, xK_u), swapTo Prev)
     , ((modMask x .|. controlMask, xK_i), swapTo Next)
@@ -206,7 +214,9 @@ myDecoTheme =
 -- myLayouts = ({-raiseFocused $-} windowNavigation $ Tall 2 (3/100) (1/2)) ||| Full ||| Circle ||| dragPane Vertical 0.1 0.5 ||| dynamicColumns (StackDistributed 5.0 1.0) ||| simpleFloat
 
 --myLayouts = dynamicColumns (StackZoomed Nothing 5.0 1.0 ||| Full) ||| Circle ||| simpleFloat
-myLayouts = dynamicColumns (decoration shrinkText myDecoTheme DefaultDecoration (StackZoomed Nothing 5.0 1.0 ||| Full)) ||| Circle ||| simpleFloat
+--myLayouts = dynamicColumns (decoration shrinkText myDecoTheme DefaultDecoration (StackZoomed Nothing 5.0 1.0 ||| Full)) ||| Circle ||| simpleFloat
+myLayouts = dynamicColumns (StackZoomed Nothing 5.0 1.0 defTitleBarBuilder ||| Full)
+--myLayouts = cairoTest Full
 --myLayouts = dynamicColumns (dragPane Horizontal 0.1 0.5)
 --myLayouts = (dragPane Horizontal 0.1 0.5)
 
@@ -214,6 +224,10 @@ myManageHook =
     composeOne
     [ className =? "stalonetray" -?> doIgnore
     , isKDETrayWindow -?> doIgnore
+      -- The Xfce4 notifyd doesn't set override redirect.  Actually,
+      -- I'm completely unclear on what, if anything, it does to
+      -- prevent taking away focus, so I hard code it.
+    , className =? "Xfce4-notifyd" -?> doIgnore
     ]
 
 myXPConfig =
@@ -279,12 +293,13 @@ myPP =
 
 main = do
   env <- getEnvironment
-  hDzen <- spawnPipe ("dzen2 -e onstart=lower -ta l" ++
-                      " -fn '" ++ myFont ++ "' -h 16 -bg black")
-  (dynamicLogOut, prodDynamicLog) <- prodExternal
-  dzenMux hDzen [ prodClock (dzenColor white "" "%a %m/%d  %l:%M %p")
-                , prodConst (ppSep myPP)
-                , prodDynamicLog]
+  -- (Switched to xfce4-panel, so no more dzen)
+  -- hDzen <- spawnPipe ("dzen2 -e onstart=lower -ta l" ++
+  --                     " -fn '" ++ myFont ++ "' -h 16 -bg black")
+  -- (dynamicLogOut, prodDynamicLog) <- prodExternal
+  -- dzenMux hDzen [ prodClock (dzenColor white "" "%a %m/%d  %l:%M %p")
+  --               , prodConst (ppSep myPP)
+  --               , prodDynamicLog]
   let v ^> f = f v
   xmonad (defaultConfig
           ^> \c -> c
@@ -307,7 +322,7 @@ main = do
           -- Derive terminal from $XTERMCMD
           { terminal = fromMaybe (terminal c) $ lookup "XTERMCMD" env }
           -- Drive dzen
-          { logHook = dynamicLogWithPP $ myPP { ppOutput = dynamicLogOut } }
+--           { logHook = dynamicLogWithPP $ myPP { ppOutput = dynamicLogOut } }
           -- Indicate inactive windows by fading (requires compositing manager)
 --           ^> \c -> c
 --           { logHook = fadeInactiveLogHook 0xaaaaaaaa >> logHook c
@@ -315,4 +330,10 @@ main = do
 --           }
           -- XXX
           ^> \c -> c { borderWidth = 0 }
+          -- XXX
+--          ^> \c -> c { layoutHook = showWName (layoutHook c) }
+          -- EWMH compatibility
+          ^> \c -> c
+          { logHook = ewmhDesktopsLogHook >> logHook c
+          , layoutHook =  ewmhDesktopsLayout (layoutHook c) }
          )

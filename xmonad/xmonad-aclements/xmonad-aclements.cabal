@@ -10,9 +10,15 @@ Library
   Build-depends:        base >= 3, containers, old-time, old-locale, unix, mtl
   Build-depends:        xmonad >= 0.8, xmonad < 0.9
   Build-depends:        xmonad-contrib >= 0.8, xmonad-contrib < 0.9
+  -- XXX
+  Build-depends:        X11 >= 1.4.5, cairo >= 0.10.1
   GHC-options:          -Wall
 
   Exposed-modules:      XMonad.Layout.DynamicColumns
                         XMonad.Layout.StackDistributed
                         XMonad.Layout.StackZoomed
                         XMonad.Util.DzenMux
+                        XMonad.Util.Cairo
+                        XMonad.Layout.CairoTest
+                        XMonad.Layout.TitleBarBuilder
+                        XMonad.Layout.StackZoomed2
