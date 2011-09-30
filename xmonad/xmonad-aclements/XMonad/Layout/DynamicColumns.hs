@@ -23,11 +23,16 @@
 -----------------------------------------------------------------------------
 
 -- XXX Switching between columns while there are floating windows
--- unmanages the floating windows?
+-- unmanages the floating windows?  The stack passed in to runLayout
+-- has the floating windows removed from it, so the hierarchical stack
+-- in the layout state omits these.  updateHS takes the hierarchical
+-- stack as ground truth and clobbers the xmonad stack with it, which
+-- loses the floating windows.
 
 -- XXX Put a single window in the left-most column and push it left.
 -- The column will switch to the default layout and not release the
--- resources of the old layout.
+-- resources of the old layout.  I think this problem also lies in
+-- updateHS.
 
 module XMonad.Layout.DynamicColumns
     ( -- * Usage
@@ -270,13 +275,20 @@ updateHS (DC (Right _) _)   _ replyRef = do
   io $ writeIORef replyRef ModifyUnchanged
   return Nothing
 updateHS (DC (Left hs) def) f replyRef = do
-  let hs' = let ?def = def in f hs
-      dc' = DC (Left hs') def
-      stack = flatten hs'
-  io $ writeIORef replyRef (ModifyTo stack)
-  -- XXX Could use a flag to indicate that the stack and the
-  -- hierarchical stack are known to be in sync.
-  return $ Just dc'
+  XState { windowset = old } <- get
+  case W.stack $ W.workspace $ W.current old of
+    Nothing -> do
+      io $ writeIORef replyRef ModifyUnchanged
+      return Nothing
+    Just stack -> do
+      let (hs', _) = update hs stack
+          hs'' = let ?def = def in f hs'
+          dc' = DC (Left hs'') def
+          stack' = flatten hs''
+      io $ writeIORef replyRef (ModifyTo stack')
+      -- XXX Could use a flag to indicate that the stack and the
+      -- hierarchical stack are known to be in sync.
+      return $ Just dc'
 
 -- | Forward a message to either the focused sub-layout or to all
 -- sub-layouts and update the sub-layout state.
