@@ -8,6 +8,7 @@ build: dist/setup-config
 
 install: build
 	runhaskell Setup.lhs install
+	if [[ -e ~/.xmonad/xmonad.hs ]]; then touch ~/.xmonad/xmonad.hs; fi
 
 doc: dist/setup-config
 	runhaskell Setup.lhs haddock --hyperlink-source
