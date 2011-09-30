@@ -6,6 +6,11 @@
 -- (see 'prodExternal' for one way to do this).  This would all be
 -- much simpler with -threaded.
 
+-- XXX If dzen2 isn't found, I believe this currently still forks off
+-- a process to talk to it and eventually the log hook in the main
+-- xmonad process blocks on writing to the pipe to the child and locks
+-- up xmonad.
+
 module XMonad.Util.DzenMux
     ( -- * Multiplexing a dzen
       dzenMux
