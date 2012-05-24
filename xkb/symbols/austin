@@ -1,0 +1,6 @@
+// Replace left control with Super
+partial modifier_keys
+xkb_symbols "lctrl_super" {
+    replace key <LCTL> { [ Super_L ] };
+    modifier_map Mod4 { <LCTL> };
+};
