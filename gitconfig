@@ -1,0 +1,11 @@
+[user]
+	name = Austin Clements
+	email = amdragon@mit.edu
+[color]
+	ui = true
+[merge]
+	conflictstyle = diff3
+[rebase]
+        autosquash = true
+[sendemail]
+        envelopesender = auto

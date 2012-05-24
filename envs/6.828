@@ -1,0 +1,1 @@
+path=($HOME/sandbox/6.828/ext/qemu/i386-softmmu $path)

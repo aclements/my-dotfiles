@@ -1,0 +1,4 @@
+[ui]
+username = Austin Clements <amthrax@drake>
+#merge = ediff
+merge = internal:merge
