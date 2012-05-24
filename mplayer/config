@@ -1,8 +1,10 @@
 # Write your default config options here!
 
-vo = xv
-ao = alsa:device=hw=0
-subpos = 80
-font = /usr/share/mplayer/font/cp1251/arial-24/font.desc
-stop-xscreensaver = 1
-xineramascreen = 0
+nojoystick=yes
+nolirc=yes
+#ao=pulse
+#ao=alsa
+
+# For Etymotic hf5's
+#af=equalizer=6:4:2:0:0:0:0:0:0:0
+af=equalizer=4:3:2:0:0:0:0:0:0:0
