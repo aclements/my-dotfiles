@@ -34,6 +34,8 @@ else
     fi
 fi
 
+autoload -Uz add-zsh-hook
+
 #
 # Options
 #
@@ -49,7 +51,7 @@ disable test [                  # Bash syntax
 #
 HISTSIZE=1000                   # History lines to store in memory
 SAVEHIST=1000                   # History lines to save to disk
-HISTFILE=~/.history             # File to save history to
+HISTFILE=~/.histfile            # File to save history to
 setopt append_history           # Append instead of replacing history
 setopt inc_append_history       # .. do so as commands are entered
 setopt extended_history         # Keep timestamps on history entries
@@ -107,9 +109,9 @@ updateprompt
 #
 # Pretty-print return status
 #
-precmd_prettyreturn() {
+prettyreturn() {
     # Update psvar[0] to reflect pretty-printed output status
-    local pretty=$result
+    local pretty=$?
     if (( pretty > 128 )); then
         pretty=${signals[$(( pretty - 128 + 1 ))]-$pretty}
     elif (( pretty == 127 )); then
@@ -121,6 +123,7 @@ precmd_prettyreturn() {
     fi
     psvar=($pretty)
 }
+add-zsh-hook precmd prettyreturn
 # Replace return status in prompts to use pretty-printing
 PROMPT=${PROMPT//\%\?/\%v}
 RPROMPT=${RPROMPT//\%\?/\%v}
@@ -259,24 +262,8 @@ preexec() {
     screentitle $cmd
 }
 
-precmd_screentitle() {
-    # Return the title to the default after the command is done
-    screentitle
-}
-
-#
-# Chain shell-special functions
-#
-precmds=(${functions[(I)precmd_*]})
-precmd() {
-    # This chains to all functions of the form precmd_*, $result is
-    # set to $?
-    local result=$?
-    local x
-    for x in $precmds; do
-        $x
-    done
-}
+# Return the title to the default after the command is done
+add-zsh-hook precmd screentitle
 
 #
 # 'use' function
@@ -329,19 +316,14 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 
 # The following lines were added by compinstall
 
-zstyle ':completion:*' completer _expand _complete
-zstyle ':completion:*' completions 1
 zstyle ':completion:*' format '-- %d --'
-zstyle ':completion:*' glob 1
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' list-suffixes true
 zstyle ':completion:*' matcher-list '' 'l:|=* r:|=*'
-zstyle ':completion:*' substitute 1
 zstyle ':completion:*' verbose true
 zstyle :compinstall filename '/home/amthrax/.zshrc'
 
-autoload -U compinit
+autoload -Uz compinit
 compinit
 # End of lines added by compinstall
