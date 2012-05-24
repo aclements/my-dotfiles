@@ -103,6 +103,51 @@ setupgrep() {
 }
 setupgrep; unfunction setupgrep
 
+setupls() {
+    # XXX This is all rather painful.  Add caching.
+    local ls lsver foundls dircolors dcver
+    # The complexity of this is necessary because some systems (*cough*
+    # Athena) have ancient versions of gls floating around
+    for ls in `whence -ap gls ls`; do
+        # The / is for BSD ls, which ignores --version (in fact, there
+        # is no way to ask its version), to lock in on a directory I
+        # know is local and small
+        lsver="`command $ls --version / 2> /dev/null`"
+        if [[ $lsver == *Stallman* ]]; then
+            foundls=1
+            lsver=${${=lsver}[3]}
+            break
+        fi
+    done
+    ls="command $ls"            # Just to be sure
+
+    if (( foundls )); then
+        # Find a dircolors that matches the version of ls
+        for dircolors in `whence -p gdircolors dircolors`; do
+            dcver="`command $dircolors --version`"
+            if [[ $lsver == ${${=dcver}[3]} ]];  then
+                # We have a winner
+                eval `command $dircolors -b`
+                export ZLS_COLORS="$LS_COLORS"
+                unset LSCOLORS
+                ls="$ls --color"
+                break
+            fi
+        done
+    else
+        # Didn't find a satisfactory ls, fall back to what is
+        # hopefully BSD ls.  This isn't quite right, because this
+        # could also be an old version of GNU ls.
+        ls="ls -G"
+    fi
+
+    # Show symbols after file names
+    ls="$ls -F"
+
+    LS="$ls"
+}
+setupls; unfunction setupls
+
 # Some systems (*cough* Athena) have wacky $HOME semantics where you
 # start in a directory that is your home directory, but isn't string
 # equal to $HOME.  This causes the prompt to not do ~ unexpansion.

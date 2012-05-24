@@ -139,50 +139,9 @@ fi
 #
 # Directory listing
 #
-setupls() {
-    # XXX This is all rather painful.  Add caching.
-    local ls lsver foundls dircolors dcver
-    # The complexity of this is necessary because some systems (*cough*
-    # Athena) have ancient versions of gls floating around
-    for ls in `whence -ap gls ls`; do
-        # The / is for BSD ls, which ignores --version (in fact, there
-        # is no way to ask its version), to lock in on a directory I
-        # know is local and small
-        lsver="`command $ls --version / 2> /dev/null`"
-        if [[ $lsver == *Stallman* ]]; then
-            foundls=1
-            lsver=${${=lsver}[3]}
-            break
-        fi
-    done
-    ls="command $ls"            # Just to be sure
 
-    if (( foundls )); then
-        # Find a dircolors that matches the version of ls
-        for dircolors in `whence -p gdircolors dircolors`; do
-            dcver="`command $dircolors --version`"
-            if [[ $lsver == ${${=dcver}[3]} ]];  then
-                # We have a winner
-                eval `command $dircolors -b`
-                ZLS_COLORS="$LS_COLORS"
-                unset LSCOLORS
-                ls="$ls --color"
-                break
-            fi
-        done
-    else
-        # Didn't find a satisfactory ls, fall back to what is
-        # hopefully BSD ls.  This isn't quite right, because this
-        # could also be an old version of GNU ls.
-        ls="ls -G"
-    fi
-
-    # Show symbols after file names
-    ls="$ls -F"
-
-    alias ls="$ls"
-}
-setupls; unfunction setupls
+# This was pre-computed by .zprofile
+alias ls="$LS"
 
 truncatedls() {
     # Print at most 10 lines of ls output
