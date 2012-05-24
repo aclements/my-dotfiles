@@ -28,17 +28,22 @@ aterm.color4:			#8080ff
 aterm.color12:			#a0a0ff
 aterm.geometry:			80x30
 
-URxvt.transparent:		on
-URxvt.shading:			30
-URxvt.background:		black
-URxvt.foreground:		white
+!URxvt.transparent:		on
+!URxvt.shading:			30
+URxvt.transparent:		off
+URxvt.background:		rgba:0000/0000/0000/bbbb
+! Need depth 32 to enable alpha
+URxvt.depth:			32
+!URxvt.foreground:		white
+URxvt.foreground:		#f0f0f0
+URxvt.colorBD:			white
 URxvt.cursorColor:		green
 URxvt.font:			6x10
 URxvt.boldFont:			6x10
 URxvt.scrollBar:		off
 URxvt.saveLines:		5000
 URxvt.scrollTtyOutput:		off
-URxvt.scrollWithBuffer:		off
+URxvt.scrollWithBuffer:		on
 URxvt.scrollTtyKeypress:	on
 ! Use the Xterm palette, since it contrasts better
 URxvt.color1:			#cd0000
@@ -55,6 +60,9 @@ URxvt.color11:			#ffff00
 URxvt.color12:			#5c5cff
 URxvt.color13:			#ff00ff
 URxvt.color14:			#00ffff
+! Disable silly Ctrl-Shift thing.
+URxvt.iso14755:			false
+URxvt.iso14755_52:		false
 
 !!!
 !!! xdvi
