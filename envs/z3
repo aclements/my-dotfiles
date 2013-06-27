@@ -1,0 +1,2 @@
+export LD_LIBRARY_PATH=$HOME/opt/z3/lib
+export PYTHONPATH=$HOME/opt/z3/lib/python2.7/dist-packages
