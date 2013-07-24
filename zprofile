@@ -144,7 +144,7 @@ setupls() {
     # Show symbols after file names
     ls="$ls -F"
 
-    LS="$ls"
+    export LS="$ls"
 }
 setupls; unfunction setupls
 
