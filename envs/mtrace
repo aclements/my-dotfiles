@@ -1,3 +1,6 @@
-path=($HOME/sandbox/mtrace/x86_64-softmmu
-    $HOME/sandbox/mtrace/mtrace-tools
-    $path)
+for base in $HOME/sandbox/mtrace $HOME/r/mtrace; do
+    if [[ -d $base ]]; then
+        path=($base/x86_64-softmmu $base/mtrace-tools $path)
+        break
+    fi
+done
