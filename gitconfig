@@ -9,3 +9,6 @@
         autosquash = true
 [sendemail]
         envelopesender = auto
+[push]
+	# Git 2.0 changes the default to simple
+	default = simple
