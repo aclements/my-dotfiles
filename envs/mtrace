@@ -1,1 +1,3 @@
-path=(/atmp/qemu/x86_64-softmmu /atmp/qemu/mtrace-tools $path)
+path=($HOME/sandbox/mtrace/x86_64-softmmu
+    $HOME/sandbox/mtrace/mtrace-tools
+    $path)
