@@ -6,24 +6,12 @@ emulate zsh
 # Check environment
 #
 if [[ -z $atc_profile_loaded ]]; then
-    echo "Eep!  Your zprofile isn't loaded"
-    if [[ -r ~/sys/dotfiles/zprofile ]]; then
-        if [[ ! -r ~/.zprofile ]]; then
-            echo "You forgot to link .zprofile in from sys/dotfiles"
-        elif [[ ~/.zprofile -ef ~/sys/dotfiles/zprofile ]]; then
-            echo -n "Odd.  .zprofile exists and is correct.  "
-            echo "Try logging out and logging back in"
-        else
-            echo "You have the wrong .zprofile.  Link in sys/dotfiles/.zprofile"
-        fi
-        echo "Sourcing sys/dotfiles/.zprofile"
-        source ~/sys/dotfiles/zprofile
+    if [[ -r ~/.zprofile ]]; then
+        # There was no login shell.  This can happen, for example, in
+        # an X session.
+        source ~/.zprofile
     else
-        if [[ ! -d ~/sys/dotfiles ]]; then
-            echo "You appear to be missing sys/dotfiles.  Bad things shall befall you"
-        else
-            echo "Odd.  You have sys/dotfiles, but no sys/dotfiles/zprofile"
-        fi
+        echo "Unable to find zprofile!" >&2
     fi
 else
     if [[ -e ~/.zprofile && \
