@@ -26,13 +26,6 @@ for x in ~/lib ~/$sys/lib; do # Add lib directories for ld
 done
 unset x
 
-#     if [[ -r /usr/lib/j2se/1.4/ ]]; then # Java home?
-# 	export JAVA_HOME=/usr/lib/j2se/1.4/
-#     fi
-#     if [[ -r /usr/lib/j2se/1.4/jre/lib/rt.jar ]]; then # JRT? (for Jikes)
-# 	export CLASSPATH=.:/usr/lib/j2se/1.4/jre/lib/rt.jar
-#     fi
-
 #
 # Degrade to an alternate TERM (e.g., when ssh'ing)
 #
@@ -57,14 +50,6 @@ degradeterm() {
     TERM=vt100
 }
 degradeterm
-
-#
-# Plan 9 from User Space
-#
-if [[ -d ~/plan9 ]]; then
-    export PLAN9=$HOME/plan9
-    path=($path $PLAN9/bin)
-fi
 
 #
 # General environment
