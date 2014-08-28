@@ -1,3 +1,12 @@
+# The syntax rules: The save-hook command gets parsed like a shell
+# command, so if the pattern contains any special characters, they
+# must be shell quoted.  After shell parsing, the second argument is
+# the pattern.  The pattern itself is also parsed like shell, and any
+# regexps in the pattern must be a single shell word.  Finally,
+# regexps are parsed as regexps.
+#
+# Many of the patterns below are probably slightly wrong.
+
 # MIT mailing lists
 save-hook ~C"esg-\\(announce\\|soc\\|discuss\\)@" =esg
 save-hook ~C"esg-\\(notices\\|frosh\\|staff\\|tutors\\)@" =esg
@@ -18,6 +27,7 @@ save-hook ~Cmitgoclub =activities
 save-hook ~Cbadminton =activities
 save-hook ~Cieee =activities
 save-hook ~Cjobslist@altoids.mit.edu =jobslist
+save-hook "~h 'List-Id: .*<eecs-jobs-announce.lists.csail.mit.edu>'" =jobslist
 save-hook ~Cpdos@ =pdos
 save-hook ~C2006class@ =mitmisc
 save-hook ~Cundergrads@ =mitmisc
@@ -30,9 +40,10 @@ save-hook ~ftangdesk@ =tang
 save-hook ~Ctang24@ =tang
 save-hook ~fcollinsm@mit\.edu =tang
 save-hook ~Cjos@am =jos
-save-hook ~C"csail-\\(related\\|announce\\|all\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
-#save-hook ~C"\\(seminars\\|g9\\|grads\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
-save-hook ~e"\\(seminars\\|g9\\|grads\\)-bounces@lists\.csail\.mit\.edu" =csail
+#save-hook ~C"csail-\\(announce\\|all\\)@\\(lists\.\\)?csail\.mit\.edu" =csail
+#save-hook =f"eventcalendar@csail.mit.edu" =csail
+#save-hook ~e"\\(g9\\|grads\\)-bounces@lists\.csail\.mit\.edu" =csail
+save-hook "~h 'List-Id: .*<\(csail-\(all\|announce\|related\)\|seminars\|social\|g9\|grads\)\.lists\.csail\.mit\.edu>'" =csail
 save-hook ~fpeggy@eecs\.mit\.edu =eecs
 save-hook ~C"[Nn]ewgrads0708@\\(lists\\.\\)?csail\\.mit\\.edu" =eecs
 save-hook ~Ceecsnew07@mit\.edu =eecs
@@ -40,6 +51,7 @@ save-hook ~C"gsl@\\(lists\\.\\)?csail\\.mit\\.edu" =csail
 save-hook ~fgrfp@nsf\.gov =eecs
 save-hook ~Ceecs-gsa-members@mit\.edu =eecs
 save-hook ~Cgrad-students@altoids\.mit\.edu =eecs
+save-hook ~Cgrad-students@eecs\.mit\.edu =eecs
 
 # Freshman classes
 save-hook ~fpatti@ =classes           # 5.112
@@ -109,10 +121,11 @@ save-hook ~C"6001-\\(tas\\|staff\\)@" =6.001
 # PhD '07-08 classes
 save-hook ~C6830-2007@ =classes       # 6.830
 
-# PhD Fall '10
-save-hook ~C6\.828-class@ =6.828-10-fa    # 6.828
-save-hook ~f6\.828-staff@ =6.828-10-fa    # 6.828
-save-hook ~C6\.828-staff@ =6.828-10-fa    # 6.828
+# PhD Fall '11
+save-hook ~C6\.828-class@ =6.828-11-fa    # 6.828
+save-hook ~f6\.828-staff@ =6.828-11-fa    # 6.828
+save-hook ~C6\.828-staff@ =6.828-11-fa    # 6.828
+save-hook ~sCron.*6.828/gitroot =6.828-11-fa
 
 # Development mailing lists
 save-hook ~C.*@sourceforge\.net =sf
@@ -123,6 +136,13 @@ save-hook ~f.*@bugs\.debian\.org =debian
 save-hook ~C.*@lists\.debian\.org =debian
 save-hook ~C"bugzilla@mit\\.edu" =bugzilla
 save-hook ~C"amdragon.gentoo@mit\\.edu" =bugzilla
+save-hook ~C"notmuch@notmuchmail\\.org" =notmuch
+
+# PDOS git repositories
+save-hook "~h 'X-Git-Refname: refs/heads/scale-amd64' ~s '^xv6 '" =pdos
+# Commit messages from g.csail.mit.edu
+save-hook '~i "@gobi\\.csail\\.mit\\.edu"' =pdos
+save-hook '~i "@gobi\\.csail\\.mit\\.edu" ~s "^\\[jos\\]"' =6.828-11-fa
 
 # Family
 save-hook ~frobinsky5@juno\.com =family
@@ -150,7 +170,8 @@ save-hook ~s"<rbackup@awakening>" =system
 save-hook ~s"<rbackup@drake>" =system
 save-hook ~s"<root@awakening>" =system
 save-hook ~s"<root@drake>" =system
+save-hook '~s "CrashPlan Backup Report"' =system
 save-hook ~C"amdragon.monstertrak@mit\\.edu" =monstertrak
 #save-hook ~C"amdragon.thefacebook@mit\\.edu" =facebook
 save-hook ~f"@facebookmail\\.com" =facebook
-save-hook ~f"golang-dev\\\\+noreply@googlegroups\\.com" =go
+save-hook ~f"golang-dev@googlegroups\\.com" =go
