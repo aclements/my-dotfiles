@@ -15,7 +15,7 @@ set hostname="csail.mit.edu"
 #set signature="~/.sig3"
 send-hook . "set signature=\"~/.sig-short-aclements\""
 send-hook "~f amdragon@" "set signature=\"~/.sig-short-amdragon\""
-alternates aclement@.*\.utah\.edu|(amdragon(\+[^@]*)?|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu|aclements@csail\.mit\.edu
+alternates 'aclement@.*\.utah\.edu|(amdragon(\+[^@]*)?|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu|aclements@csail\.mit\.edu'
 
 # Mailboxes to watch for new mail
 mailboxes =INBOX =inbox-local =inbox-flux =inbox-foo =spamin =inbox-root
