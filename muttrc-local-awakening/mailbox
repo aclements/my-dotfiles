@@ -2,7 +2,7 @@
 set folder="imap://localhost"
 set spoolfile="=INBOX"
 # Use preauthenticated IMAP over a pipe
-set tunnel="/usr/sbin/dovecot --exec-mail imap"
+set tunnel="/usr/lib/dovecot/imap"
 
 set mail_check=60
 set timeout=15
@@ -10,12 +10,12 @@ set imap_idle=yes
 set imap_delim_chars="/"  # default disallows .'s in folder names
 
 # Address information
-set from="Austin Clements <amdragon@mit.edu>"
-set hostname="mit.edu"
+set from="Austin Clements <aclements@csail.mit.edu>"
+set hostname="csail.mit.edu"
 #set signature="~/.sig3"
-send-hook . "set signature=\"~/.sig-short\""
-send-hook "~f aclements@" "set signature=\"~/.sig-short-aclements\""
-alternates aclement@.*\.utah\.edu|(amdragon\+[^@]*|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu|aclements@csail\.mit\.edu
+send-hook . "set signature=\"~/.sig-short-aclements\""
+send-hook "~f amdragon@" "set signature=\"~/.sig-short-amdragon\""
+alternates aclement@.*\.utah\.edu|(amdragon(\+[^@]*)?|aclements)@mit\.edu|amdragon@am(sterdam)?\.(lcs|csail)\.mit\.edu|aclements@csail\.mit\.edu
 
 # Mailboxes to watch for new mail
 mailboxes =INBOX =inbox-local =inbox-flux =inbox-foo =spamin =inbox-root
