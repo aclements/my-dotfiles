@@ -155,8 +155,8 @@ bind attach <right> view-attach
 bind generic <right> select-entry
 
 # Send-to-spam
-macro index S s=spam\n
-macro pager S s=spam\n
+macro index S s=MissedSpam\n
+macro pager S s=MissedSpam\n
 
 # Deleting a message permanently is too easy
 bind index <esc>D delete-message
