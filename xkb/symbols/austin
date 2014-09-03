@@ -3,4 +3,8 @@ partial modifier_keys
 xkb_symbols "lctrl_super" {
     replace key <LCTL> { [ Super_L ] };
     modifier_map Mod4 { <LCTL> };
+
+    // UGH.  Unless I set the Control map as well, xkb will leave LCTL
+    // in Control, but I have to account for the current Control map.
+    modifier_map Control { <CAPS> };
 };
