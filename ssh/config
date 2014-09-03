@@ -1,14 +1,18 @@
-ForwardX11 yes
+ForwardX11 no
 
 ServerAliveInterval 120
 
 host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csail.mit.edu awakening.dyndns.org
         user amthrax
         hostname awakening
+        ForwardX11 yes
         ForwardX11Trusted yes
 
-host drake.dyndns.org
-        port 2222
+host drake drake.dyndns.org
+        hostname drake.dyndns.org
+#        port 2222
+        ForwardX11 yes
+        ForwardX11Trusted yes
 
 #
 # Athena
@@ -23,7 +27,7 @@ host athena.dialup athena.dialup.mit.edu x.dialup x.dialup.mit.edu linerva liner
 #
 # PDOS
 
-host amsterdam am.lcs am.lcs.mit.edu am.csail am.csail.mit.edu pdos.csail pdos.csail.mit.edu
+host amsterdam am.lcs am.lcs.mit.edu am.csail am.csail.mit.edu amsterdam.csail.mit.edu pdos.csail pdos.csail.mit.edu
         user amdragon
 
 host josmp josmp.csail josmp.csail.mit.edu
