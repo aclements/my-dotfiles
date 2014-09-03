@@ -123,8 +123,11 @@ start_apps_and_daemons_drake() {
         screen -d -m -S daemon python -i sys/bin/ipchanged
     fi
     screen -S daemon -X screen ~/tmi
-    screen -S daemon -X screen xrandrd
-    gnome-settings-daemon &
+#    screen -S daemon -X screen xrandrd
+#    gnome-settings-daemon &
+    # gnome-settings-daemon crashes rather often
+    # https://bugs.launchpad.net/ubuntu/+source/gnome-desktop/+bug/447431
+    (while xwininfo -root >& /dev/null; do gnome-settings-daemon --debug; done) &
     pidgin &
     emacs wiki2 &
     $XTERMCMD &
