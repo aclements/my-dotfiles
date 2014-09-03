@@ -1,5 +1,5 @@
 # Use the Mist theme
-include "/usr/share/themes/Mist/gtk-2.0/gtkrc"
+#include "/usr/share/themes/Mist/gtk-2.0/gtkrc"
 
 # Use Emacs-like key bindings
 gtk-key-theme-name = "Emacs"
