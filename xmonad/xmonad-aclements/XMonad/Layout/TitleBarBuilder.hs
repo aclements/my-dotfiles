@@ -402,7 +402,7 @@ handleEvent (TitleBarBuilder style st) (ExposeEvent {ev_window = w}) =
       I (Just (TBBS _ barMap))
         -- Look up the exposed window in the reverse map
         | Just bar <- Map.lookup w barMap -> do
-            trace $ "Expose " ++ show (bBarWin bar)
+--            trace $ "Expose " ++ show (bBarWin bar)
             -- Redraw the title bar
             styleDrawBar style bar
             -- XXX Just the exposed region
@@ -556,7 +556,7 @@ cairoUpdate (CairoTool sfs) ups dels = do
       newBar bar = do
         let win = bBarWin bar
             (Rectangle _ _ (fi -> w) (fi -> h)) = bBarRect bar
-        trace $ "New surface " ++ show bar
+--        trace $ "New surface " ++ show bar
         io $ mkXlibSurface d win visual w h
       upBar sf old new = do
         let Rectangle _ _ (fi -> w) (fi -> h) = bBarRect old
@@ -565,10 +565,10 @@ cairoUpdate (CairoTool sfs) ups dels = do
           io $ xlibSurfaceSetSize sf w' h'
           -- XXX Implement redraw.  Actually, maybe not.  If the style
           -- cares about the size, it should redraw itself.
-          trace $ "Resize surface " ++ show old ++ " -> " ++ show new
+--          trace $ "Resize surface " ++ show old ++ " -> " ++ show new
         return sf
       delBar sf bar = do
-        trace $ "Delete surface " ++ show bar
+--        trace $ "Delete surface " ++ show bar
         surfaceFinish sf
   liftM CairoTool $ perBarUpdate sfs ups dels newBar upBar delBar
 
@@ -694,7 +694,7 @@ instance TitleXFTFontTheme font => TitleBarStyle (NeonStyle font) where
       in ceiling (size * 1.2 + 1)
 
     styleDrawBar (NeonStyle font cairo title) bar = do
-      trace $ "Draw " ++ show bar
+--      trace $ "Draw " ++ show bar
       disp <- asks display
       doMaybe (cairoSurface cairo bar) $ \sf -> renderWith sf $ do
         save
