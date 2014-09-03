@@ -7,4 +7,5 @@ nolirc=yes
 
 # For Etymotic hf5's
 #af=equalizer=6:4:2:0:0:0:0:0:0:0
-af=equalizer=4:3:2:0:0:0:0:0:0:0
+#af=equalizer=4:3:2:0:0:0:0:0:0:0
+# Now handled system-wide by ALSA (alsamixer -D equal)
