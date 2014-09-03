@@ -1,1 +1,1 @@
-path=($HOME/opt/android-sdk-linux_x86/tools $HOME/opt/android-sdk-linux_x86/platform-tools $path)
+path=($HOME/opt/android-sdk-linux/tools $HOME/opt/android-sdk-linux/platform-tools $path)
