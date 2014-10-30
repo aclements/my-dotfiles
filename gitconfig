@@ -25,4 +25,4 @@
 	xfuncname="^(\\(def.*)$"
 
 [include]
-	path = ~/.gitcnfig-local
+	path = ~/.gitconfig-local
