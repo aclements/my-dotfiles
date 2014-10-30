@@ -8,6 +8,12 @@ host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csa
         ForwardX11 yes
         ForwardX11Trusted yes
 
+host awkjr
+        user amthrax
+        hostname 104.131.20.129
+        ForwardX11 yes
+        ForwardX11Trusted yes
+
 host drake drake.dyndns.org
         hostname drake.dyndns.org
 #        port 2222
