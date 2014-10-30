@@ -80,6 +80,9 @@ for TRY in emacs24 emacs23 emacs22 emacs21; do
 done
 unset $TRY
 
+# GCC 4.9 and up support color, but disable it unless GCC_COLOR is set
+export GCC_COLOR=
+
 setupgrep() {
     local foo="`grep --help`"
     if [[ -z ${foo:#*--color*} ]]; then
