@@ -32,5 +32,6 @@ define hook-stop
   resize
 end
 
+source ~/sys/dotfiles/gdb/hex.py
 
 add-auto-load-safe-path /home/amthrax/r/sv6/.gdbinit
