@@ -1,47 +1,8 @@
 # -*- shell-script -*-
 # Google-related profile settings
 
-# Google p4 setup
-export P4CONFIG=.p4config
-export P4DIFF="/home/build/public/google/tools/p4diff -w"
-export P4MERGE=/home/build/public/eng/perforce/mergep4.tcl 
-export P4EDITOR=$EDITOR
-# Inhibit g4 mail calling diff
-export G4DIFFINPARALLEL=1
-
 # Google Go setup
-export GOARCH=amd64
-export GOOS=linux
+export GOPATH=$HOME/go.ext
+path=($HOME/go.ext/bin $path)
 
-tree() {
-    local d=$HOME/src-$1
-    if [[ ! -e $d ]]; then
-        echo "Unknown tree $1"
-        return 1
-    fi
-    cd $d
-    export GOROOT=$d
-    PROMPTFLUFF=$1
-    updateprompt
-}
-
-# Google printer setup
-# export PRINTER=captainamerica
-
-# # Google paths setup
-# cdpath=( ~/d )
-# setopt chase_links          # Else p4 gets _really_ confused
-
-# # Google SSL setup
-# case "`pidof ssl-agent`" in
-#     '')
-#         ssl-agent
-#         ;;
-#     *)
-#         if ! [ -f "/tmp/ssl-$USER" ]; then
-#             kill `pidof ssl-agent`
-#             ssl-agent
-#         fi
-#         ;;
-# esac
-# export GOOGLE_USE_CORP_SSL_AGENT=true
+alias rego="eval \$(command rego)"
