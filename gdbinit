@@ -33,6 +33,7 @@ define hook-stop
 end
 
 source ~/sys/dotfiles/gdb/hex.py
+source ~/sys/dotfiles/gdb/qreg.py
 
 add-auto-load-safe-path /home/amthrax/r/sv6/.gdbinit
 
