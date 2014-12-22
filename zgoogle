@@ -2,7 +2,9 @@
 # Google-related profile settings
 
 # Google Go setup
-export GOPATH=$HOME/go.ext
-path=($HOME/go.ext/bin $path)
+export GOPATH=$HOME/r/go
+path=($HOME/r/go/bin $path)
 
-alias rego="eval \$(command rego)"
+rego() {
+    eval $(command rego $*)
+}
