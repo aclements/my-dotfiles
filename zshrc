@@ -109,12 +109,44 @@ prettyreturn() {
         # Command found, but permission denied
         pretty="XP"
     fi
-    psvar=($pretty)
+    psvar[1]=$pretty
 }
 add-zsh-hook precmd prettyreturn
 # Replace return status in prompts to use pretty-printing
-PROMPT=${PROMPT//\%\?/\%v}
-RPROMPT=${RPROMPT//\%\?/\%v}
+PROMPT=${PROMPT//\%\?/\%1v}
+RPROMPT=${RPROMPT//\%\?/\%1v}
+
+#
+# git status in prompt
+#
+gitprompt() {
+    psvar[2]=''
+    psvar[3]=''
+    git_dir="$(git rev-parse --git-dir 2>/dev/null)"
+    if [[ $? != 0 || -z $git_dir ]]; then
+        return
+    fi
+    if [[ -d $git_dir/rebase-merge || -d $git_dir/rebase-apply ]]; then
+        psvar[3]="REBASE "
+    elif [[ -f $git_dir/MERGE_HEAD ]]; then
+        psvar[3]="MERGE "
+    elif [[ -f $git_dir/CHERRY_PICK_HEAD ]]; then
+        psvar[3]="PICK "
+    elif [[ -f $git_dir/REVERT_HEAD ]]; then
+        psvar[3]="REVERT "
+    elif [[ -f $git_dir/BISECT_LOG ]]; then
+        psvar[3]="BISECT "
+    else
+        head="$(git symbolic-ref -q --short HEAD)"
+        if [[ $? != 0 ]]; then
+            psvar[3]="DETATCHED "
+        else
+            psvar[2]="[$head] "
+        fi
+    fi
+}
+add-zsh-hook precmd gitprompt
+RPROMPT="%2v%B%{${fg_bold[red]}%}%3v%{${fg_no_bold[default]}%}%b$RPROMPT"
 
 #
 # Convenience alises
