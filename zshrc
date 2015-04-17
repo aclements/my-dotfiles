@@ -180,9 +180,9 @@ truncatedls() {
 # Change directory helper
 #
 chpwd() {
-    screentitle
     # List the new directory on change
     [[ -t 1 && -t 0 ]] || return
+    screentitle
     truncatedls
 }
 
@@ -209,6 +209,7 @@ simplifydir() {
 }
 
 screentitle() {
+    [[ -t 1 && -t 0 ]] || return
     # Set the title of the screen window or terminal to $1
     local title
     if [[ -n $1 ]]; then
