@@ -1,4 +1,4 @@
-# -*- indent-tabs-mode: t -*-
+# -*- mode: conf; indent-tabs-mode: t -*-
 
 [user]
 	name = Austin Clements
@@ -13,6 +13,9 @@
         autosquash = true
 [sendemail]
         envelopesender = auto
+[pull]
+	# Only do fast-forward merges automatically on pull
+	ff = only
 [push]
 	# Git 2.0 changes the default to simple
 	default = simple
