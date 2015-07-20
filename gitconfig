@@ -19,6 +19,8 @@
 [push]
 	# Git 2.0 changes the default to simple
 	default = simple
+[grep]
+	linenumber = true
 [alias]
 	ov = -c core.pager='less -S' log --graph --pretty=format:'%C(auto)%d %s' --abbrev-commit --simplify-by-decoration --all
 	ovk = !gitk --all --simplify-by-decoration
