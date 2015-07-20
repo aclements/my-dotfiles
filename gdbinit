@@ -37,5 +37,5 @@ source ~/sys/dotfiles/gdb/qreg.py
 
 add-auto-load-safe-path /home/amthrax/r/sv6/.gdbinit
 
-# Color prompt
-set prompt \033[0;1;31m(gdb) \033[0m
+# Color prompt. Text in \[...\] is not counted toward the prompt length.
+set extended-prompt \[\e[0;1;31m\](gdb) \[\e[0m\]
