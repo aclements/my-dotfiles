@@ -149,11 +149,14 @@ add-zsh-hook precmd gitprompt
 RPROMPT="%2v%B%{${fg_bold[red]}%}%3v%{${fg_no_bold[default]}%}%b$RPROMPT"
 
 #
-# Convenience alises
+# Convenience aliases
 #
 alias psg="ps auxww 1 | sed '1q' ; ps auxww | grep -v grep | grep -i"
 if [[ -n $ATC_USE_EMACS ]]; then
     alias emacs=$ATC_USE_EMACS
+fi
+if [[ -n $ATC_GREP_COLOR ]]; then
+    alias grep='grep --color=auto'
 fi
 
 #

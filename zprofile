@@ -86,7 +86,7 @@ export GCC_COLOR=
 setupgrep() {
     local foo="`grep --help`"
     if [[ -z ${foo:#*--color*} ]]; then
-	export GREP_OPTIONS="--color=auto"
+        export ATC_GREP_COLOR=1
     fi
 }
 setupgrep; unfunction setupgrep
