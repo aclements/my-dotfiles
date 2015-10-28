@@ -126,16 +126,39 @@ gitprompt() {
     if [[ $? != 0 || -z $git_dir ]]; then
         return
     fi
-    if [[ -d $git_dir/rebase-merge || -d $git_dir/rebase-apply ]]; then
-        psvar[3]="REBASE "
-    elif [[ -f $git_dir/MERGE_HEAD ]]; then
+
+    # See wt-status.c:wt_status_get_state() and wt_status_print_state().
+    if [[ -f $git_dir/MERGE_HEAD ]]; then
+        # Failed merge. Fix; git add; git commit.
         psvar[3]="MERGE "
+    elif [[ -f $git_dir/rebase-apply/applying ]]; then
+        # Failed git am.
+        psvar[3]="AM "
+    elif [[ -f $git_dir/rebase-merge/amend ]]; then
+        # Commit has been applied and the user is interactively
+        # editing on top of it. Continuing will amend the topmost
+        # commit.
+        psvar[3]="R-AMEND "
+    elif [[ -d $git_dir/rebase-merge || -d $git_dir/rebase-apply ]]; then
+        # Rebase cherry-picking failed. rebase-merge exists if it
+        # failed during interactive rebase (on either an edit or a
+        # pick action) and rebase-apply exists if it failed during
+        # non-interactive rebase. Continuing will resolve the merge
+        # and commit the result.
+        #
+        # I think rebase-merge exists if this is a failed pick from an
+        # interactive rebase and rebase-apply exists if this is a
+        # failed non-interactive rebase (or git pull --rebase).
+        psvar[3]="R-FIX "
     elif [[ -f $git_dir/CHERRY_PICK_HEAD ]]; then
+        # Failed cherry-pick. Fix; git add; git cherry-pick --continue.
         psvar[3]="PICK "
-    elif [[ -f $git_dir/REVERT_HEAD ]]; then
-        psvar[3]="REVERT "
     elif [[ -f $git_dir/BISECT_LOG ]]; then
+        # Bisecting.
         psvar[3]="BISECT "
+    elif [[ -f $git_dir/REVERT_HEAD ]]; then
+        # Failed revert.
+        psvar[3]="REVERT "
     else
         head="$(git symbolic-ref -q --short HEAD)"
         if [[ $? != 0 ]]; then
