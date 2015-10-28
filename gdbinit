@@ -39,3 +39,5 @@ add-auto-load-safe-path /home/amthrax/r/sv6/.gdbinit
 
 # Color prompt. Text in \[...\] is not counted toward the prompt length.
 set extended-prompt \[\e[0;1;31m\](gdb) \[\e[0m\]
+
+source ~/sys/dotfiles/gdbinit.py
