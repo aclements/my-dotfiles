@@ -210,6 +210,23 @@ def btg1(g):
         finally:
             btgUnwinder.enabled = False
 
+@command
+def switchg(arg, from_tty):
+    """switchg g: switch to G's stack."""
+
+    g = gdb.parse_and_eval(arg)
+    cursp = gdb.parse_and_eval('$sp')
+    if g['stack']['lo'] < cursp and cursp <= g['stack']['hi']:
+        raise gdb.GdbError("already on that G")
+
+    if g['syscallsp'] != 0:
+        sp, pc = g['syscallsp'], g['syscallpc']
+    else:
+        sp, pc = g['sched']['sp'], g['sched']['pc']
+
+    gdb.execute('set $sp = %#x' % sp)
+    gdb.execute('set $pc = %#x' % pc)
+
 #
 # Memory manager debugging helpers
 #
