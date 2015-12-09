@@ -147,13 +147,44 @@ if Unwinder is not None:
 
 @command
 def btg(arg, from_tty):
-    """btg g: print a backtrace for G."""
+    """btg [g]: print a backtrace for G."""
 
     if not arg.strip():
+        g = getg()
+    else:
+        g = gdb.parse_and_eval(arg)
+
+    if g is None or g == 0:
+        print("no goroutine")
+        return
+
+    if g['m'] != 0:
+        if g == g['m']['g0']:
+            print("g0 stack:")
+            btg1(g)
+            print()
+            g = g['m']['curg']
+        elif g == g['m']['gsignal']:
+            print("gsignal stack:")
+            btg1(g)
+            print()
+            g = g['m']['curg']
+
+        if g == 0:
+            print("no user goroutine")
+            return
+
+    print("goroutine %d stack:" % g['goid'])
+    btg1(g)
+
+def btg1(g):
+    # If this is the current goroutine, use a regular backtrace since
+    # the saved state may be stale.
+    cursp = gdb.parse_and_eval('$sp')
+    if g['stack']['lo'] < cursp and cursp <= g['stack']['hi']:
         gdb.execute('backtrace')
         return
 
-    g = gdb.parse_and_eval(arg)
     # TODO: LR register on LR machines.
     if g['syscallsp'] != 0:
         sp, pc = g['syscallsp'], g['syscallpc']
