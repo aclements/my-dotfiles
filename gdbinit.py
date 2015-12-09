@@ -312,6 +312,25 @@ def dump_bitmap(arg, from_tty):
         val = gdb.Value(addr).cast(uintptr.pointer()).dereference()
         print("%0*x: %0*x    %0*x/%d: %-7s %s" % (nibbles, addr, nibbles, val, nibbles, long(bmptr), bit, typ, mark))
 
+@command
+def print_worklist(arg, from_tty):
+    """print-worklist head: print the GC workbuf list starting at head."""
+
+    head = gdb.parse_and_eval(arg)
+    typ = gdb.lookup_type('runtime.workbuf').pointer()
+    olang = gdb.parameter('language')
+    gdb.execute('set language c', to_string=True)
+    try:
+        while head != 0:
+            # This assumes amd64 lfstack encoding.
+            ptr = (head >> 16).cast(typ)
+            # Call print to get pretty printing and value history.
+            gdb.execute("print/x *('runtime.workbuf'*)%#x" % ptr)
+            head = ptr['runtime.workbufhdr']['node']['next']
+    except KeyboardInterrupt:
+        pass
+    finally:
+        gdb.execute('set language %s' % olang, to_string=True)
 
 #
 # cmd/link debugging helpers
