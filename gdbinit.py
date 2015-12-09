@@ -71,18 +71,38 @@ class SliceValue:
 
 _Gdead = 6
 
-def getg(sp=None):
-    if sp is None:
+def getg(sp=None, n=None):
+    if sp is None and n is None:
         sp = gdb.parse_and_eval('$sp')
-    found = None
-    for gp in SliceValue(gdb.parse_and_eval("'runtime.allgs'")):
+
+    found = [None]
+    def checkg(gp):
+        if gp == 0:
+            return
         if gp['atomicstatus'] == _Gdead:
-            continue
-        if gp['stack']['lo'] < sp and sp <= gp['stack']['hi']:
-            if found is not None:
+            return
+        if sp != None and gp['stack']['lo'] < sp and sp <= gp['stack']['hi']:
+            if found[0] is not None:
                 raise gdb.GdbError('multiple Gs with overlapping stacks!')
-            found = gp
-    return found
+            found[0] = gp
+        if n != None and gp['goid'] == n:
+            if found[0] is not None:
+                raise gdb.GdbError('multiple Gs with same goid!')
+            found[0] = gp
+
+    # Check allgs.
+    for gp in SliceValue(gdb.parse_and_eval("'runtime.allgs'")):
+        checkg(gp)
+
+    # Check g0s and gsignals, which aren't on allgs.
+    if sp is not None:
+        mp = gdb.parse_and_eval("'runtime.allm'")
+        while mp != 0:
+            checkg(mp['g0'])
+            checkg(mp['gsignal'])
+            mp = mp['alllink']
+
+    return found[0]
 
 class GetG(gdb.Function):
     """Return the current *g."""
@@ -90,8 +110,11 @@ class GetG(gdb.Function):
     def __init__(self):
         super(GetG, self).__init__("getg")
 
-    def invoke(self):
-        return getg()
+    def invoke(self, n=None):
+        g = getg(n=n)
+        if g is None:
+            raise gdb.GdbError('G not found')
+        return g
 GetG()
 
 class GetGBySP(gdb.Function):
