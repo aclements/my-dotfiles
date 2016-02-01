@@ -158,32 +158,50 @@ def btg(arg, from_tty):
         print("no goroutine")
         return
 
-    if g['m'] != 0:
-        if g == g['m']['g0']:
+    m = g['m']
+    if m == 0:
+        m = None
+    else:
+        if g == m['g0']:
             print("g0 stack:")
-            btg1(g)
+            btg1(g, m)
             print()
-            g = g['m']['curg']
-        elif g == g['m']['gsignal']:
+            g, m = m['curg'], None
+        elif g == m['gsignal']:
             print("gsignal stack:")
-            btg1(g)
+            btg1(g, m)
             print()
-            g = g['m']['curg']
+            g, m = m['curg'], None
 
         if g == 0:
             print("no user goroutine")
             return
 
     print("goroutine %d stack:" % g['goid'])
-    btg1(g)
+    btg1(g, m)
 
-def btg1(g):
-    # If this is the current goroutine, use a regular backtrace since
-    # the saved state may be stale.
-    cursp = gdb.parse_and_eval('$sp')
-    if g['stack']['lo'] < cursp and cursp <= g['stack']['hi']:
-        gdb.execute('backtrace')
-        return
+def btg1(g, m):
+    # If the G is active on an M, find the thread of that M.
+    if m != None:
+        for thr in gdb.selected_inferior().threads():
+            if thr.ptid[1] == m['procid']:
+                break
+        else:
+            thr = None
+        if thr:
+            # If this is the current goroutine, use a regular
+            # backtrace since the saved state may be stale.
+            curthr = gdb.selected_thread()
+            try:
+                thr.switch()
+                cursp = gdb.parse_and_eval('$sp')
+            finally:
+                curthr.switch()
+            if g['stack']['lo'] < cursp and cursp <= g['stack']['hi']:
+                gdb.execute('thread apply %d backtrace' % thr.num)
+                return
+        else:
+            print("thread %d not found; stack may be incorrect (try import _ \"rutime/cgo\")" % m['procid'])
 
     # TODO: LR register on LR machines.
     if g['syscallsp'] != 0:
