@@ -249,7 +249,7 @@ def switchg(arg, from_tty):
 # Memory manager debugging helpers
 #
 
-ptrSize = int(gdb.lookup_type("void").pointer().sizeof)
+ptrSize = int(gdb.lookup_type("int").pointer().sizeof)
 pageShift = 13
 _MSpanInUse = 0
 
