@@ -45,6 +45,27 @@ each array value."""
             if p(array[i]):
                 print('[%d]=%s' % (i, str(array[i])))
 
+class ArrayValue:
+    """Wrapper for statically sized array values."""
+
+    def __init__(self, val):
+        # I can't believe gdb doesn't provide this.
+        self.val = val
+        self.__len = int(val.type.sizeof / val[0].type.sizeof)
+
+    def __len__(self):
+        return self.__len
+
+    def __getitem__(self, i):
+        if 0 <= i < self.__len:
+            return self.val[i]
+        raise IndexError("array index out of range")
+
+def strenum(val, strings):
+    if 0 <= long(val) < len(strings):
+        return strings[long(val)]
+    return hex(val)
+
 #
 # Go runtime helpers
 #
@@ -68,6 +89,21 @@ class SliceValue:
             raise IndexError(i)
         ptr = self.val["array"]
         return (ptr + i).dereference()
+
+def gostring(s):
+    return s["str"].string("utf-8", "ignore", s["len"])
+
+def guintptr(v):
+    gp = gdb.lookup_type("runtime.g").pointer()
+    return v.cast(gp)
+
+def muintptr(v):
+    mp = gdb.lookup_type("runtime.m").pointer()
+    return v.cast(mp)
+
+def puintptr(v):
+    pp = gdb.lookup_type("runtime.p").pointer()
+    return v.cast(pp)
 
 _Gdead = 6
 
@@ -149,6 +185,7 @@ if Unwinder is not None:
 def btg(arg, from_tty):
     """btg [g]: print a backtrace for G."""
 
+    # TODO: Accept a G id
     if not arg.strip():
         g = getg()
     else:
@@ -214,6 +251,7 @@ def btg1(g, m):
         # doesn't work on core dumps.
         oldsp, oldpc = gdb.parse_and_eval('$sp'), gdb.parse_and_eval('$pc')
         try:
+            # TODO: This fails if we're not in the innermost frame.
             gdb.execute('set $sp = %#x' % sp)
             gdb.execute('set $pc = %#x' % pc)
             gdb.execute('backtrace')
@@ -244,6 +282,24 @@ def switchg(arg, from_tty):
 
     gdb.execute('set $sp = %#x' % sp)
     gdb.execute('set $pc = %#x' % pc)
+
+def iterlist(x):
+    if hasattr(x, 'first'):
+        # List head (e.g., mSpanList)
+        x = x['first']
+    first, n = x, 0
+    while x != 0 and (n == 0 or x != first):
+        yield x
+        n += 1
+        x = x['next']
+
+# @command
+# def printlist(arg, from_tty):
+#     """printlist head: print the list starting at head."""
+
+#     head = gdb.parse_and_eval(arg)
+#     for x in iterlist(head):
+#         gdb.execute
 
 #
 # Memory manager debugging helpers
@@ -349,6 +405,130 @@ def print_worklist(arg, from_tty):
         pass
     finally:
         gdb.execute('set language %s' % olang, to_string=True)
+
+#
+# Scheduler debugging
+#
+
+def funcName(pc):
+    try:
+        return str(gdb.block_for_pc(pc).function)
+    except RuntimeError:
+        # block_for_pc is supposed to return None if it failed,
+        # but actually throws RuntimeError("Cannot location object
+        # file for block.")
+        return "%#x" % pc
+
+def printBlocks(blocks):
+    blocks.sort(key=lambda block: block[0])
+    for block in blocks:
+        print("%8d %s" % (block[0], block[1]))
+        for l in block[2:]:
+            print("%8s %s" % ("", l))
+
+@command
+def print_sched(arg, from_tty):
+    """print-sched: dump lots of Go runtime scheduler state."""
+
+    print("G state:")
+    blocks = []
+    for gp in SliceValue(gdb.parse_and_eval("'runtime.allgs'")):
+        status = gstatus(gp["atomicstatus"])
+        if status == "dead":
+            continue
+        line = status
+        if status == "waiting" or status == "scanwaiting":
+            line += " (" + gostring(gp["waitreason"]) + ")"
+        if gp["m"]:
+            line += ", m %d" % gp["m"]["id"]
+            if gp["lockedm"]:
+                line += " (locked to thread)"
+        if gp["m"] and gp["m"]["p"]:
+            line += ", p %d" % puintptr(gp["m"]["p"])["id"]
+        if status == "running" and funcName(long(gp["startpc"])) == "runtime.gcBgMarkWorker":
+            line += ", %s mark worker" % strenum(puintptr(gp["m"]["p"])["gcMarkWorkerMode"], ("dedicated", "fractional", "idle"))
+        blocks.append((gp["goid"],
+                       line,
+                       "started at %s" % funcName(long(gp["startpc"])),
+                       "created by %s" % funcName(long(gp["gopc"]))))
+    printBlocks(blocks)
+
+    print()
+    print("M state:")
+    blocks = []
+    mp = gdb.parse_and_eval("'runtime.allm'")
+    while mp:
+        line = "PID %d" % mp["procid"]
+        if mp["curg"]:
+            line += ", g %d" % mp["curg"]["goid"]
+        if mp["p"]:
+            line += ", p %d" % puintptr(mp["p"])["id"]
+        for flag in "mallocing throwing softfloat dying helpgc spinning blocked inwb".split():
+            if mp[flag]:
+                line += ", %s" % flag
+        if gostring(mp["preemptoff"]):
+            line += ", %s" % gostring(mp["preemptoff"])
+        if mp["locks"]:
+            line += ", %d locks" % mp["locks"]
+        if mp["locked"]:
+            line += ", locked to thread"
+        blocks.append((mp["id"], line))
+        mp = mp["alllink"]
+    printBlocks(blocks)
+
+    print()
+    print("P state:")
+    blocks = []
+    for pp in ArrayValue(gdb.parse_and_eval("'runtime.allp'")):
+        if not pp:
+            continue
+        status = pstatus(pp["status"])
+        if status == "dead":
+            continue
+        line = status
+        if pp["m"]:
+            mp = muintptr(pp["m"])
+            if mp and mp["curg"]:
+                line += ", g %d" % mp["curg"]["goid"]
+            line += ", m %d" % mp["id"]
+        if pp["gcBgMarkWorker"]:
+            line += ", mark worker g %d" % guintptr(pp["gcBgMarkWorker"])["goid"]
+
+        runq = ""
+        if pp["runnext"]:
+            runq += " next=%d" % guintptr(pp["runnext"])["goid"]
+        runqlen = len(ArrayValue(pp["runq"]))
+        for i in range(pp["runqhead"], pp["runqtail"]):
+            runq += " %s" % guintptr(pp["runq"][i % runqlen])["goid"]
+        runq = runq or " <empty>"
+
+        blocks.append((pp["id"], line, "runq:" + runq))
+    printBlocks(blocks)
+
+    print()
+    grunq = ""
+    gp = gdb.parse_and_eval("'runtime.sched'.runqhead")
+    while gp:
+        grunq += " %d" % guintptr(gp)["goid"]
+        gp = guintptr(gp)["schedlink"]
+    grunq = grunq or " <empty>"
+    print("global runq:" + grunq)
+
+def gstatus(status):
+    _Gscan = 0x1000
+    if status & _Gscan:
+        st = "scan"
+        xstatus = status & ~_Gscan
+    else:
+        st = ""
+        xstatus = status
+    slist = ["idle", "runnable", "running", "syscall", "waiting", "moribund", "dead", "enqueue", "copystack"]
+    if 0 <= xstatus < len(slist):
+        return st + slist[int(xstatus)]
+    return hex(status)
+
+def pstatus(status):
+    return strenum(status, ("idle", "running", "syscall", "gcstop", "dead"))
 
 #
 # cmd/link debugging helpers
