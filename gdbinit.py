@@ -419,6 +419,13 @@ def funcName(pc):
         # file for block.")
         return "%#x" % pc
 
+def pidToThreadMap():
+    out = {}
+    for thread in gdb.selected_inferior().threads():
+        pid, lwpid, tid = thread.ptid
+        out[lwpid] = thread
+    return out
+
 def printBlocks(blocks):
     blocks.sort(key=lambda block: block[0])
     for block in blocks:
@@ -456,9 +463,13 @@ def print_sched(arg, from_tty):
     print()
     print("M state:")
     blocks = []
+    pidToThread = pidToThreadMap()
     mp = gdb.parse_and_eval("'runtime.allm'")
     while mp:
         line = "PID %d" % mp["procid"]
+        thread = pidToThread.get(long(mp["procid"]), None)
+        if thread is not None:
+            line += ", thread %d" % thread.num
         if mp["curg"]:
             line += ", g %d" % mp["curg"]["goid"]
         if mp["p"]:
