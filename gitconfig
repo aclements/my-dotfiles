@@ -3,8 +3,8 @@
 [user]
 	name = Austin Clements
 	# Require email to be configured in either .gitconfig-local or
-	# .git/config
-	email = "(none)"
+	# .git/config (Git >= 2.8)
+	useConfigOnly = true
 [color]
 	ui = true
 [merge]
