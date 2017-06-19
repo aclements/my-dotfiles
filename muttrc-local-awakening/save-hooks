@@ -123,8 +123,8 @@ save-hook ~C6830-2007@ =classes       # 6.830
 
 # PhD Fall '11
 save-hook ~C6\.828-class@ =6.828-11-fa    # 6.828
-save-hook ~f6\.828-staff@ =6.828-11-fa    # 6.828
-save-hook ~C6\.828-staff@ =6.828-11-fa    # 6.828
+save-hook ~f6\.?828-staff@ =6.828-11-fa    # 6.828
+save-hook ~C6\.?828-staff@ =6.828-11-fa    # 6.828
 save-hook ~sCron.*6.828/gitroot =6.828-11-fa
 
 # Development mailing lists
