@@ -1,10 +1,19 @@
 from __future__ import print_function
 
 import gdb
+import gdb.xmethod
 try:
     from gdb.unwinders import Unwinder
 except ImportError:
     Unwinder = None
+
+import struct
+
+# Python 2 compatibility.
+try:
+    long
+except NameError:
+    long = int
 
 def command(fn):
     name = fn.__name__.replace('_', '-')
@@ -163,6 +172,29 @@ class GetGBySP(gdb.Function):
         return getg(sp)
 GetGBySP()
 
+def getm(id):
+    """Return the *m with id id."""
+    # TODO: Return the current m if id is None.
+    mp = gdb.parse_and_eval("'runtime.allm'")
+    while mp:
+        if mp["id"] == id:
+            return mp
+        mp = mp["alllink"]
+    return None
+
+class GetM(gdb.Function):
+    """Return the current *g."""
+
+    def __init__(self):
+        super(GetM, self).__init__("getm")
+
+    def invoke(self, id=None):
+        m = getm(id=id)
+        if m is None:
+            raise gdb.GdbError('M not found')
+        return m
+GetM()
+
 if Unwinder is not None:
     # TODO: This has not been tested because I don't have GDB 7.10.
     class FrameID(object):
@@ -270,6 +302,9 @@ def btg1(g, m):
 def switchg(arg, from_tty):
     """switchg g: switch to G's stack."""
 
+    # TODO: Fails with "Attempt to assign to an unmodifiable value if
+    # you're not in the innermost frame.
+
     g = gdb.parse_and_eval(arg)
     cursp = gdb.parse_and_eval('$sp')
     if g['stack']['lo'] < cursp and cursp <= g['stack']['hi']:
@@ -331,8 +366,8 @@ BitmapOf()
 def spanOf(addr):
     addr = int(addr)
     arenaStart = int(gdb.parse_and_eval("'runtime.mheap_'.arena_start"))
-    h_spans = gdb.parse_and_eval("'runtime.h_spans'")
-    return h_spans['array'][(addr - arenaStart) >> pageShift]
+    spans = gdb.parse_and_eval("'runtime.mheap_'.spans")
+    return spans['array'][(addr - arenaStart) >> pageShift]
 
 class SpanOf(gdb.Function):
     """Return the *mspan of x."""
@@ -358,7 +393,7 @@ def dump_bitmap(arg, from_tty):
     objStart = None
     span = spanOf(base)
     if span and span['state'] == _MSpanInUse:
-        spanStart = span['start'] << pageShift
+        spanStart = span['startAddr']
         objStart = int((base - spanStart) / span['elemsize'] * span['elemsize'] + spanStart)
         if count is None:
             if objStart >= span['limit']:
@@ -419,6 +454,22 @@ def funcName(pc):
         # file for block.")
         return "%#x" % pc
 
+def fileLine(pc):
+    # UGH. Iterating over a line table crashes hard in GDB 7.9.
+    try:
+        block = gdb.block_for_pc(pc)
+    except RuntimeError:
+        return "%#x" % pc
+    lt = block.function.symtab.linetable()
+    pcent = None
+    for ltent in lt:
+        if ltent.pc > pc:
+            break
+        pcent = ltent
+    if pcent == None:
+        return "%#x" % pc
+    return "%s:%d" % (block.function.symtab.filename, pcent.line)
+
 def pidToThreadMap():
     out = {}
     for thread in gdb.selected_inferior().threads():
@@ -445,7 +496,9 @@ def print_sched(arg, from_tty):
             continue
         line = status
         if status == "waiting" or status == "scanwaiting":
-            line += " (" + gostring(gp["waitreason"]) + ")"
+            # g.waitreason is no longer a string
+            #line += " (" + gostring(gp["waitreason"]) + ")"
+            line += " (" + str(gp["waitreason"]) + ")"
         if gp["m"]:
             line += ", m %d" % gp["m"]["id"]
             if gp["lockedm"]:
@@ -474,14 +527,14 @@ def print_sched(arg, from_tty):
             line += ", g %d" % mp["curg"]["goid"]
         if mp["p"]:
             line += ", p %d" % puintptr(mp["p"])["id"]
-        for flag in "mallocing throwing softfloat dying helpgc spinning blocked inwb".split():
+        for flag in "mallocing throwing dying helpgc spinning blocked inwb".split():
             if mp[flag]:
                 line += ", %s" % flag
         if gostring(mp["preemptoff"]):
             line += ", %s" % gostring(mp["preemptoff"])
         if mp["locks"]:
             line += ", %d locks" % mp["locks"]
-        if mp["locked"]:
+        if mp["lockedg"]:
             line += ", locked to thread"
         blocks.append((mp["id"], line))
         mp = mp["alllink"]
@@ -490,7 +543,9 @@ def print_sched(arg, from_tty):
     print()
     print("P state:")
     blocks = []
-    for pp in ArrayValue(gdb.parse_and_eval("'runtime.allp'")):
+    # runtime.allp changed from an array to a slice.
+    #for pp in ArrayValue(gdb.parse_and_eval("'runtime.allp'")):
+    for pp in SliceValue(gdb.parse_and_eval("'runtime.allp'")):
         if not pp:
             continue
         status = pstatus(pp["status"])
@@ -541,6 +596,51 @@ def gstatus(status):
 def pstatus(status):
     return strenum(status, ("idle", "running", "syscall", "gcstop", "dead"))
 
+@command
+def print_locks(arg, from_tty):
+    """print-locks: dump locks held by each M (requires lockSet patch)"""
+
+    pidToThread = pidToThreadMap()
+    mp = gdb.parse_and_eval("'runtime.allm'")
+    while mp:
+        line = "M %d PID %d" % (mp["id"], mp["procid"])
+        thread = pidToThread.get(long(mp["procid"]), None)
+        if thread is not None:
+            line += " thread %d" % thread.num
+        for lock in ArrayValue(mp["lockSet"]):
+            if lock["mutex"] == 0:
+                continue
+            line += "\n\tmutex %#x at PC %#x" % (lock["mutex"], lock["pc"])
+        print(line)
+        mp = mp["alllink"]
+
+@command
+def print_ucontext(arg, from_tty):
+    """print-context: print a ucontext_t* from a signal handler"""
+
+    # Assumes linux/amd64.
+    ctxt = gdb.parse_and_eval(arg)
+    size_t = "Q"
+    stack_t = "Pi" + size_t
+    stack_fields = ("ss_sp", "ss_flags", "ss_size")
+    mcontext_t = "qqqqqqqqqqqqqqqqqqhhhhqqqq" + "P" + 8 * "Q"
+    mcontext_fields = ("R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15",
+                       "RDI", "RSI", "RBP", "RBX", "RDX", "RAX", "RCX",
+                       "RSP", "RIP", "EFLAGS", "CS", "GS", "FS", "__pad0",
+                       "ERR", "TRAPNO", "OLDMASK", "CR2",
+                       "fpregs*") + 8 * ("__reserved1",)
+    ucontext_t = "LP" + stack_t + mcontext_t # + uc_sigmask + fpregs
+    ucontext_fields = ("uc_flags", "uc_link") + stack_fields + mcontext_fields
+
+    nbytes = struct.calcsize(ucontext_t)
+    data = gdb.selected_inferior().read_memory(ctxt, nbytes)
+    fields = struct.unpack(ucontext_t, data)
+
+    for field, value in zip(ucontext_fields, fields):
+        if field.startswith("__"):
+            continue
+        print("%-10s %#18x %20d" % (field, value, value))
+
 #
 # cmd/link debugging helpers
 #
@@ -586,3 +686,35 @@ def dump_assist_state(arg, from_tty):
         total_gcscanwork += gp['gcscanwork']
 
     print('total:', total_gcalloc, total_gcalloc*ar, total_gcscanwork)
+
+#
+# Value xmethods
+#
+# These only work if you switch to language C++. I hate GDB.
+
+class SliceSubscriptXmethod(gdb.xmethod.XMethodWorker):
+    def __init__(self):
+        self.name = 'operator[]'
+        self.enabled = True
+
+    def get_arg_types(self):
+        return gdb.lookup_type('int')
+
+    def __call__(self, val, idx):
+        if idx < 0 or val['len'] <= idx:
+            raise gdb.GdbError("out of range")
+        return val['array'][idx]
+
+class SliceMethodsMatcher(gdb.xmethod.XMethodMatcher):
+    def __init__(self):
+        super(SliceMethodsMatcher, self).__init__("go-runtime:slice")
+        self.methods = [SliceSubscriptXmethod()]
+
+    def match(self, class_type, method_name):
+        if not SliceTypePrinter.pattern.match(str(class_type)):
+            return None
+        for m in self.methods:
+            if m.enabled and method_name == m.name:
+                return m
+
+gdb.xmethod.register_xmethod_matcher(None, SliceMethodsMatcher())
