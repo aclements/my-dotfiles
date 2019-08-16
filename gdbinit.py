@@ -342,32 +342,66 @@ def iterlist(x):
 
 ptrSize = int(gdb.lookup_type("int").pointer().sizeof)
 pageShift = 13
-_MSpanInUse = 0
+
+# Constants
+__mSpanInUse = long(gdb.parse_and_eval("'runtime.mSpanInUse'"))
+__arenaBaseOffset = long(gdb.parse_and_eval("'runtime.arenaBaseOffset'"))
+__heapArenaBytes = long(gdb.parse_and_eval("'runtime.heapArenaBytes'"))
+__heapArenaBitmapBytes = long(gdb.parse_and_eval("'runtime.heapArenaBitmapBytes'"))
+__pagesPerArena = long(gdb.parse_and_eval("'runtime.pagesPerArena'"))
+__arenaL1Shift = long(gdb.parse_and_eval("'runtime.arenaL1Shift'"))
+__arenaL2Bits = long(gdb.parse_and_eval("'runtime.arenaL2Bits'"))
+
+# Common variables.
+__arenas = gdb.parse_and_eval("'runtime.mheap_'.arenas")
+
+def arenaOf(addr):
+    addr = long(addr)
+    ai = (addr + __arenaBaseOffset) // __heapArenaBytes
+    l1, l2 = ai >> __arenaL1Shift, ai & ((1<<__arenaL2Bits) - 1)
+    al2 = __arenas[l1]
+    if not al2:
+        return None
+    return al2.dereference()[l2]
 
 def bitmapOf(addr):
-    addr = long(addr)
-    arenaStart = int(gdb.parse_and_eval("'runtime.mheap_'.arena_start"))
-    off = (addr - arenaStart) / ptrSize
-    ptrChar = gdb.lookup_type('char').pointer()
-    return gdb.Value(arenaStart - off / 4 - 1).cast(ptrChar), off & 3
+    # See heapBitsForAddr
+    arena = arenaOf(addr)
+    if not arena:
+        raise "address not in heap"
+    bitOff = (addr // (ptrSize * 4)) % __heapArenaBitmapBytes
+    shift = (addr // ptrSize) & 3
+    return arena['bitmap'][bitOff].address, shift
 
-class BitmapOf(gdb.Function):
-    """Return the address of the heap bitmap of x."""
+# def bitmapOf(addr):
+#     addr = long(addr)
+#     arenaStart = int(gdb.parse_and_eval("'runtime.mheap_'.arena_start"))
+#     off = (addr - arenaStart) / ptrSize
+#     ptrChar = gdb.lookup_type('char').pointer()
+#     return gdb.Value(arenaStart - off / 4 - 1).cast(ptrChar), off & 3
 
-    def __init__(self):
-        super(BitmapOf, self).__init__("bitmapOf")
+# class BitmapOf(gdb.Function):
+#     """Return the address of the heap bitmap of x."""
 
-    def invoke(self, addr):
-        base, bit = bitmapOf(addr)
-        print("offset %d" % bit)
-        return base
-BitmapOf()
+#     def __init__(self):
+#         super(BitmapOf, self).__init__("bitmapOf")
+
+#     def invoke(self, addr):
+#         base, bit = bitmapOf(addr)
+#         print("offset %d" % bit)
+#         return base
+# BitmapOf()
 
 def spanOf(addr):
-    addr = int(addr)
-    arenaStart = int(gdb.parse_and_eval("'runtime.mheap_'.arena_start"))
-    spans = gdb.parse_and_eval("'runtime.mheap_'.spans")
-    return spans['array'][(addr - arenaStart) >> pageShift]
+    arena = arenaOf(addr)
+    if not arena:
+        raise "address not in heap"
+    return arena['spans'][(addr >> pageShift) % __pagesPerArena]
+
+    # addr = int(addr)
+    # arenaStart = int(gdb.parse_and_eval("'runtime.mheap_'.arena_start"))
+    # spans = gdb.parse_and_eval("'runtime.mheap_'.spans")
+    # return spans['array'][(addr - arenaStart) >> pageShift]
 
 class SpanOf(gdb.Function):
     """Return the *mspan of x."""
@@ -392,7 +426,7 @@ def dump_bitmap(arg, from_tty):
     base = int(gdb.parse_and_eval(arg))
     objStart = None
     span = spanOf(base)
-    if span and span['state'] == _MSpanInUse:
+    if span and span['state'] == __mSpanInUse:
         spanStart = span['startAddr']
         objStart = int((base - spanStart) / span['elemsize'] * span['elemsize'] + spanStart)
         if count is None:
@@ -528,8 +562,11 @@ def print_sched(arg, from_tty):
         if mp["p"]:
             line += ", p %d" % puintptr(mp["p"])["id"]
         for flag in "mallocing throwing dying helpgc spinning blocked inwb".split():
-            if mp[flag]:
-                line += ", %s" % flag
+            try:
+                if mp[flag]:
+                    line += ", %s" % flag
+            except:
+                pass
         if gostring(mp["preemptoff"]):
             line += ", %s" % gostring(mp["preemptoff"])
         if mp["locks"]:
@@ -573,7 +610,7 @@ def print_sched(arg, from_tty):
 
     print()
     grunq = ""
-    gp = gdb.parse_and_eval("'runtime.sched'.runqhead")
+    gp = gdb.parse_and_eval("'runtime.sched'.runq.head")
     while gp:
         grunq += " %d" % guintptr(gp)["goid"]
         gp = guintptr(gp)["schedlink"]
