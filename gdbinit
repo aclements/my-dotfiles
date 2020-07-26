@@ -36,6 +36,7 @@ source ~/sys/dotfiles/gdb/hex.py
 source ~/sys/dotfiles/gdb/qreg.py
 
 add-auto-load-safe-path /home/amthrax/r/sv6/.gdbinit
+add-auto-load-safe-path /home/austin/go.dev/src/runtime/
 
 # Color prompt. Text in \[...\] is not counted toward the prompt length.
 set extended-prompt \[\e[0;1;31m\](gdb) \[\e[0m\]

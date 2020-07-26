@@ -1,7 +1,7 @@
 # Compute the object graph of a Go heap and find the path from a root
 # to a target address.
 
-CONSERVATIVE_STACKS = True
+CONSERVATIVE_STACKS = False
 
 import gdb
 import collections
@@ -122,6 +122,13 @@ class Obj(object):
     def __repr__(self):
         return "Obj(%#x, %d, %s, %s)" % (self.base, self.len, self.name, self.bitmap)
 
+    def __str__(self):
+        s = "%#x" % self.base
+        if self.name:
+            s += " " + self.name
+        s += " [%d bytes]" % self.len
+        return s
+
     def children(self, addrspace):
         if not self.bitmap.hasPointers():
             return
@@ -131,7 +138,7 @@ class Obj(object):
                 val = addrspace.readWord(self.base + word * ptrSize)
                 if not addrspace.inheap(val):
                     continue
-                yield addrspace.heapObj(val, "")
+                yield (word * ptrSize, addrspace.heapObj(val, ""))
 
 class OneBitBitmap(object):
     def __init__(self, bitmap, startBit):
@@ -289,25 +296,29 @@ def roots(addrspace):
         pid, lwpid, tid = thr.ptid
         tidToThr[lwpid] = thr
     haveGs = set()
-    for mp in iterlist(gdb.parse_and_eval("'runtime.allm'"), "alllink"):
-        thr = tidToThr.get(long(mp["procid"]), None)
-        if thr is None:
-            continue
-        thr.switch()
-        curg = mp["curg"]
-        if curg == 0:
-            continue
-        sp = gdb.parse_and_eval("$sp")
-        if not (curg["stack"]["lo"] < sp <= curg["stack"]["hi"]):
-            # We're on the g0 and curg's state is in sched.
-            continue
-        if CONSERVATIVE_STACKS:
-            for root in conservativeStackRoots(addrspace, sp, curg["stack"]["hi"]):
-                yield root
-        else:
-            for root in stackRoots(addrspace):
-                yield root
-        haveGs.add(curg["goid"])
+    curThr = gdb.selected_thread()
+    try:
+        for mp in iterlist(gdb.parse_and_eval("'runtime.allm'"), "alllink"):
+            thr = tidToThr.get(long(mp["procid"]), None)
+            if thr is None:
+                continue
+            thr.switch()
+            curg = mp["curg"]
+            if curg == 0:
+                continue
+            sp = gdb.parse_and_eval("$sp")
+            if not (curg["stack"]["lo"] < sp <= curg["stack"]["hi"]):
+                # We're on the g0 and curg's state is in sched.
+                continue
+            if CONSERVATIVE_STACKS:
+                for root in conservativeStackRoots(addrspace, sp, curg["stack"]["hi"]):
+                    yield root
+            else:
+                for root in stackRoots(addrspace):
+                    yield root
+            haveGs.add(curg["goid"])
+    finally:
+        curThr.switch()
 
     # Stacks of non-running Gs
     for g in SliceValue(gdb.parse_and_eval("'runtime.allgs'")):
@@ -318,16 +329,25 @@ def roots(addrspace):
             sp, pc = g['syscallsp'], g['syscallpc']
         else:
             sp, pc = g['sched']['sp'], g['sched']['pc']
+        if sp == 0:
+            # TODO: When does this happen?
+            continue
 
         if CONSERVATIVE_STACKS:
             for root in conservativeStackRoots(addrspace, sp, g['stack']['hi']):
                 yield root
         else:
             # XXX Doesn't work on core files. :(
-            gdb.execute('set $sp = %#x' % sp)
-            gdb.execute('set $pc = %#x' % pc)
-            for root in stackRoots(addrspace):
-                yield root
+            oldsp, oldpc = gdb.parse_and_eval('$sp'), gdb.parse_and_eval('$pc')
+            try:
+                # TODO: This fails if we're not in the innermost frame.
+                gdb.execute('set $sp = %#x' % sp)
+                gdb.execute('set $pc = %#x' % pc)
+                for root in stackRoots(addrspace):
+                    yield root
+            finally:
+                gdb.execute('set $sp = %#x' % oldsp)
+                gdb.execute('set $pc = %#x' % oldpc)
 
     # Span specials
     for s in heapSpans():
@@ -348,7 +368,7 @@ def stackRoots(addrspace):
         while block.function != None:
             for sym in block:
                 val = sym.value(fr)
-                name = "%s[%s]" % (fr.name(), sym.name)
+                name = "%s[%s]" % (fr.name(), sym.name.decode("utf8"))
                 base = long(val.address)
                 #print hex(base), name
                 #if addrspace.inheap(base):
@@ -362,6 +382,7 @@ def stackRoots(addrspace):
         fr = fr.older()
 
 def conservativeStackRoots(addrspace, sp, hi):
+    #print(str(sp), str(hi))
     while sp < hi:
         word = addrspace.readWord(sp)
         if addrspace.inheap(word):
@@ -392,14 +413,16 @@ def computeParents():
         scannedBytes += parent.len
         scannedObjects += 1
         #print id(parent), parent.base, parent.len, parent.marked
-        for obj in parent.children(addrspace):
+        for offset, obj in parent.children(addrspace):
             if obj.parent == None:
                 # Record parents for roots too, to help find cycles.
-                obj.parent = parent
+                obj.parent = (parent, offset)
             if not obj.marked:
                 #obj.marked = True
                 obj.marked += 1
                 q.append(obj)
+    sys.stdout.write("\x1b[2K")
+    sys.stdout.flush()
     return addrspace
 
 class FindPath(gdb.Command):
@@ -416,9 +439,10 @@ class FindPath(gdb.Command):
         addrspace = computeParents()
 
         o = addrspace.objs.get(target)
-        while o:
-            print o
-            o = o.parent
+        print o
+        while o.parent:
+            o, offset = o.parent
+            print o, "+", offset
 FindPath()
 
 class ObjOf(gdb.Command):

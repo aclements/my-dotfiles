@@ -5,6 +5,8 @@ import re
 # understand the associativity of '-' versus '.'. Currently this needs
 # to be parenthesized.
 
+# TODO: Support printing multiple things in a table. x[*].goid, x[*].stackAlloc.
+
 # TODO: Support pointer chasing, e.g., list.next*.x
 
 # TODO: Support nested wildcards. Maybe "*", "**", etc.
@@ -12,6 +14,9 @@ import re
 # TODO: Support specifying a particular range.
 
 # TODO: Support / format specifiers.
+
+# TODO: Perhaps a binding for-loop syntax would be simpler and better
+# than implicit wildcards.
 
 class PrintAll(gdb.Command):
     """print-all expr: print all values of expr, where expr may contain '[*]' wildcard indexes."""
