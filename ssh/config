@@ -2,15 +2,10 @@ ForwardX11 no
 
 ServerAliveInterval 120
 
-host awk awakening awk.mit.edu awakening.mit.edu awk.csail.mit.edu awakening.csail.mit.edu awakening.dyndns.org
+host awk awakening awakening.a20.io
         user amthrax
-        hostname awakening
-        ForwardX11 yes
-        ForwardX11Trusted yes
-
-host awkjr
-        user amthrax
-        hostname 104.131.20.129
+#        hostname 104.131.20.129
+        hostname awakening.a20.io
         ForwardX11 yes
         ForwardX11Trusted yes
 
