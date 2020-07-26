@@ -7,6 +7,6 @@ aptitude::UI::Minibuf-Prompts "true";
 aptitude::UI::Prompt-On-Exit "false";
 aptitude::UI::Advance-On-Action "true";
 aptitude::UI::Menubar-Autohide "false";
-aptitude::UI::Package-Display-Format "%c%a%M%S %p %R %v %V";
+aptitude::UI::Package-Display-Format "%c%a%M%S %p %R %v %V %Z";
 aptitude::Forget-New-On-Install "true";
 aptitude::Auto-Fix-Broken "false";
