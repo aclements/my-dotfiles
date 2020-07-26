@@ -1,125 +1,176 @@
 ! X resources
-! Written by Amthrax
+
+! As far as I can tell, this only affects urxvt, and this DPI
+! makes urxvt font sizes match the rest of the system.
+!Xft.dpi:                165
 
 !!!
-!!! Terminal emulators
+!! Terminal emulators
 !!!
 
-XTerm*background:		black
-XTerm*foreground:		white
-XTerm*cursorColor:		blue
-XTerm*pointerColor:		blue
-XTerm*jumpScroll:		on
-XTerm*logInhibit:		on
-XTerm*scrollBar:		on
-XTerm*saveLines:		1000
-XTerm*font:			fixed
-XTerm*visualBell:		on
+XTerm*background:       black
+XTerm*foreground:       white
+XTerm*cursorColor:      blue
+XTerm*pointerColor:     blue
+XTerm*jumpScroll:       on
+XTerm*logInhibit:       on
+XTerm*scrollBar:        on
+XTerm*saveLines:        1000
+XTerm*font:             fixed
+XTerm*visualBell:       on
 
 ! aterm inherits rxvt resources
-aterm.transparent:		true
-aterm.shading:			50
-aterm.fade:			50
-aterm.borderWidth:		0
-aterm.boldFont:			fixed
-aterm.scrollBar:		false
-aterm.scrolTtyOutput:		true
-aterm.color4:			#8080ff
-aterm.color12:			#a0a0ff
-aterm.geometry:			80x30
+aterm.transparent:      true
+aterm.shading:          50
+aterm.fade:             50
+aterm.borderWidth:      0
+aterm.boldFont:         fixed
+aterm.scrollBar:        false
+aterm.scrolTtyOutput:   true
+aterm.color4:           #8080ff
+aterm.color12:          #a0a0ff
+aterm.geometry:         80x30
 
-!URxvt.transparent:		on
-!URxvt.shading:			30
-URxvt.transparent:		off
-URxvt.background:		rgba:0000/0000/0000/bbbb
+URxvt.transparent:      off
+URxvt.background:       rgba:0000/0000/0000/bbbb
 ! Need depth 32 to enable alpha
-URxvt.depth:			32
+URxvt.depth:            32
 !URxvt.foreground:		white
-URxvt.foreground:		#f0f0f0
-URxvt.colorBD:			white
-URxvt.cursorColor:		green
-URxvt.font:			6x10
-URxvt.boldFont:			6x10
-URxvt.scrollBar:		off
-URxvt.saveLines:		5000
-URxvt.scrollTtyOutput:		off
-URxvt.scrollWithBuffer:		on
-URxvt.scrollTtyKeypress:	on
+URxvt.foreground:       #f0f0f0
+URxvt.colorBD:          white
+URxvt.cursorColor:      green
+!URxvt.font:			6x13
+! URxvt doesn't use the DPI everything else uses, so size doesn't work.
+! piexlsize=19 seems to match size=7 everywhere else. (and 21 => 8)
+!URxvt.font:             xft:Source Code Pro:size=7
+URxvt.font:             xft:Source Code Pro:pixelsize=19
+URxvt.fading:           0
+URxvt.scrollBar:        off
+URxvt.saveLines:        5000
+URxvt.scrollTtyOutput:  off
+URxvt.scrollWithBuffer: on
+URxvt.scrollTtyKeypress:on
 ! Use the Xterm palette, since it contrasts better
-URxvt.color1:			#cd0000
-URxvt.color2:			#00cd00
-URxvt.color3:			#cdcd00
-URxvt.color4:			#0000ee
-URxvt.color5:			#cd00cd
-URxvt.color6:			#00cdcd
-URxvt.color7:			#e5e5e5
-URxvt.color8:			#7f7f7f
-URxvt.color9:			#ff0000
-URxvt.color10:			#00ff00
-URxvt.color11:			#ffff00
-URxvt.color12:			#5c5cff
-URxvt.color13:			#ff00ff
-URxvt.color14:			#00ffff
+URxvt.color1:           #cd0000
+URxvt.color2:           #00cd00
+URxvt.color3:           #cdcd00
+URxvt.color4:           #0000ee
+URxvt.color5:           #cd00cd
+URxvt.color6:           #00cdcd
+URxvt.color7:           #e5e5e5
+URxvt.color8:           #7f7f7f
+URxvt.color9:           #ff0000
+URxvt.color10:          #00ff00
+URxvt.color11:          #ffff00
+URxvt.color12:          #5c5cff
+URxvt.color13:          #ff00ff
+URxvt.color14:          #00ffff
 ! Disable silly Ctrl-Shift thing.
-URxvt.iso14755:			false
-URxvt.iso14755_52:		false
+URxvt.iso14755:         false
+URxvt.iso14755_52:      false
+
+! NOTE: Replace clipboard with "selection-to-clipboard" for URxvt >= 9.20.
+URxvt.perl-ext-common:  default,confirm-paste,clipboard
+! Copy selection to both PRIMARY and CLIPBOARD
+URxvt.clipboard.autocopy:true
 
 !!!
 !!! xdvi
 !!!
 
-xdvi.gsAlpha:			true
-xdvi.keepPosition:		true
+xdvi.gsAlpha:           true
+xdvi.keepPosition:      true
 !xdvi.expert:			true
-xdvi.borderColor:		blue
-xdvi.ruleColor:			blue
+xdvi.borderColor:       blue
+xdvi.ruleColor:         blue
 
 ! xdvi from tetex 3.0
-xdvi.expertMode:                1
-xdvi.watchFile:                 2
+xdvi.expertMode:        1
+xdvi.watchFile:         2
 
 !!!
 !!! emacs
 !!!
 
-Emacs*foreground:		white
-Emacs*background:		black
-Emacs*borderColor:		white
-Emacs*cursorColor:		red
-Emacs*pointerColor:		green
-!Emacs*font:			fixed
-Emacs*font:                     6x10
+emacs*foreground:       white
+emacs*background:       black
+emacs*borderColor:      white
+emacs*cursorColor:      red
+emacs*pointerColor:     green
+!emacs*font:			fixed
+!emacs*font:                     6x13
+emacs*font:             Source Code Pro-7
 
 ! Fonts and colors for the menubar and popup menus
-Emacs*menubar*foreground:	Gray30
-Emacs*menubar*background:	Gray75
-Emacs*popup*foreground:		Gray30
-Emacs*popup*background:		Gray75
-Emacs*menubar*font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
-Emacs*popup*font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
+emacs*menubar*foreground:Gray30
+emacs*menubar*background:Gray75
+emacs*popup*foreground: Gray30
+emacs*popup*background: Gray75
+!emacs*menubar*font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
+!emacs*popup*font:	-*-helvetica-bold-r-*-*-12-120-*-*-*-*-iso8859-*
 
 ! Death to fluff
-Emacs.menuBar:			off
-Emacs.toolBar:			off
-Emacs.verticalScrollBars:	off
+emacs.menuBar:          off
+emacs.toolBar:          off
+emacs.verticalScrollBars:off
 
 !!!
 !!! Xcursor
 !!!
 
-Xcursor.core:			false
+Xcursor.core:           false
 !Xcursor.theme:			Crystalcursors
 
 !!!
 !!! Zephyr-related
 !!!
 
-Console*autoUnmap:		1
-Console*foreground:		white
-Console*background:		black
-Console*geometry:		530x75-0+0
-Console*window.iconic:		True
-Console*window.resizeProc:	delete()
-Console*window.scrollProc:	delete()
+Console*autoUnmap:      1
+Console*foreground:     white
+Console*background:     black
+Console*geometry:       530x75-0+0
+Console*window.iconic:  True
+Console*window.resizeProc:delete()
+Console*window.scrollProc:delete()
 
-zwgc.transient:			true
+zwgc.transient:         true
+
+!!!
+
+! special
+URxvt.foreground:       #ffffff
+URxvt.background:       rgba:0000/0000/0000/bbbb
+!URxvt.cursorColor:  #ffffff
+URxvt.cursorColor:      #99ffcc
+
+! black
+URxvt.color0:           #666666
+URxvt.color8:           #999999
+
+! red
+URxvt.color1:           #cc6666
+URxvt.color9:           #ff9999
+
+! green
+URxvt.color2:           #66cc99
+URxvt.color10:          #99ffcc
+
+! yellow
+URxvt.color3:           #cc9966
+URxvt.color11:          #ffcc99
+
+! blue
+URxvt.color4:           #6699cc
+URxvt.color12:          #99ccff
+
+! magenta
+URxvt.color5:           #cc6699
+URxvt.color13:          #ff99cc
+
+! cyan
+URxvt.color6:           #66cccc
+URxvt.color14:          #99ffff
+
+! white
+URxvt.color7:           #cccccc
+URxvt.color15:          #ffffff
