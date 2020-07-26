@@ -8,3 +8,13 @@ path=($HOME/r/go/bin $path)
 rego() {
     eval $(command rego $*)
 }
+
+source ~/r/ffa/ffa.sh
+
+export CUPS_SERVER=printserver
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/austin/opt/google-cloud-sdk/path.zsh.inc' ]; then source '/home/austin/opt/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/austin/opt/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/austin/opt/google-cloud-sdk/completion.zsh.inc'; fi
