@@ -99,7 +99,7 @@ emacs*cursorColor:      red
 emacs*pointerColor:     green
 !emacs*font:			fixed
 !emacs*font:                     6x13
-emacs*font:             Source Code Pro-7
+emacs*font:             Source Code Pro-9
 
 ! Fonts and colors for the menubar and popup menus
 emacs*menubar*foreground:Gray30
