@@ -192,13 +192,16 @@ alias ls="$LS"
 truncatedls() {
     # Print at most 10 lines of ls output
     # Note that this depends on the ls alias above for default formatting
-    local lines="`ls -C $*`"
-    integer nlines=$(( `wc -l <<< $lines` - 1 ))
-    if (( nlines > 10 )); then
-        head -n 9 <<< $lines
-        print -- .. $(( nlines - 9 )) more lines ..
+    local max=10
+    local list=$(ls -C $* | head -n $((max + 1)))
+    integer nlines=$(( `wc -l <<< $list` ))
+    if (( nlines > max )); then
+        head -n $((max - 1)) <<< $list
+        # Do a fast list to get total length
+        local nlines=$(ls -C --color=none --indicator-style=none $* | wc -l)
+        print -- .. $(( nlines - (max-1) )) more lines ..
     else
-        print -nr -- $lines
+        print -r -- $list
     fi
 }
 
